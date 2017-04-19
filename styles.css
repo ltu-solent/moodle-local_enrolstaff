@@ -1,0 +1,27 @@
+fieldset > span:first-of-type{
+	/* margin-left:3px; */
+}
+ 
+/* #region-main > div:nth-child(2) > div > div > form > div > input[type="submit"] {
+	margin-left: 265px;	
+    color: #fff;
+    text-shadow: 0 -1px 0 rgba(0,0,0,0.25);
+    background-color: #005aa8;
+    background-image: -moz-linear-gradient(top, #0070a8, #0038a8);
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#0070a8), to(#0038a8));
+    background-image: -webkit-linear-gradient(top, #0070a8, #0038a8);
+    background-image: -o-linear-gradient(top, #0070a8, #0038a8);
+    background-image: linear-gradient(to bottom, #0070a8, #0038a8);
+    background-repeat: repeat-x;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff0070a8', endColorstr='#ff0038a8', GradientType=0);
+    border-color: #0038a8 #0038a8 #001e5c;
+    border-color: rgba(0,0,0,0.1) rgba(0,0,0,0.1) rgba(0,0,0,0.25);
+    filter: progid:DXImageTransform.Microsoft.gradient(enabled = false);
+}
+
+#region-main > div:nth-child(2) > div > div > form > div > input[type="submit"]:hover{
+	color: #fff;
+    background-color: #0038a8;
+} */
+
+
