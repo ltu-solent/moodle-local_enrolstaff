@@ -21,7 +21,8 @@ if(ISSET($_POST['unenrol'])){
 echo $OUTPUT->header();
 
 echo "<div class='maindiv'>";
-if(($USER->department == 'academic') || ($USER->department == 'management') || ($USER->department == 'support') || (is_siteadmin())){	
+$emaildomain = substr($USER->email, strpos($USER->email, "@") + 1);
+if((($USER->department == 'academic') || ($USER->department == 'management') || ($USER->department == 'support')) && $emaildomain == 'solent.ac.uk' || (is_siteadmin())){		
 	
 	//Course search
 	echo"<h2>" . get_string('enrol-selfservice', 'local_enrolstaff') ."</h2>";
