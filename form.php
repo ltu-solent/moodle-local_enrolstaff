@@ -64,17 +64,12 @@ class course_form extends moodleform {
 		//then loop through that array and check for roles
 		$radioarray=array();
 		foreach($courses as $course => $value){			
-			foreach($value as $c => $v){
-
-				$fullname = $v->fullname;
-				$lastchar = substr($v->fullname, -1);
-				if($lastchar == ')'){
-					$fullname = substr($v->fullname, 0, -8);
-				}
-				if (array_key_exists($v->id, $course_array)){										 
-					 $radioarray[] =& $mform->createElement('radio', 'course', '', $v->idnumber . " - " . $v->fullname . "<span class='enrolled'><strong> (already enrolled as " . rtrim($course_array[$v->id] , ", ") . ")</strong></span>", $v->id, 'disabled');					 
+			foreach($value as $c => $v){				
+				$fullname = explode('(Start',$v->fullname);
+				if (array_key_exists($v->id, $course_array)){				
+					 $radioarray[] =& $mform->createElement('radio', 'course', '', $v->idnumber . " - " . $fullname[0] . " - Start date: " . $v->startdate ."<span class='enrolled'><strong> (already enrolled as " . rtrim($course_array[$v->id] , ", ") . ")</strong></span>", $v->id, 'disabled');					 
 				}else{									
-					 $radioarray[] =& $mform->createElement('radio', 'course', '', $v->idnumber . " - " . $v->fullname , $v->id, 'required'); 									 
+					 $radioarray[] =& $mform->createElement('radio', 'course', '', $v->idnumber . " - " . $fullname[0] . " - Start date: " . $v->startdate , $v->id, 'required'); 									 
 				}	
 			}
 		}		
