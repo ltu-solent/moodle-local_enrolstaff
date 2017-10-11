@@ -185,7 +185,7 @@ if((($USER->department == 'academic') || ($USER->department == 'management') || 
 			$to      =  substr($_POST['unitleader_emails'], 0, -2);	
 			$subject = $USER->firstname .' ' . $USER->lastname . " added as " . $_POST['rolename'] . " to " . $_POST['shortname'] ;
 			$message = $USER->firstname .' ' . $USER->lastname . " has been added to the " . $COURSE->fullname . " unit " . $_POST['shortname'] . " as ". $_POST['rolename'] . " for which you are listed as Unit Leader.\r\n\n";
-			$message .= "If this is incorrect please reply to this email in order to contact LTU";
+			$message .= "If this is incorrect please contact them to discuss " . $USER->email;
 			$headers = "From: selfservice.learn@solent.ac.uk\r\n";
 			$headers .= "Bcc: sarah.cotton@solent.ac.uk\r\n";
 			$headers .= "Reply-To: LTU@solent.ac.uk\r\n";
