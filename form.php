@@ -176,7 +176,7 @@ class unenrol_form extends moodleform {
 												
 												
 												
-		$enroled_courses =  $DB->get_records_sql("	SELECT FLOOR(RAND() * 401) + 100 as id, c.id course_id, c.fullname, r.id role_id, r.name,
+		$enroled_courses =  $DB->get_records_sql("	SELECT FLOOR(RAND() * 401) + 100 as id, c.id course_id, c.fullname, FROM_UNIXTIME(c.startdate, '%d-%m-%Y') startdate, r.id role_id, r.name,
 													(SELECT GROUP_CONCAT(r.name SEPARATOR ', ')
 													FROM mdl_user u1
 													INNER JOIN {role_assignments} ra ON ra.userid = u1.id
@@ -220,7 +220,7 @@ class unenrol_form extends moodleform {
 											<div class='felement fcheckbox'>
 												<span>
 													<input name='courses[]' type='checkbox' value='" .$value->course_id . "' id='id_courses'>
-													<label for='id_courses'>" .  $value->fullname . " <strong>(Enrolled as " . $value->roles . ")</strong></label>
+													<label for='id_courses'>" .  $value->fullname . " - Start date: " . $value->startdate ." - <strong>(Enrolled as " . $value->roles . ")</strong></label>
 												</span>
 											</div>
 										</div>");
