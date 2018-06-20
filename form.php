@@ -105,9 +105,17 @@ class role_form extends moodleform {
 			// '4' => 'Non-editing Teacher'
 		// );
 
+		// $options = array(
+		// 	'' 		=>	'Select a role',
+		// 	'56' 	=> 'Unit Leader',
+		// 	'3'		=> 'Tutor',
+		// 	'4'		=> 'Non-editing Teacher',
+		// 	'21' 	=> 'Technician'
+		// );
+
 		$options = array(
 			'' 		=>	'Select a role',
-			'15' 	=> 'Unit Leader',
+			'64' 	=> 'Unit Leader',
 			'3'		=> 'Tutor',
 			'4'		=> 'Non-editing Teacher',
 			'21' 	=> 'Technician'
