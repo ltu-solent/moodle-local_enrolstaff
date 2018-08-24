@@ -21,7 +21,9 @@ echo $OUTPUT->header();
 
 echo "<div class='maindiv'>";
 $emaildomain = substr($USER->email, strpos($USER->email, "@") + 1);
-if((($USER->department == 'academic') || ($USER->department == 'management') || ($USER->department == 'support')) && $emaildomain == 'solent.ac.uk' || (is_siteadmin())){
+$jobshop = strpos($USER->email, 'jobshop');
+
+if((($USER->department == 'academic') || ($USER->department == 'management') || ($USER->department == 'support' && $jobshop === false)) && $emaildomain == 'solent.ac.uk' || (is_siteadmin())){
 
 	//Course search
 	echo"<h2>" . get_string('enrol-selfservice', 'local_enrolstaff') ."</h2>";
