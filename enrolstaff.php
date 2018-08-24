@@ -21,7 +21,9 @@ echo $OUTPUT->header();
 
 echo "<div class='maindiv'>";
 $emaildomain = substr($USER->email, strpos($USER->email, "@") + 1);
-if((($USER->department == 'academic') || ($USER->department == 'management') || ($USER->department == 'support')) && $emaildomain == 'solent.ac.uk' || (is_siteadmin())){
+$jobshop = strpos($USER->email, 'jobshop');
+
+if((($USER->department == 'academic') || ($USER->department == 'management') || ($USER->department == 'support' && $jobshop === false)) && $emaildomain == 'solent.ac.uk' || (is_siteadmin())){
 
 	//Course search
 	echo"<h2>" . get_string('enrol-selfservice', 'local_enrolstaff') ."</h2>";
@@ -122,9 +124,9 @@ if((($USER->department == 'academic') || ($USER->department == 'management') || 
 		$c = $DB->get_record('course', array('id'=> $_POST['course'])); // TODO combine these two calls to DB then loop through
 		$r = $DB->get_record('role', array('id'=>$_POST['role']));
 
-		echo "You are about to be enrolled on <strong>" . $c->fullname . "</strong> with the role of <strong>" . $r->name . "</strong><br /><br />";
+		echo "You are about to be enrolled on <strong>" . $c->fullname . "</strong> with the role of <strong>" . str_replace(" Temp", "", $r->name) . "</strong><br /><br />";
 
-		$unitleader = $DB->get_records_sql("SELECT CONCAT(u.firstname , ' ' , u.lastname) unit_leader, u.email , r.name
+		$unitleader = $DB->get_records_sql("SELECT FLOOR(RAND() * 401) + 100 as id, CONCAT(u.firstname , ' ' , u.lastname) unit_leader, u.email , r.name
 											FROM {user} u
 											INNER JOIN {role_assignments} ra ON ra.userid = u.id
 											INNER JOIN {context} ct ON ct.id = ra.contextid
@@ -144,7 +146,7 @@ if((($USER->department == 'academic') || ($USER->department == 'management') || 
 			}
 			echo "An email will be sent to the current Unit leader";if($multiple == false){echo "s ";} echo " " . $unitleaders ." alerting them of your enrolment<br /><br />";
 		}
-		//echo get_string('enrol-warning', 'local_enrolstaff') 	;
+
 		echo $OUTPUT->notification(get_string('enrol-warning', 'local_enrolstaff'), 'notifymessage');
 		$_POST['unitleaders'] = $unitleaders;
 		$_POST['unitleader_emails'] = $unitleader_emails;
@@ -179,32 +181,35 @@ if((($USER->department == 'academic') || ($USER->department == 'management') || 
 
 		$instance = $DB->get_record('enrol', array('courseid'=>$_POST['course'], 'enrol'=>'manual'), '*');
 		$plugin->enrol_user($instance, $USER->id, $_POST['role'], time(), 0, null, null);
-		echo $OUTPUT->notification("You have been enrolled on " . $_POST['shortname'] . " as " . $_POST['rolename'] , 'notifysuccess');
+		echo $OUTPUT->notification("You have been enrolled on " . $_POST['shortname'] . " as " . str_replace(" Temp", "", $_POST['rolename']) , 'notifysuccess');
 
 		if(isset($_POST["unitleaders"]) && !empty($_POST["unitleaders"])){
 			$to      =  substr($_POST['unitleader_emails'], 0, -2);
+			//$to      =  'sarah.cotton@solent.ac.uk';
 			$subject = $USER->firstname .' ' . $USER->lastname . " added as " . $_POST['rolename'] . " to " . $_POST['shortname'] ;
 			$message = $USER->firstname .' ' . $USER->lastname . " has been added to the " . $COURSE->fullname . " unit " . $_POST['shortname'] . " as ". $_POST['rolename'] . " for which you are listed as Unit Leader.\r\n\n";
 			$message .= "If this is incorrect please contact them to discuss " . $USER->email;
 			$headers = "From: selfservice.learn@solent.ac.uk\r\n";
 			$headers .= "Bcc: sarah.cotton@solent.ac.uk\r\n";
-			$headers .= "Reply-To: LTU@solent.ac.uk\r\n";
+			$headers .= "Reply-To: ltu@solent.ac.uk\r\n";
 			$headers .= "X-Mailer: PHP/" . phpversion();
 			mail($to, $subject, $message, $headers);
 
 			echo " An email has been sent to the current Unit Leader(s) " . $_POST['unitleaders'] . " alerting them of the change.<br /><br />";
 		}
 // Inform TAR of unit leader enrolment
-		if($_POST['role'] == 15){
-			$to      =  'tar@solent.ac.uk';
-			$subject = $USER->firstname .' ' . $USER->lastname . " added as " . $_POST['rolename'] . " to " . $_POST['shortname'] ;
-			$message = $USER->firstname .' ' . $USER->lastname . " has been added to the " . $COURSE->fullname . " unit " . $_POST['shortname'] . " as ". $_POST['rolename'] . ".\r\n\n";
+		if($_POST['role'] == 64){
+			//$to      =  'tar@solent.ac.uk';
+			$to      =  'studentregistrycurriculum@solent.ac.uk';
+			//$to      =  'sarah.cotton@solent.ac.uk';
+			$subject = $USER->firstname .' ' . $USER->lastname . " added as " . str_replace(" Temp", "", $_POST['rolename']) . " to " . $_POST['shortname'] ;
+			$message = $USER->firstname .' ' . $USER->lastname . " has been added to the " . $COURSE->fullname . " unit " . $_POST['shortname'] . " as ". str_replace(" Temp", "", $_POST['rolename']) . ".\r\n\n";
 			if($_POST['unitleader_emails'] != ""){
 				$message .= "Other unit leaders currently enroled on this unit are: " . $_POST['unitleader_emails'];
 			}
-			$headers = "From: noreply.learn@solent.ac.uk\r\n";
+			$headers = "From: selfservice.learn@solent.ac.uk\r\n";
 			$headers .= "Bcc: sarah.cotton@solent.ac.uk\r\n";
-			$headers .= "Reply-To: LTU@solent.ac.uk\r\n";
+			$headers .= "Reply-To: ltu@solent.ac.uk\r\n";
 			$headers .= "X-Mailer: PHP/" . phpversion();
 			mail($to, $subject, $message, $headers);
 		}
