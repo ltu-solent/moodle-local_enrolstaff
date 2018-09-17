@@ -115,7 +115,7 @@ class role_form extends moodleform {
 
 		$options = array(
 			'' 		=>	'Select a role',
-			'64' 	=> 'Unit Leader',
+			get_config('local_enrolstaff', 'unitleaderid') 	=> 'Unit Leader',
 			'3'		=> 'Tutor',
 			'4'		=> 'Non-editing Teacher',
 			'21' 	=> 'Technician'
@@ -158,10 +158,6 @@ class submit_form extends moodleform {
 		$mform->setType('role', PARAM_ACTION);
 		$mform->addElement('hidden', 'rolename', $this->_customdata['rolename']);
 		$mform->setType('rolename', PARAM_ACTION);
-		$mform->addElement('hidden', 'unitleaders', $this->_customdata['unitleaders']);
-		$mform->setType('unitleaders', PARAM_ACTION);
-		$mform->addElement('hidden', 'unitleader_emails', $this->_customdata['unitleader_emails']);
-		$mform->setType('unitleader_emails', PARAM_ACTION);
 		$mform->addElement('hidden', 'confirm_select', 'confirm_select');
 		$mform->setType('confirm_select', PARAM_ACTION);
 		$this->add_action_buttons($cancel = false, $submitlabel='Confirm');
@@ -172,17 +168,6 @@ class submit_form extends moodleform {
 class unenrol_form extends moodleform {
 	public function definition() {
 		global $CFG, $USER, $DB, $_POST;
-
-		//$enroled_courses = enrol_get_users_courses($USER->id);
-		// $enroled_courses =  $DB->get_records_sql("	SELECT FLOOR(RAND() * 401) + 100 as id, r.id role_id, r.name role_name, c.id course_id, c.fullname, r.name
-												// FROM {course} AS c
-												// JOIN {context} AS ctx ON c.id = ctx.instanceid
-												// JOIN {role_assignments} AS ra ON ra.contextid = ctx.id
-												// JOIN {role} AS r ON ra.roleid = r.id
-												// JOIN {user} AS u ON u.id = ra.userid
-												// WHERE u.id = ?", array($USER->id));
-
-
 
 		$enroled_courses =  $DB->get_records_sql("	SELECT FLOOR(RAND() * 401) + 100 as id, c.id course_id, c.fullname, FROM_UNIXTIME(c.startdate, '%d-%m-%Y') startdate, r.id role_id, r.name,
 													(SELECT GROUP_CONCAT(r.name SEPARATOR ', ')

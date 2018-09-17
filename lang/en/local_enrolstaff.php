@@ -1,6 +1,8 @@
 <?php
 $string['addmore'] = "Enrol on another unit";
 $string['coursesearch'] = "Unit code";
+$string['enrol-confirmation'] = "You have been enrolled on ";
+$string['enrol-request'] = " has been sent a request for you to be enrolled on ";
 $string['enrol-warning'] = "Please only enrol yourself on this unit if you are teaching on it or have a specific operational requirement.";
 $string['enrol-selfservice'] = "Staff enrolment self-service";
 $string['enrolstaff:managestaffenrolments'] = "Manage staff enrolments";
@@ -16,4 +18,6 @@ $string['unenrol-intro'] = "To un-enrol yourself from units you no longer requir
 $string['unenrol-select'] = "Select the units you wish to unenrol from:<br /><br />";
 $string['unenrol-warning'] = "You have selected to unenrol from the following units:<br /><br />";
 $string['unit-select'] = "Select a unit from the list.<br /><br />If you are already enrolled on a unit it will appear in the list but won't be available for selection.<br /><br />";
+$string['other-unit-leaders'] = "Other unit leaders currently enrolled on this unit are: ";
+$string['request-email-subject'] = "Unit Leader enrolment request";
 ?>
