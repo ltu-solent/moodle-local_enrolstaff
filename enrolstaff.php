@@ -69,61 +69,63 @@ if((($USER->department == 'academic') || ($USER->department == 'management') || 
 
 	//Course results list
 	if(isset($_POST['search_select'])){
-		if($_POST['coursesearch'] != ''){
-			// Check for strings to exclude here
-			$excludeshortname = strtolower('x'.get_config('local_enrolstaff', 'excludeshortname'));
-			$excludefullname = strtolower('x'.get_config('local_enrolstaff', 'excludefullname'));
-			$searchterm = strtolower($_POST['coursesearch']);
 
-			if(strpos($excludeshortname, $searchterm) !== false || strpos($excludefullname, $searchterm) !== false){
-				echo $OUTPUT->notification("No units match the term " . $_POST['coursesearch']);
-				$hform = new enrolment_home();
-				if ($hform->is_cancelled()) {
-				} else if ($frohform = $hform->get_data()) {
-				} else {
-				  $hform->display();
-				}
-			}else{
-				$excludeid = get_config('local_enrolstaff', 'excludeid');
-				$excludecategory = get_config('local_enrolstaff', 'excludecategory');
-				$andcategory = 'AND';
-
-				$categories = explode(",", $excludecategory);
-				foreach ($categories as $k => $v) {
-					$andcategory .= " cc.name  LIKE '%" . $v . "%' OR ";
-				}
-				$exclude = "AND (c.id NOT IN (" . $excludeid . ")";
-				$andcategory = substr($andcategory, 0, -3).")";
-
-				$sql = "	SELECT c.idnumber, c.id, c.shortname, c.fullname, DATE_FORMAT(FROM_UNIXTIME(c.startdate), '%d-%m-%Y') as startunix
-									FROM {course} c
-									JOIN {course_categories} cc on c.category = cc.id
-									WHERE (c.shortname LIKE ?
-									OR c.fullname LIKE ?)
-									$exclude
-									$andcategory
-									ORDER BY c.shortname DESC";
-
-				$courses = $DB->get_records_sql($sql,	array('%' . $_POST['coursesearch'] . '%', '%' . $_POST['coursesearch'] . '%'));
-				if(count($courses)>0){
-					echo get_string('unit-select', 'local_enrolstaff');
-					if($_POST['role'] == get_config('local_enrolstaff', 'unitleaderid')){
-							$course = array_shift($courses);
-							$cform = new course_form(null, array(array($course)));
-					}else{
-							$cform = new course_form(null, array($courses));
-					}
-
-					if($cform->is_cancelled()){
-						redirect($CFG->wwwroot. '/local/enrolstaff/enrolstaff.php');
-					}else if($frocform = $cform->get_data()){
-
-					}else{
-						$cform->display();
-					}
-				}
-			}
+	  if($_POST['coursesearch'] != ''){
+		if($_POST['role'] == get_config('local_enrolstaff', 'unitleaderid')){
+			$year = 1533081600;
+		}else{
+			$year = 0;
 		}
+	  $courses = $DB->get_records_sql("	SELECT c.idnumber, c.id, c.shortname, c.fullname, DATE_FORMAT(FROM_UNIXTIME(c.startdate), '%d-%m-%Y') as startunix
+	                    FROM {course} c
+	                    JOIN mdl_course_categories cc on c.category = cc.id
+	                    WHERE (c.shortname LIKE ?
+	                    OR c.fullname LIKE ?)
+	                    AND ((c.shortname  NOT LIKE 'EDU117%' OR c.fullname  NOT LIKE '%EDU117%')
+	                    AND (c.shortname  NOT LIKE 'EDU118%' OR c.fullname  NOT LIKE '%EDU118%')
+	                    AND (c.shortname  NOT LIKE 'EDU120%' OR c.fullname  NOT LIKE '%EDU120%')
+	                    AND (c.shortname  NOT LIKE 'EDU700%' OR c.fullname  NOT LIKE '%EDU700%')
+	                    AND (c.shortname  NOT LIKE 'EDU701%' OR c.fullname  NOT LIKE '%EDU701%')
+	                    AND (c.shortname  NOT LIKE 'HHS%' OR c.fullname  NOT LIKE '%HHS%')
+	                    AND (c.shortname  NOT LIKE 'HSW%' OR c.fullname  NOT LIKE '%HSW%')
+	                    AND (c.shortname  NOT LIKE 'PDU%' OR c.fullname  NOT LIKE '%PDU%')
+	                    AND c.fullname  NOT LIKE '%counselling%'
+	                    AND c.fullname  NOT LIKE '%social work%'
+	                    AND c.id NOT IN (328, 22679, 6432))
+	                    AND (cc.name LIKE '%Unit Pages%' OR cc.name LIKE '%Course Pages%')
+											AND c.startdate > ?
+	                    ORDER BY c.shortname DESC",
+	                    array('%' . $_POST['coursesearch'] . '%', '%' . $_POST['coursesearch'] . '%', $year));
+	  }
+
+	  if(count($courses)>0){
+	    echo get_string('unit-select', 'local_enrolstaff');
+	      // if($_POST['role'] == get_config('local_enrolstaff', 'unitleaderid')){
+	      //     $course = array_shift($courses);
+	      //     $cform = new course_form(null, array(array($course)));
+	      // }else{
+	      //     $cform = new course_form(null, array($courses));
+	      // }
+				$cform = new course_form(null, array($courses));
+
+	    if($cform->is_cancelled()){
+	      redirect($CFG->wwwroot. '/local/enrolstaff/enrolstaff.php');
+	    }else if($frocform = $cform->get_data()){
+
+	    }else{
+	      $cform->display();
+	    }
+	  }else{
+	    echo $OUTPUT->notification("No units match the term " . $_POST['coursesearch']);
+	    $hform = new enrolment_home();
+	    if ($hform->is_cancelled()) {
+
+	    } else if ($frohform = $hform->get_data()) {
+
+	    } else {
+	      $hform->display();
+	    }
+	  }
 	}
 
 	//Confirmation
@@ -198,8 +200,7 @@ if((($USER->department == 'academic') || ($USER->department == 'management') || 
 			// Email reciept to user of requested
 			$to      =  $USER->email;
 			$subject = get_string('request-email-subject', 'local_enrolstaff', ['shortname'=>$_POST['shortname']]);
-			$message = get_string('enrol-requested-user', 'local_enrolstaff', ['firstname'=>$USER->firstname, 'lastname'=>$USER->lastname,
-			 											'fullname'=>$_POST['fullname'],'rolename'=>str_replace(" Temp", "", $_POST['rolename'])]) . "\r\n\n";
+			$message = get_string('enrol-requested-user', 'local_enrolstaff', ['fullname'=>$_POST['fullname'],'rolename'=>str_replace(" Temp", "", $_POST['rolename'])]) . "\r\n\n";
 			$headers = "From: " . get_config('local_enrolstaff', 'emailfrom') . "\r\n";
 			$headers .= "Bcc: " . get_config('local_enrolstaff', 'bcc') . "\r\n";
 			$headers .= "Reply-To: " . $toschool . "\r\n";
@@ -207,7 +208,7 @@ if((($USER->department == 'academic') || ($USER->department == 'management') || 
 			$headers .= "MIME-Version: 1.0\r\n";
 			$headers .= "Content-Type: text/html; charset=UTF-8\r\n";
 			mail($to, $subject, $message, $headers);
-			
+
 			//Enrol user with temp role until full change overload
 			$plugin = enrol_get_plugin('manual');
 			$instance = $DB->get_record('enrol', array('courseid'=>$_POST['course'], 'enrol'=>'manual'), '*');
