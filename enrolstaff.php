@@ -204,7 +204,7 @@ if((($USER->department == 'academic') || ($USER->department == 'management') || 
 			$subject = get_string('request-email-subject', 'local_enrolstaff', ['shortname'=>$_POST['shortname']]);
 			$message = get_string('enrol-requested-user', 'local_enrolstaff', ['fullname'=>$_POST['fullname'],'rolename'=>str_replace(" Temp", "", $_POST['rolename'])]) . "\r\n\n";
 			$headers = "From: " . get_config('local_enrolstaff', 'emailfrom') . "\r\n";
-			$headers .= "Bcc: " . get_config('local_enrolstaff', 'bcc') . "\r\n";
+			//$headers .= "Bcc: " . get_config('local_enrolstaff', 'bcc') . "\r\n";
 			$headers .= "Reply-To: " . $toschool . "\r\n";
 			//$headers .= "X-Mailer: PHP/" . phpversion();
 			$headers .= "MIME-Version: 1.0\r\n";
