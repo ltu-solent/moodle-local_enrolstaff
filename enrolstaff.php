@@ -86,6 +86,8 @@ if((($USER->department == 'academic') || ($USER->department == 'management') || 
 	                    AND (c.shortname  NOT LIKE 'EDU120%' OR c.fullname  NOT LIKE '%EDU120%')
 	                    AND (c.shortname  NOT LIKE 'EDU700%' OR c.fullname  NOT LIKE '%EDU700%')
 	                    AND (c.shortname  NOT LIKE 'EDU701%' OR c.fullname  NOT LIKE '%EDU701%')
+	                    AND (c.shortname  NOT LIKE 'SLT700%' OR c.fullname  NOT LIKE '%SLT700%')
+	                    AND (c.shortname  NOT LIKE 'SLT701%' OR c.fullname  NOT LIKE '%SLT701%')
 	                    AND (c.shortname  NOT LIKE 'HHS%' OR c.fullname  NOT LIKE '%HHS%')
 	                    AND (c.shortname  NOT LIKE 'HSW%' OR c.fullname  NOT LIKE '%HSW%')
 	                    AND (c.shortname  NOT LIKE 'PDU%' OR c.fullname  NOT LIKE '%PDU%')
