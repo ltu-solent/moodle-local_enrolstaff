@@ -30,8 +30,9 @@ if((($USER->department == 'academic') || ($USER->department == 'management') || 
 	echo"<h2>" . get_string('enrol-selfservice', 'local_enrolstaff') ."</h2>";
 	//Role selection
 	if(count($_POST) <= 1){
+		
 		$rform = new role_form(null, array());
-
+		echo $OUTPUT->notification(get_string('enrol-intro', 'local_enrolstaff') , 'notifymessage');
 		if ($rform->is_cancelled()) {
 			redirect($CFG->wwwroot. '/local/enrolstaff/enrolstaff.php');
 		} else if ($frorform = $rform->get_data()) {
@@ -136,9 +137,9 @@ if((($USER->department == 'academic') || ($USER->department == 'management') || 
 		$r = $DB->get_record('role', array('id'=>$_POST['role']));
 
 		if($_POST['role'] == get_config('local_enrolstaff', 'unitleaderid')){
-			echo "You are about to send a request for enrolment on <strong>" . $c->fullname . "</strong> with the role of <strong>" . str_replace(" Temp", "", $r->name) . "</strong><br /><br />";
+			echo "You are about to send a request for enrolment on <strong>" . $c->fullname . "</strong> with the role of <strong>" . $r->name . "</strong><br /><br />";
 		}else{
-			echo "You are about to be enrolled on <strong>" . $c->fullname . "</strong> with the role of <strong>" . str_replace(" Temp", "", $r->name) . "</strong><br /><br />";
+			echo "You are about to be enrolled on <strong>" . $c->fullname . "</strong> with the role of <strong>" . $r->name . "</strong><br /><br />";
 		}
 
 		echo $OUTPUT->notification(get_string('enrol-warning', 'local_enrolstaff'), 'notifymessage');
@@ -188,7 +189,7 @@ if((($USER->department == 'academic') || ($USER->department == 'management') || 
 			$to      =  $toschool;
 			$subject = get_string('request-email-subject', 'local_enrolstaff', ['shortname'=>$_POST['shortname']]);
 			$message = get_string('enrol-requested-school', 'local_enrolstaff', ['firstname'=>$USER->firstname, 'lastname'=>$USER->lastname,
-			 											'fullname'=>$_POST['fullname'],'rolename'=>str_replace(" Temp", "", $_POST['rolename'])]) . "\r\n\n";
+			 											'fullname'=>$_POST['fullname'],'rolename'=>$_POST['rolename']]) . "\r\n\n";
 			$headers = "From: " . get_config('local_enrolstaff', 'emailfrom') . "\r\n";
 			$headers .= "Bcc: " . get_config('local_enrolstaff', 'bcc') . "\r\n";
 			$headers .= "Bcc: " . get_config('local_enrolstaff', 'studentrecords') . "\r\n";
@@ -198,36 +199,16 @@ if((($USER->department == 'academic') || ($USER->department == 'management') || 
 
 			// Inform user of request
 			echo $OUTPUT->notification(get_string('enrol-request-alert', 'local_enrolstaff', ['schoolemail'=>$toschool, 'shortname'=>$_POST['shortname'],
-																	'rolename'=>str_replace(" Temp", "", $_POST['rolename'])]) , 'notifysuccess');
-			// Email reciept to user of requested
+																	'rolename'=>$_POST['rolename']])  , 'notifysuccess');
+			// Email receipt to user of requested
 			$to      =  $USER->email;
 			$subject = get_string('request-email-subject', 'local_enrolstaff', ['shortname'=>$_POST['shortname']]);
-			$message = get_string('enrol-requested-user', 'local_enrolstaff', ['fullname'=>$_POST['fullname'],'rolename'=>str_replace(" Temp", "", $_POST['rolename'])]) . "\r\n\n";
+			$message = get_string('enrol-requested-user', 'local_enrolstaff', ['fullname'=>$_POST['fullname'],'rolename'=>$_POST['rolename']]) . "\r\n\n";
 			$headers = "From: " . get_config('local_enrolstaff', 'emailfrom') . "\r\n";
-			//$headers .= "Bcc: " . get_config('local_enrolstaff', 'bcc') . "\r\n";
 			$headers .= "Reply-To: " . $toschool . "\r\n";
-			//$headers .= "X-Mailer: PHP/" . phpversion();
 			$headers .= "MIME-Version: 1.0\r\n";
 			$headers .= "Content-Type: text/html; charset=UTF-8\r\n";
 			mail($to, $subject, $message, $headers);
-
-			//Enrol user with temp role until full change overload
-			$plugin = enrol_get_plugin('manual');
-			$instance = $DB->get_record('enrol', array('courseid'=>$_POST['course'], 'enrol'=>'manual'), '*');
-			if(!$instance){
-				$course = $DB->get_record('course', array('id' => $_POST['course']));
-				$fields = array(
-	            'status'          => '0',
-	            'roleid'          => '5',
-	            'enrolperiod'     => '0',
-	            'expirynotify'    => '0',
-	            'notifyall'       => '0',
-	            'expirythreshold' => '86400');
-				$instance = $plugin->add_instance($course, $fields);
-			}
-
-			$instance = $DB->get_record('enrol', array('courseid'=>$_POST['course'], 'enrol'=>'manual'), '*');
-			$plugin->enrol_user($instance, $USER->id, 64, time(), 0, null, null);
 
 		}else{
 			$plugin = enrol_get_plugin('manual');
@@ -246,7 +227,7 @@ if((($USER->department == 'academic') || ($USER->department == 'management') || 
 
 			$instance = $DB->get_record('enrol', array('courseid'=>$_POST['course'], 'enrol'=>'manual'), '*');
 			$plugin->enrol_user($instance, $USER->id, $_POST['role'], time(), 0, null, null);
-			echo $OUTPUT->notification(get_string('enrol-confirmation', 'local_enrolstaff') . $_POST['shortname'] . " as " . str_replace(" Temp", "", $_POST['rolename']) , 'notifysuccess');
+			echo $OUTPUT->notification(get_string('enrol-confirmation', 'local_enrolstaff') . $_POST['shortname'] . " as " . $_POST['rolename'], 'notifysuccess');
 		}
 
 		$hform = new enrolment_home();

@@ -22,9 +22,6 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-// $settings->add(new admin_setting_configcheckbox('local_enrolstaff/default',
-//                    new lang_string('default', 'assignfeedback_doublemark'),
-//                    new lang_string('default_help', 'assignfeedback_doublemark'), 0));
 defined('MOODLE_INTERNAL') || die;
 
 $settings = new admin_settingpage('local_enrolstaff', new lang_string('pluginname', 'local_enrolstaff'));

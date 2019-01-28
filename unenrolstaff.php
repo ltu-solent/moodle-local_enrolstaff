@@ -32,8 +32,7 @@ if(($USER->department == 'academic') || ($USER->department == 'management') || (
 		}		
 	}
 		
-	if(ISSET($_POST['unenrol_select'])){		
-			
+	if(ISSET($_POST['unenrol_select'])){			
 		$cform = new unenrol_confirm(); 
 		
 		if($cform->is_cancelled()){
@@ -49,8 +48,7 @@ if(($USER->department == 'academic') || ($USER->department == 'management') || (
 		$plugin_manual = enrol_get_plugin('manual');		
 		$plugin_flat = enrol_get_plugin('flatfile');		
 		$plugin_self = enrol_get_plugin('self');		
-		
-		//$courses = explode(',', $_POST['courses']);
+
 		$courses = $_POST['courses'];
 		$courses = $courses;
 
@@ -63,27 +61,18 @@ if(($USER->department == 'academic') || ($USER->department == 'management') || (
 													INNER JOIN {context} ct ON (ct.id = ra.contextid AND c.id = ct.instanceid)
 													WHERE ra.userid = ?
 													AND c.id IN (" . $courses . ") 
-													GROUP BY c.id", array($USER->id));
-
-													
-		//foreach($courses as $key=>$value){
+													GROUP BY c.id", array($USER->id));													
 	
-			foreach($enrol_instances as $k=>$v){
-//print_object($v->enrol);				
-				if($v->enrol == 'manual'){
-					$plugin_manual->unenrol_user($v, $USER->id);
-				}elseif($v->enrol == 'flatfile'){
-					$plugin_flat->unenrol_user($v, $USER->id);			
-				}elseif($v->enrol == 'self'){
-					$plugin_self->unenrol_user($v, $USER->id);
-				}
-			}	
-//die();			
+		foreach($enrol_instances as $k=>$v){
 			
-			// $instance_manual = $DB->get_record('enrol', array('courseid'=>$value, 'enrol'=>'manual', '*', MUST_EXIST));
-			// $instance_flat = $DB->get_record('enrol', array('courseid'=>$value, 'enrol'=>'flatfile', '*', MUST_EXIST));
-			
-		//}		
+			if($v->enrol == 'manual'){
+				$plugin_manual->unenrol_user($v, $USER->id);
+			}elseif($v->enrol == 'flatfile'){
+				$plugin_flat->unenrol_user($v, $USER->id);			
+			}elseif($v->enrol == 'self'){
+				$plugin_self->unenrol_user($v, $USER->id);
+			}
+		}		
 						
 		echo $OUTPUT->notification(get_string('unenrol-confirm', 'local_enrolstaff'), 'notifysuccess');		
 		$hform = new enrolment_home(); 
