@@ -95,7 +95,7 @@ if((($USER->department == 'academic') || ($USER->department == 'management') || 
 	                    AND c.fullname  NOT LIKE '%counselling%'
 	                    AND c.fullname  NOT LIKE '%social work%'
 	                    AND c.id NOT IN (328, 22679, 6432))
-	                    AND (cc.name LIKE '%Unit Pages%' OR cc.name LIKE '%Course Pages%')
+	                    AND (cc.idnumber LIKE 'modules_%' OR cc.idnumber LIKE 'courses_%')
 											AND c.startdate > ?
 	                    ORDER BY c.shortname DESC",
 	                    array('%' . $_POST['coursesearch'] . '%', '%' . $_POST['coursesearch'] . '%', $year));
