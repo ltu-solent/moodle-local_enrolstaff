@@ -2,6 +2,59 @@
 require_once('../../config.php');
 require_once("$CFG->libdir/formslib.php");
 
+class unenrol_button extends moodleform {
+	public function definition() {
+		global $CFG, $USER;
+
+		$mform = $this->_form;
+		$mform->addElement('hidden', 'unenrol', 'unenrol');
+		$mform->setType('unenrol', PARAM_ACTION);
+		$this->add_action_buttons($cancel = false, $submitlabel='Unenrol from units');
+	}
+}
+
+class role_form extends moodleform {
+	public function definition() {
+		global $USER, $DB, $CFG, $OUTPUT;
+
+		$mform = $this->_form;
+
+
+		// $options = array(
+			// ''  => 'Select a role',
+			// '3' => 'Editing teacher',
+			// '5' => 'Student',
+			// '4' => 'Non-editing Teacher'
+		// );
+
+		// $options = array(
+		// 	'' 		=>	'Select a role',
+		// 	'56' 	=> 'Unit Leader',
+		// 	'3'		=> 'Tutor',
+		// 	'4'		=> 'Non-editing Teacher',
+		// 	'21' 	=> 'Technician'
+		// );
+
+		$options = array(
+			'' 		=>	'Select a role',
+			get_config('local_enrolstaff', 'unitleaderid') 	=> 'Unit Leader',
+			'3'		=> 'Tutor',
+			'4'		=> 'Non-editing tutor',
+			'21' 	=> 'Technician'
+		);
+
+		$result = count($options);
+
+		if($result > 0){
+			$select = $mform->addElement('select', 'role', get_string('role'), $options, 'required');
+			$mform->addRule('role', get_string('required'), 'required');
+			$mform->addElement('hidden', 'unit_select', 'unit_select');
+			$mform->setType('unit_select', PARAM_ACTION);
+			$this->add_action_buttons($cancel = false, $submitlabel='Select role');
+		}
+	}
+}
+
 class search_form extends moodleform {
 	public function definition() {
 		global $CFG, $USER;
@@ -12,18 +65,9 @@ class search_form extends moodleform {
 		$mform->setType('search_select', PARAM_ACTION);
 		$mform->addRule('coursesearch', get_string('required'), 'required');
 		$mform->setType('coursesearch', PARAM_RAW);
+		$mform->addElement('hidden', 'role', $_POST['role']);
+		$mform->setType('role', PARAM_ACTION);
 		$this->add_action_buttons($cancel = false, $submitlabel='Search');
-	}
-}
-
-class unenrol_button extends moodleform {
-	public function definition() {
-		global $CFG, $USER;
-
-		$mform = $this->_form;
-		$mform->addElement('hidden', 'unenrol', 'unenrol');
-		$mform->setType('unenrol', PARAM_ACTION);
-		$this->add_action_buttons($cancel = false, $submitlabel='Unenrol from units');
 	}
 }
 
@@ -67,80 +111,20 @@ class course_form extends moodleform {
 			foreach($value as $c => $v){
 				$fullname = explode('(Start',$v->fullname);
 				if (array_key_exists($v->id, $course_array)){
-					 $radioarray[] =& $mform->createElement('radio', 'course', '', $v->idnumber . " - " . $fullname[0] . " - Start date: " . $v->startdate ."<span class='enrolled'><strong> (already enrolled as " . rtrim($course_array[$v->id] , ", ") . ")</strong></span>", $v->id, 'disabled');
+					 $radioarray[] =& $mform->createElement('radio', 'course', '', $v->idnumber . " - " . $fullname[0] . " - Start date: " . $v->startunix ."<span class='enrolled'><strong> (already enrolled as " . rtrim($course_array[$v->id] , ", ") . ")</strong></span>", $v->id, 'disabled');
 				}else{
-					 $radioarray[] =& $mform->createElement('radio', 'course', '', $v->idnumber . " - " . $fullname[0] . " - Start date: " . $v->startdate , $v->id, 'required');
+					 $radioarray[] =& $mform->createElement('radio', 'course', '', $v->idnumber . " - " . $fullname[0] . " - Start date: " . $v->startunix , $v->id, 'required');
 				}
 			}
 		}
 
 		$mform->addGroup($radioarray, 'radioar', 'Select a unit', array('<br /><br />', '<br /><br />'), false);
 		$mform->addGroupRule('radioar', get_string('required'), 'required');
-		$mform->addElement('hidden', 'unit_select', 'unit_select');
-		$mform->setType('unit_select', PARAM_ACTION);
+		$mform->addElement('hidden', 'role_select', 'role_select');
+		$mform->setType('role_select', PARAM_ACTION);
+		$mform->addElement('hidden', 'role', $_POST['role']);
+		$mform->setType('role', PARAM_ACTION);
 		$this->add_action_buttons($cancel = false, $submitlabel='Select unit');
-	}
-}
-
-class role_form extends moodleform {
-	public function definition() {
-		global $USER, $DB, $CFG, $OUTPUT;
-
-		$mform = $this->_form;
-		$course = $this->_customdata;
-
-		$usedroles = $DB->get_records_sql('	SELECT r.id role_id, c.id course_id, r.name
-										FROM {course} AS c
-										JOIN {context} AS ctx ON c.id = ctx.instanceid
-										JOIN {role_assignments} AS ra ON ra.contextid = ctx.id
-										JOIN {role} AS r ON ra.roleid = r.id
-										JOIN {user} AS u ON u.id = ra.userid
-										WHERE u.id = ?
-										and c.id = ?', array($USER->id, $course['course']));
-
-		// $options = array(
-			// ''  => 'Select a role',
-			// '3' => 'Editing teacher',
-			// '5' => 'Student',
-			// '4' => 'Non-editing Teacher'
-		// );
-
-		// $options = array(
-		// 	'' 		=>	'Select a role',
-		// 	'56' 	=> 'Unit Leader',
-		// 	'3'		=> 'Tutor',
-		// 	'4'		=> 'Non-editing Teacher',
-		// 	'21' 	=> 'Technician'
-		// );
-
-		$options = array(
-			'' 		=>	'Select a role',
-			'64' 	=> 'Unit Leader',
-			'3'		=> 'Tutor',
-			'4'		=> 'Non-editing Teacher',
-			'21' 	=> 'Technician'
-		);
-
-		foreach($usedroles as $role=>$value){
-			unset($options[$value->role_id]);
-		}
-
-		$result = count($options);
-
-		if($result > 0){
-			$select = $mform->addElement('select', 'role', get_string('role'), $options, 'required');
-			$mform->addRule('role', get_string('required'), 'required');
-			$mform->addElement('hidden', 'course', $this->_customdata['course']);
-			$mform->setType('course', PARAM_ACTION);
-			$mform->addElement('hidden', 'role_select', 'role_select');
-			$mform->setType('role_select', PARAM_ACTION);
-			$this->add_action_buttons($cancel = false, $submitlabel='Select role');
-		}
-		//else{
-			// echo "<br /><p id='allroles'>You already have all available roles for this unit, please enter a different unit code or contact <a href='mailto:ltu@solent.ac.uk' target='_blank'>ltu@solent.ac.uk</a></p>";
-			// $continue = new single_button(new moodle_url($CFG->wwwroot.'/local/enrolstaff/enrolstaff.php'), get_string('continue'), 'post');
-  	        // echo $OUTPUT->render($continue);
-		//}
 	}
 }
 
@@ -154,14 +138,12 @@ class submit_form extends moodleform {
 		$mform->setType('course', PARAM_ACTION);
 		$mform->addElement('hidden', 'shortname', $this->_customdata['shortname']);
 		$mform->setType('shortname', PARAM_ACTION);
+		$mform->addElement('hidden', 'fullname', $this->_customdata['fullname']);
+		$mform->setType('fullname', PARAM_ACTION);
 		$mform->addElement('hidden', 'role', $this->_customdata['role']);
 		$mform->setType('role', PARAM_ACTION);
 		$mform->addElement('hidden', 'rolename', $this->_customdata['rolename']);
 		$mform->setType('rolename', PARAM_ACTION);
-		$mform->addElement('hidden', 'unitleaders', $this->_customdata['unitleaders']);
-		$mform->setType('unitleaders', PARAM_ACTION);
-		$mform->addElement('hidden', 'unitleader_emails', $this->_customdata['unitleader_emails']);
-		$mform->setType('unitleader_emails', PARAM_ACTION);
 		$mform->addElement('hidden', 'confirm_select', 'confirm_select');
 		$mform->setType('confirm_select', PARAM_ACTION);
 		$this->add_action_buttons($cancel = false, $submitlabel='Confirm');
@@ -172,17 +154,6 @@ class submit_form extends moodleform {
 class unenrol_form extends moodleform {
 	public function definition() {
 		global $CFG, $USER, $DB, $_POST;
-
-		//$enroled_courses = enrol_get_users_courses($USER->id);
-		// $enroled_courses =  $DB->get_records_sql("	SELECT FLOOR(RAND() * 401) + 100 as id, r.id role_id, r.name role_name, c.id course_id, c.fullname, r.name
-												// FROM {course} AS c
-												// JOIN {context} AS ctx ON c.id = ctx.instanceid
-												// JOIN {role_assignments} AS ra ON ra.contextid = ctx.id
-												// JOIN {role} AS r ON ra.roleid = r.id
-												// JOIN {user} AS u ON u.id = ra.userid
-												// WHERE u.id = ?", array($USER->id));
-
-
 
 		$enroled_courses =  $DB->get_records_sql("	SELECT FLOOR(RAND() * 401) + 100 as id, c.id course_id, c.fullname, FROM_UNIXTIME(c.startdate, '%d-%m-%Y') startdate, r.id role_id, r.name,
 													(SELECT GROUP_CONCAT(r.name SEPARATOR ', ')
