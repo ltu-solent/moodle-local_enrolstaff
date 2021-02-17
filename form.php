@@ -18,15 +18,9 @@ class role_form extends moodleform {
 		global $USER, $DB, $CFG, $OUTPUT;
 
 		$mform = $this->_form;
-
-		$options = array(
-			'' 		=>	'Select a role',
-			get_config('local_enrolstaff', 'unitleaderid') 	=> 'Module Leader',
-			'3'		=> 'Tutor',
-			'4'		=> 'Non-editing tutor',
-			'21' 	=> 'Technician'
-		);
-
+		
+		$options = get_roles();
+		$options = array('' =>'Select a role') + $options;		
 		$result = count($options);
 
 		if($result > 0){

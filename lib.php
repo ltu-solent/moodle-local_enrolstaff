@@ -22,3 +22,23 @@ function get_and(){
 
 	return $and;
 }
+
+function get_roles(){
+	global $DB;
+		
+	$getroles = get_config('local_enrolstaff', 'roleids');	
+	$roles = explode(',', $getroles);
+	$params = array();
+	
+	list($inorequalsql, $params) = $DB->get_in_or_equal($roles, SQL_PARAMS_NAMED, '', true);							
+
+	$sql = "SELECT id, name
+			FROM {role}
+			WHERE id {$inorequalsql}
+			ORDER BY name";
+
+	$roles = $DB->get_records_sql_menu($sql, $params);
+
+
+	return $roles;
+}
