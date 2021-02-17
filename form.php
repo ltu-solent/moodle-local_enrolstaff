@@ -9,7 +9,7 @@ class unenrol_button extends moodleform {
 		$mform = $this->_form;
 		$mform->addElement('hidden', 'unenrol', 'unenrol');
 		$mform->setType('unenrol', PARAM_ACTION);
-		$this->add_action_buttons($cancel = false, $submitlabel='Unenrol from units');
+		$this->add_action_buttons($cancel = false, $submitlabel='Unenrol from modules');
 	}
 }
 
@@ -19,25 +19,9 @@ class role_form extends moodleform {
 
 		$mform = $this->_form;
 
-
-		// $options = array(
-			// ''  => 'Select a role',
-			// '3' => 'Editing teacher',
-			// '5' => 'Student',
-			// '4' => 'Non-editing Teacher'
-		// );
-
-		// $options = array(
-		// 	'' 		=>	'Select a role',
-		// 	'56' 	=> 'Unit Leader',
-		// 	'3'		=> 'Tutor',
-		// 	'4'		=> 'Non-editing Teacher',
-		// 	'21' 	=> 'Technician'
-		// );
-
 		$options = array(
 			'' 		=>	'Select a role',
-			get_config('local_enrolstaff', 'unitleaderid') 	=> 'Unit Leader',
+			get_config('local_enrolstaff', 'unitleaderid') 	=> 'Module Leader',
 			'3'		=> 'Tutor',
 			'4'		=> 'Non-editing tutor',
 			'21' 	=> 'Technician'
@@ -118,13 +102,13 @@ class course_form extends moodleform {
 			}
 		}
 
-		$mform->addGroup($radioarray, 'radioar', 'Select a unit', array('<br /><br />', '<br /><br />'), false);
+		$mform->addGroup($radioarray, 'radioar', 'Select a module', array('<br /><br />', '<br /><br />'), false);
 		$mform->addGroupRule('radioar', get_string('required'), 'required');
 		$mform->addElement('hidden', 'role_select', 'role_select');
 		$mform->setType('role_select', PARAM_ACTION);
 		$mform->addElement('hidden', 'role', $_POST['role']);
 		$mform->setType('role', PARAM_ACTION);
-		$this->add_action_buttons($cancel = false, $submitlabel='Select unit');
+		$this->add_action_buttons($cancel = false, $submitlabel='Select module');
 	}
 }
 
@@ -144,6 +128,8 @@ class submit_form extends moodleform {
 		$mform->setType('role', PARAM_ACTION);
 		$mform->addElement('hidden', 'rolename', $this->_customdata['rolename']);
 		$mform->setType('rolename', PARAM_ACTION);
+		$mform->addElement('hidden', 'coursedate', $this->_customdata['coursedate']);
+		$mform->setType('coursedate', PARAM_ACTION);
 		$mform->addElement('hidden', 'confirm_select', 'confirm_select');
 		$mform->setType('confirm_select', PARAM_ACTION);
 		$this->add_action_buttons($cancel = false, $submitlabel='Confirm');

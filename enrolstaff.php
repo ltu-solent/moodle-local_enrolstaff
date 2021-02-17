@@ -1,6 +1,7 @@
 <?php
 require_once('../../config.php');
 require_once('form.php');
+require_once('lib.php');
 require_login(true);
 $PAGE->set_context(context_system::instance());
 $PAGE->set_url($CFG->wwwroot. '/local/enrolstaff/enrolstaff.php');
@@ -76,40 +77,41 @@ if((($USER->department == 'academic') || ($USER->department == 'management') || 
 			$year = 1533081600;
 		}else{
 			$year = 0;
-		}
-	  $courses = $DB->get_records_sql("	SELECT c.idnumber, c.id, c.shortname, c.fullname, DATE_FORMAT(FROM_UNIXTIME(c.startdate), '%d-%m-%Y') as startunix
-	                    FROM {course} c
-	                    JOIN mdl_course_categories cc on c.category = cc.id
-	                    WHERE (c.shortname LIKE ?
-	                    OR c.fullname LIKE ?)
-	                    AND ((c.shortname  NOT LIKE 'EDU117%' OR c.fullname  NOT LIKE '%EDU117%')
-	                    AND (c.shortname  NOT LIKE 'EDU118%' OR c.fullname  NOT LIKE '%EDU118%')
-	                    AND (c.shortname  NOT LIKE 'EDU120%' OR c.fullname  NOT LIKE '%EDU120%')
-	                    AND (c.shortname  NOT LIKE 'EDU700%' OR c.fullname  NOT LIKE '%EDU700%')
-	                    AND (c.shortname  NOT LIKE 'EDU701%' OR c.fullname  NOT LIKE '%EDU701%')
-	                    AND (c.shortname  NOT LIKE 'SLT700%' OR c.fullname  NOT LIKE '%SLT700%')
-	                    AND (c.shortname  NOT LIKE 'SLT701%' OR c.fullname  NOT LIKE '%SLT701%')
-	                    AND (c.shortname  NOT LIKE 'HHS%' OR c.fullname  NOT LIKE '%HHS%')
-	                    AND (c.shortname  NOT LIKE 'HSW%' OR c.fullname  NOT LIKE '%HSW%')
-	                    AND (c.shortname  NOT LIKE 'PDU%' OR c.fullname  NOT LIKE '%PDU%')
-	                    AND c.fullname  NOT LIKE '%counselling%'
-	                    AND c.fullname  NOT LIKE '%social work%'
-	                    AND c.id NOT IN (328, 22679, 6432))
-	                    AND (cc.idnumber LIKE 'modules_%' OR cc.idnumber LIKE 'courses_%')
-											AND c.startdate > ?
-	                    ORDER BY c.shortname DESC",
-	                    array('%' . $_POST['coursesearch'] . '%', '%' . $_POST['coursesearch'] . '%', $year));
+		}		
+	
+		$excludecourses = get_config('local_enrolstaff', 'excludeid');	
+		$excludecourses = explode(',', $excludecourses);	
+
+		list($inorequalsql, $inparams) = $DB->get_in_or_equal($excludecourses, SQL_PARAMS_NAMED, '', false);
+				
+		$params = [
+			'coursesearch1' => '%'.$_POST['coursesearch'].'%',
+			'coursesearch2' => '%'.$_POST['coursesearch'].'%',
+			'year' => $year
+		 ];
+		$params += $inparams;
+		
+		$and = get_and();
+	
+		$sql = "SELECT c.idnumber, c.id, c.shortname, c.fullname, DATE_FORMAT(FROM_UNIXTIME(c.startdate), '%d-%m-%Y') as startunix
+				FROM {course} c
+				JOIN mdl_course_categories cc on c.category = cc.id
+				WHERE (c.shortname LIKE :coursesearch1
+				OR c.fullname LIKE :coursesearch2)
+				$and
+				AND c.id {$inorequalsql}
+				AND (cc.idnumber LIKE 'modules_%' OR cc.idnumber LIKE 'courses_%')
+				AND c.startdate > :year
+				ORDER BY c.shortname DESC";
+
+		$courses = $DB->get_records_sql($sql, $params);
+		
 	  }
 
 	  if(count($courses)>0){
 	    echo get_string('unit-select', 'local_enrolstaff');
-	      // if($_POST['role'] == get_config('local_enrolstaff', 'unitleaderid')){
-	      //     $course = array_shift($courses);
-	      //     $cform = new course_form(null, array(array($course)));
-	      // }else{
-	      //     $cform = new course_form(null, array($courses));
-	      // }
-				$cform = new course_form(null, array($courses));
+
+		$cform = new course_form(null, array($courses));
 
 	    if($cform->is_cancelled()){
 	      redirect($CFG->wwwroot. '/local/enrolstaff/enrolstaff.php');
@@ -119,7 +121,7 @@ if((($USER->department == 'academic') || ($USER->department == 'management') || 
 	      $cform->display();
 	    }
 	  }else{
-	    echo $OUTPUT->notification("No units match the term " . $_POST['coursesearch']);
+	    echo $OUTPUT->notification("No modules match the term " . $_POST['coursesearch']);
 	    $hform = new enrolment_home();
 	    if ($hform->is_cancelled()) {
 
@@ -146,6 +148,16 @@ if((($USER->department == 'academic') || ($USER->department == 'management') || 
 		$_POST['shortname'] = $c->shortname;
 		$_POST['fullname'] = $c->fullname;
 		$_POST['rolename'] = $r->name;
+		
+		$startdate = new DateTime();
+		$startdate->setTimestamp($c->startdate);
+		$startdate = userdate($startdate->getTimestamp(), '%d/%m/%Y');
+		
+		$enddate = new DateTime();
+		$enddate->setTimestamp($c->enddate);
+		$enddate = userdate($enddate->getTimestamp(), '%d/%m/%Y');
+		
+		$_POST['coursedate'] = $startdate . " - " . $enddate;
 
 		$sform = new submit_form(null, $_POST);
 		if ($sform->is_cancelled()) {
@@ -167,45 +179,23 @@ if((($USER->department == 'academic') || ($USER->department == 'management') || 
 							JOIN {course_categories} cc1 ON cc.parent = cc1.id
 							WHERE c.id = ?";
 			$category = $DB->get_record_sql($sql,	array($_POST['course']));
-			$toschool = '';
-			switch ($category->id){
-				case get_config('local_enrolstaff', 'sadfid'):
-					$toschool = get_config('local_enrolstaff', 'sadf');
-					break;
-				case get_config('local_enrolstaff', 'sblcid'):
-					$toschool = get_config('local_enrolstaff', 'sblc');
-					break;
-				case get_config('local_enrolstaff', 'smseid'):
-					$toschool = get_config('local_enrolstaff', 'smse');
-					break;
-				case get_config('local_enrolstaff', 'smatid'):
-					$toschool = get_config('local_enrolstaff', 'smat');
-					break;
-				case get_config('local_enrolstaff', 'sshssid'):
-					$toschool = get_config('local_enrolstaff', 'sshss');
-					break;
-				}
 
-			$to      =  $toschool;
+			$to = get_config('local_enrolstaff', 'studentrecords') . "\r\n";
 			$subject = get_string('request-email-subject', 'local_enrolstaff', ['shortname'=>$_POST['shortname']]);
-			$message = get_string('enrol-requested-school', 'local_enrolstaff', ['firstname'=>$USER->firstname, 'lastname'=>$USER->lastname,
-			 											'fullname'=>$_POST['fullname'],'rolename'=>$_POST['rolename']]) . "\r\n\n";
-			$headers = "From: " . get_config('local_enrolstaff', 'emailfrom') . "\r\n";
-			$headers .= "Bcc: " . get_config('local_enrolstaff', 'bcc') . "\r\n";
-			$headers .= "Bcc: " . get_config('local_enrolstaff', 'studentrecords') . "\r\n";
-			$headers .= "Reply-To: " . get_config('local_enrolstaff', 'studentrecords') . "\r\n";
+			$message = get_string('enrol-requested-school', 'local_enrolstaff', ['fullname'=>$_POST['fullname'] . " " . $_POST['coursedate'],
+																				'rolename'=>$_POST['rolename']]) . "\r\n\n";
+			$headers = "From: " . $USER->email . "\r\n";
 			$headers .= "X-Mailer: PHP/" . phpversion();
 			mail($to, $subject, $message, $headers);
 
 			// Inform user of request
-			echo $OUTPUT->notification(get_string('enrol-request-alert', 'local_enrolstaff', ['schoolemail'=>$toschool, 'shortname'=>$_POST['shortname'],
+			echo $OUTPUT->notification(get_string('enrol-request-alert', 'local_enrolstaff', ['schoolemail'=>$to, 'shortname'=>$_POST['shortname'],
 																	'rolename'=>$_POST['rolename']])  , 'notifysuccess');
 			// Email receipt to user of requested
 			$to      =  $USER->email;
 			$subject = get_string('request-email-subject', 'local_enrolstaff', ['shortname'=>$_POST['shortname']]);
 			$message = get_string('enrol-requested-user', 'local_enrolstaff', ['fullname'=>$_POST['fullname'],'rolename'=>$_POST['rolename']]) . "\r\n\n";
-			$headers = "From: " . get_config('local_enrolstaff', 'emailfrom') . "\r\n";
-			$headers .= "Reply-To: " . $toschool . "\r\n";
+			$headers = "From: " . get_config('local_enrolstaff', 'studentrecords') . "\r\n";
 			$headers .= "MIME-Version: 1.0\r\n";
 			$headers .= "Content-Type: text/html; charset=UTF-8\r\n";
 			mail($to, $subject, $message, $headers);
