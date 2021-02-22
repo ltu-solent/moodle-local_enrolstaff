@@ -18,8 +18,9 @@ class role_form extends moodleform {
 		global $USER, $DB, $CFG, $OUTPUT;
 
 		$mform = $this->_form;
+		$emaildomain = $this->_customdata;
 		
-		$options = get_roles();
+		$options = get_roles($emaildomain[0]);
 		$options = array('' =>'Select a role') + $options;		
 		$result = count($options);
 
@@ -158,7 +159,7 @@ class unenrol_form extends moodleform {
 
 		if(count($enroled_courses) < 1){
 			global $OUTPUT;
-			echo $OUTPUT->notification(get_string('no-courses', 'local_enrolstaff'));
+			echo $OUTPUT->notification(get_string('nocourses', 'local_enrolstaff'));
 			$hform = new enrolment_home();
 			if ($hform->is_cancelled()) {
 
@@ -168,7 +169,7 @@ class unenrol_form extends moodleform {
 			  $hform->display();
 			}
 		}else{
-			echo get_string('unenrol-select', 'local_enrolstaff');
+			echo get_string('unenrolselect', 'local_enrolstaff');
 			$mform = $this->_form;
 			foreach($enroled_courses as $course => $value){
 				$mform->addElement("html", "<div id='fitem_id_courses' class='fitem fitem_fcheckbox femptylabel'>
@@ -209,7 +210,7 @@ class unenrol_confirm extends moodleform {
 													FROM {course}
 													WHERE id IN (". $where .")");
 
-		$mform->addElement("html", get_string('unenrol-warning', 'local_enrolstaff'));
+		$mform->addElement("html", get_string('unenrolwarning', 'local_enrolstaff'));
 
 		foreach($enroled_courses as $course => $value){
 			$mform->addElement("html", $value->fullname ."<br />");

@@ -26,9 +26,14 @@ defined('MOODLE_INTERNAL') || die;
 
 $settings = new admin_settingpage('local_enrolstaff', new lang_string('pluginname', 'local_enrolstaff'));
 
-$settings->add(new admin_setting_configtext('local_enrolstaff/roleids', 'Comma separated list of role IDs', '', '0'));
-$settings->add(new admin_setting_configtext('local_enrolstaff/excludeshortname', 'Exclude from search by shortname (comma separated)', '', ''));
-$settings->add(new admin_setting_configtext('local_enrolstaff/excludefullname', 'Exclude from search by fullname (comma separated)', '', 'counselling,social work'));
-$settings->add(new admin_setting_configtext('local_enrolstaff/excludeid', 'Exclude from search by id (comma separated)', '', '328, 22679, 6432'));
-$settings->add(new admin_setting_configtext('local_enrolstaff/studentrecords', 'Student records email', '', ''));
+$settings->add(new admin_setting_configtext('local_enrolstaff/unitleaderid', get_string('unitleaderid', 'local_enrolstaff'), '', '19')); 
+$settings->add(new admin_setting_configtext('local_enrolstaff/roleids', get_string('roleidssolent', 'local_enrolstaff'), '', '0'));
+// $settings->add(new admin_setting_configtext('local_enrolstaff/bcasroleids', get_string('roleidsbcas', 'local_enrolstaff'), '', '0'));
+// $settings->add(new admin_setting_configtext('local_enrolstaff/bcascodes', get_string('codesbcas', 'local_enrolstaff'), '', '0'));
+$settings->add(new admin_setting_configtext('local_enrolstaff/qaheroleids', get_string('roleidsqahe', 'local_enrolstaff'), '', '0'));
+$settings->add(new admin_setting_configtext('local_enrolstaff/qahecodes', get_string('codesqahe', 'local_enrolstaff'), '', '0'));
+$settings->add(new admin_setting_configtext('local_enrolstaff/excludeshortname', get_string('excludeshortname', 'local_enrolstaff'), '', '0'));
+$settings->add(new admin_setting_configtext('local_enrolstaff/excludefullname', get_string('excludeshortname', 'local_enrolstaff'), '', 'counselling,social work'));
+$settings->add(new admin_setting_configtext('local_enrolstaff/excludeid', get_string('excludeid', 'local_enrolstaff'), '', '328, 22679, 6432'));
+$settings->add(new admin_setting_configtext('local_enrolstaff/studentrecords', get_string('studentrecords', 'local_enrolstaff'), '', ''));
 $ADMIN->add('localplugins', $settings);

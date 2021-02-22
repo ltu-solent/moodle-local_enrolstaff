@@ -5,8 +5,8 @@ require_once('lib.php');
 require_login(true);
 $PAGE->set_context(context_system::instance());
 $PAGE->set_url($CFG->wwwroot. '/local/enrolstaff/enrolstaff.php');
-$PAGE->set_title('Staff Enrolment');
-$PAGE->set_heading('Staff Enrolment');
+$PAGE->set_title(get_string('enrol-selfservice', 'local_enrolstaff'));
+$PAGE->set_heading(get_string('enrol-selfservice', 'local_enrolstaff'));
 $PAGE->set_pagelayout('standard');
 $PAGE->navbar->add(get_string('enrol-selfservice', 'local_enrolstaff'), new moodle_url($CFG->wwwroot. '/local/enrolstaff/enrolstaff.php'));
 $PAGE->navbar->add('Enrol onto courses');
@@ -24,16 +24,13 @@ echo "<div class='maindiv'>";
 $emaildomain = substr($USER->email, strpos($USER->email, "@") + 1);
 $jobshop = strpos($USER->email, 'jobshop');
 
-if((($USER->department == 'academic') || ($USER->department == 'management') || ($USER->department == 'support' && $jobshop === false)) && $emaildomain == 'solent.ac.uk' || (is_siteadmin())){
-//if(is_siteadmin()){ //site admin only for testing
+if(preg_match("/\b(academic|management|support)\b/", $USER->department) && preg_match("/\b(solent.ac.uk|qa.com)\b/", $emaildomain) && $jobshop === false || is_siteadmin()){
 
-	//Course search
-	echo"<h2>" . get_string('enrol-selfservice', 'local_enrolstaff') ."</h2>";
 	//Role selection
 	if(count($_POST) <= 1){
 		
-		$rform = new role_form(null, array());
-		echo $OUTPUT->notification(get_string('enrol-intro', 'local_enrolstaff') , 'notifymessage');
+		$rform = new role_form(null, array($emaildomain));
+		echo $OUTPUT->notification(get_string('enrolintro', 'local_enrolstaff') , 'notifymessage');
 		if ($rform->is_cancelled()) {
 			redirect($CFG->wwwroot. '/local/enrolstaff/enrolstaff.php');
 		} else if ($frorform = $rform->get_data()) {
@@ -43,8 +40,8 @@ if((($USER->department == 'academic') || ($USER->department == 'management') || 
 			$rform->display();
 		}
 
-		echo get_string('unenrol-header', 'local_enrolstaff');
-		echo get_string('unenrol-intro', 'local_enrolstaff');
+		echo get_string('unenrolheader', 'local_enrolstaff');
+		echo get_string('unenrolintro', 'local_enrolstaff');
 
 		$uform = new unenrol_button();
 		if ($uform->is_cancelled()) {
@@ -55,11 +52,12 @@ if((($USER->department == 'academic') || ($USER->department == 'management') || 
 		  $uform->display();
 		}
 	}
-
+	
+	//Course search
 	if(isset($_POST['unit_select'])){
-		echo get_string('intro', 'local_enrolstaff');
+		echo get_string('intro', 'local_enrolstaff', ['excludeshortname'=>get_config('local_enrolstaff', 'excludeshortname'),'excludefullname'=>get_config('local_enrolstaff', 'excludefullname'),'qahecodes'=>get_config('local_enrolstaff', 'qahecodes')]);
 
-		$sform = new search_form(null,array("role"=>$_POST['role']));
+		$sform = new search_form(null,array("role"=>$_POST['role'], $emaildomain));
 		if ($sform->is_cancelled()) {
 			redirect($CFG->wwwroot. '/local/enrolstaff/enrolstaff.php');
 		} else if ($frosform = $sform->get_data()) {
@@ -73,43 +71,11 @@ if((($USER->department == 'academic') || ($USER->department == 'management') || 
 	if(isset($_POST['search_select'])){
 
 	  if($_POST['coursesearch'] != ''){
-		if($_POST['role'] == get_config('local_enrolstaff', 'unitleaderid')){
-			$year = 1533081600;
-		}else{
-			$year = 0;
-		}		
-	
-		$excludecourses = get_config('local_enrolstaff', 'excludeid');	
-		$excludecourses = explode(',', $excludecourses);	
-
-		list($inorequalsql, $inparams) = $DB->get_in_or_equal($excludecourses, SQL_PARAMS_NAMED, '', false);
-				
-		$params = [
-			'coursesearch1' => '%'.$_POST['coursesearch'].'%',
-			'coursesearch2' => '%'.$_POST['coursesearch'].'%',
-			'year' => $year
-		 ];
-		$params += $inparams;
-		
-		$and = get_and();
-	
-		$sql = "SELECT c.idnumber, c.id, c.shortname, c.fullname, DATE_FORMAT(FROM_UNIXTIME(c.startdate), '%d-%m-%Y') as startunix
-				FROM {course} c
-				JOIN mdl_course_categories cc on c.category = cc.id
-				WHERE (c.shortname LIKE :coursesearch1
-				OR c.fullname LIKE :coursesearch2)
-				$and
-				AND c.id {$inorequalsql}
-				AND (cc.idnumber LIKE 'modules_%' OR cc.idnumber LIKE 'courses_%')
-				AND c.startdate > :year
-				ORDER BY c.shortname DESC";
-
-		$courses = $DB->get_records_sql($sql, $params);
-		
+			$courses = course_search($_POST['coursesearch'], $emaildomain);		
 	  }
 
 	  if(count($courses)>0){
-	    echo get_string('unit-select', 'local_enrolstaff');
+	    echo get_string('unitselect', 'local_enrolstaff');
 
 		$cform = new course_form(null, array($courses));
 
@@ -144,7 +110,7 @@ if((($USER->department == 'academic') || ($USER->department == 'management') || 
 			echo "You are about to be enrolled on <strong>" . $c->fullname . "</strong> with the role of <strong>" . $r->name . "</strong><br /><br />";
 		}
 
-		echo $OUTPUT->notification(get_string('enrol-warning', 'local_enrolstaff'), 'notifymessage');
+		echo $OUTPUT->notification(get_string('enrolwarning', 'local_enrolstaff'), 'notifymessage');
 		$_POST['shortname'] = $c->shortname;
 		$_POST['fullname'] = $c->fullname;
 		$_POST['rolename'] = $r->name;
@@ -181,20 +147,20 @@ if((($USER->department == 'academic') || ($USER->department == 'management') || 
 			$category = $DB->get_record_sql($sql,	array($_POST['course']));
 
 			$to = get_config('local_enrolstaff', 'studentrecords') . "\r\n";
-			$subject = get_string('request-email-subject', 'local_enrolstaff', ['shortname'=>$_POST['shortname']]);
-			$message = get_string('enrol-requested-school', 'local_enrolstaff', ['fullname'=>$_POST['fullname'] . " " . $_POST['coursedate'],
+			$subject = get_string('requestemailsubject', 'local_enrolstaff', ['shortname'=>$_POST['shortname']]);
+			$message = get_string('enrolrequestedschool', 'local_enrolstaff', ['fullname'=>$_POST['fullname'] . " " . $_POST['coursedate'],
 																				'rolename'=>$_POST['rolename']]) . "\r\n\n";
 			$headers = "From: " . $USER->email . "\r\n";
 			$headers .= "X-Mailer: PHP/" . phpversion();
 			mail($to, $subject, $message, $headers);
 
 			// Inform user of request
-			echo $OUTPUT->notification(get_string('enrol-request-alert', 'local_enrolstaff', ['schoolemail'=>$to, 'shortname'=>$_POST['shortname'],
+			echo $OUTPUT->notification(get_string('enrolrequestalert', 'local_enrolstaff', ['schoolemail'=>$to, 'shortname'=>$_POST['shortname'],
 																	'rolename'=>$_POST['rolename']])  , 'notifysuccess');
 			// Email receipt to user of requested
 			$to      =  $USER->email;
-			$subject = get_string('request-email-subject', 'local_enrolstaff', ['shortname'=>$_POST['shortname']]);
-			$message = get_string('enrol-requested-user', 'local_enrolstaff', ['fullname'=>$_POST['fullname'],'rolename'=>$_POST['rolename']]) . "\r\n\n";
+			$subject = get_string('requestemailsubject', 'local_enrolstaff', ['shortname'=>$_POST['shortname']]);
+			$message = get_string('enrolrequesteduser', 'local_enrolstaff', ['fullname'=>$_POST['fullname'],'rolename'=>$_POST['rolename']]) . "\r\n\n";
 			$headers = "From: " . get_config('local_enrolstaff', 'studentrecords') . "\r\n";
 			$headers .= "MIME-Version: 1.0\r\n";
 			$headers .= "Content-Type: text/html; charset=UTF-8\r\n";
@@ -217,7 +183,7 @@ if((($USER->department == 'academic') || ($USER->department == 'management') || 
 
 			$instance = $DB->get_record('enrol', array('courseid'=>$_POST['course'], 'enrol'=>'manual'), '*');
 			$plugin->enrol_user($instance, $USER->id, $_POST['role'], time(), 0, null, null);
-			echo $OUTPUT->notification(get_string('enrol-confirmation', 'local_enrolstaff') . $_POST['shortname'] . " as " . $_POST['rolename'], 'notifysuccess');
+			echo $OUTPUT->notification(get_string('enrolconfirmation', 'local_enrolstaff') . $_POST['shortname'] . " as " . $_POST['rolename'], 'notifysuccess');
 		}
 
 		$hform = new enrolment_home();
@@ -231,7 +197,7 @@ if((($USER->department == 'academic') || ($USER->department == 'management') || 
 	}
 
 }else{
-	echo get_string('no-permission', 'local_enrolstaff');
+	echo get_string('nopermission', 'local_enrolstaff');
 }
  echo "</div>";
  echo $OUTPUT->footer();

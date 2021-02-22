@@ -18,9 +18,11 @@ if(ISSET($_POST['enrol_home'])){
 echo $OUTPUT->header();
 
 echo "<div class='maindiv'>";
-if(($USER->department == 'academic') || ($USER->department == 'management') || ($USER->department == 'support') || ($USER->department == 'external') || (is_siteadmin())){	
+$emaildomain = substr($USER->email, strpos($USER->email, "@") + 1);
+$jobshop = strpos($USER->email, 'jobshop');
+
+if(preg_match("/\b(academic|management|support)\b/", $USER->department) && preg_match("/\b(solent.ac.uk|qa.com)\b/", $emaildomain) && $jobshop === false || is_siteadmin()){
 	//Course search
-	echo"<h2>Staff unenrolment self-service</h2>";
 	if(count($_POST) <= 1){								
 		$uform = new unenrol_form(); 
 		if ($uform->is_cancelled()) {		
@@ -74,7 +76,7 @@ if(($USER->department == 'academic') || ($USER->department == 'management') || (
 			}
 		}		
 						
-		echo $OUTPUT->notification(get_string('unenrol-confirm', 'local_enrolstaff'), 'notifysuccess');		
+		echo $OUTPUT->notification(get_string('unenrolconfirm', 'local_enrolstaff'), 'notifysuccess');		
 		$hform = new enrolment_home(); 
 		if ($hform->is_cancelled()) {		
 			
@@ -86,7 +88,7 @@ if(($USER->department == 'academic') || ($USER->department == 'management') || (
 	}	
 
 }else{
-	echo get_string('no-permission', 'local_enrolstaff');	
+	echo get_string('nopermission', 'local_enrolstaff');	
 }
  echo "</div>";
  echo $OUTPUT->footer();
