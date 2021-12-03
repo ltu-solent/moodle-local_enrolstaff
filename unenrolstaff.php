@@ -1,7 +1,7 @@
 <?php
 require_once('../../config.php');
 require_once('form.php');
-	
+    
 require_login(true);
 $PAGE->set_context(context_system::instance());
 $PAGE->set_url('/local/enrolstaff/unenrolstaff.php');
@@ -10,86 +10,98 @@ $PAGE->set_heading('Staff Unenrolment');
 $PAGE->set_pagelayout('standard');
 $PAGE->navbar->add(get_string('enrol-selfservice', 'local_enrolstaff'), new moodle_url('/local/enrolstaff/enrolstaff.php'));
 $PAGE->navbar->add(get_string('unenrol', 'local_enrolstaff'));
-global $USER, $_POST;
+global $USER;
 $return = $CFG->wwwroot.'/local/enrolstaff/unenrolstaff.php';
-if(ISSET($_POST['enrol_home'])){	
-	redirect('/local/enrolstaff/enrolstaff.php');
+
+$action = optional_param('action', 'unenrol', PARAM_ALPHANUMEXT);
+
+if($action == 'enrol_home'){	
+    redirect('/local/enrolstaff/enrolstaff.php');
 }	
 echo $OUTPUT->header();
 
 echo "<div class='maindiv'>";
-$emaildomain = substr($USER->email, strpos($USER->email, "@") + 1);
-$jobshop = strpos($USER->email, 'jobshop');
 
-if(preg_match("/\b(academic|management|support)\b/", $USER->department) && preg_match("/\b(solent.ac.uk|qa.com)\b/", $emaildomain) && $jobshop === false || is_siteadmin()){
-	//Course search
-	if(count($_POST) <= 1){								
-		$uform = new unenrol_form(); 
-		if ($uform->is_cancelled()) {		
-			redirect('unenrolstaff.php');
-		} else if ($frouform = $uform->get_data()) {
-				  
-		} else {	 
-		  $uform->display();
-		}		
-	}
-		
-	if(ISSET($_POST['unenrol_select'])){			
-		$cform = new unenrol_confirm(); 
-		
-		if($cform->is_cancelled()){
-			redirect('unenrolstaff.php');
-		}else if($frocform = $cform->get_data()){ 
-	 
-		}else{	
-			$cform->display();
-		} 
-	}
-
-	if(ISSET($_POST['unenrol_confirm'])){
-		$plugin_manual = enrol_get_plugin('manual');		
-		$plugin_flat = enrol_get_plugin('flatfile');		
-		$plugin_self = enrol_get_plugin('self');		
-
-		$courses = $_POST['courses'];
-		$courses = $courses;
-
-		$enrol_instances = $DB->get_records_sql("	SELECT e.*
-													FROM {user_enrolments} ue
-													JOIN {enrol} e ON e.id = ue.enrolid
-													JOIN {course} c ON c.id = e.courseid
-													JOIN {user} u ON u.id = ue.userid
-													INNER JOIN {role_assignments} ra ON ra.userid = u.id
-													INNER JOIN {context} ct ON (ct.id = ra.contextid AND c.id = ct.instanceid)
-													WHERE ra.userid = ?
-													AND c.id IN (" . $courses . ") 
-													GROUP BY c.id", array($USER->id));													
-	
-		foreach($enrol_instances as $k=>$v){
-			
-			if($v->enrol == 'manual'){
-				$plugin_manual->unenrol_user($v, $USER->id);
-			}elseif($v->enrol == 'flatfile'){
-				$plugin_flat->unenrol_user($v, $USER->id);			
-			}elseif($v->enrol == 'self'){
-				$plugin_self->unenrol_user($v, $USER->id);
-			}
-		}		
-						
-		echo $OUTPUT->notification(get_string('unenrolconfirm', 'local_enrolstaff'), 'notifysuccess');		
-		$hform = new enrolment_home(); 
-		if ($hform->is_cancelled()) {		
-			
-		} else if ($frohform = $hform->get_data()) {
-		   	  	 
-		} else {	 
-		  $hform->display();
-		}
-	}	
-
-}else{
-	echo get_string('nopermission', 'local_enrolstaff');	
+$activeuser = new \local_enrolstaff\local\user($USER);
+if (!$activeuser->user_can_enrolself()) {
+    throw new moodle_exception('cannotenrolself', 'local_enrolstaff');
 }
+
+$enrolments = $activeuser->user_courses();
+if (count($enrolments) == 0) {
+    echo $OUTPUT->notification(get_string('nocourses', 'local_enrolstaff'));
+    echo $OUTPUT->single_button(new moodle_url('/local/enrolstaff/enrolstaff.php'), get_string('enrolmenthome', 'local_enrolstaff'));
+    $action = 'none';
+}
+
+if ($action == 'unenrol') {
+    $uform = new unenrol_form(null, ['enrolments' => $enrolments]); 
+    if ($uform->is_cancelled()) {		
+        redirect('unenrolstaff.php');
+    } else if ($frouform = $uform->get_data()) {
+                
+    } else {	 
+        $uform->display();
+    }
+}
+        
+if ($action == 'unenrol_select') {
+    $courses = required_param_array('courses', PARAM_INT);
+    foreach ($courses as $key => $courseid) {
+        // What checks should there be that someone can unenrol themselves?
+        $validcourse = $activeuser->is_enrolled_on($courseid);
+        if (!$validcourse) {
+            unset($courses[$key]);
+        }
+    }
+
+    $cform = new unenrol_confirm(null, ['courses' => $courses]);
+    
+    if($cform->is_cancelled()){
+        redirect('unenrolstaff.php');
+    }else if($frocform = $cform->get_data()){ 
+    
+    }else{	
+        $cform->display();
+    } 
+}
+
+if($action == 'unenrol_confirm') {
+    $pluginmanual = enrol_get_plugin('manual');		
+    $pluginflat = enrol_get_plugin('flatfile');		
+    $pluginself = enrol_get_plugin('self');		
+    $courses = required_param('courses', PARAM_SEQUENCE);
+    $courses = explode(',', $courses);
+    $enrolmentscourseids = array_column($enrolments, 'course_id');
+    $listed = array_filter($courses, function($course) use ($enrolmentscourseids) {
+        return in_array($course, $enrolmentscourseids);
+    });
+    list($insql, $inparams) = $DB->get_in_or_equal($listed, SQL_PARAMS_NAMED);
+    $params = ['userid' => $USER->id] + $inparams;
+    $enrolinstances = $DB->get_records_sql("SELECT e.*
+                FROM {user_enrolments} ue
+                JOIN {enrol} e ON e.id = ue.enrolid
+                JOIN {course} c ON c.id = e.courseid
+                JOIN {user} u ON u.id = ue.userid
+                INNER JOIN {role_assignments} ra ON ra.userid = u.id
+                INNER JOIN {context} ct ON (ct.id = ra.contextid AND c.id = ct.instanceid)
+                WHERE ra.userid = :userid
+                AND c.id {$insql} 
+                GROUP BY c.id", $params);													
+
+    foreach($enrolinstances as $k=>$v){
+        if($v->enrol == 'manual'){
+            $pluginmanual->unenrol_user($v, $USER->id);
+        }elseif($v->enrol == 'flatfile'){
+            $pluginflat->unenrol_user($v, $USER->id);			
+        }elseif($v->enrol == 'self'){
+            $pluginself->unenrol_user($v, $USER->id);
+        }
+    }		
+                    
+    echo $OUTPUT->notification(get_string('unenrolconfirm', 'local_enrolstaff'), 'notifysuccess');		
+    echo $OUTPUT->single_button(new moodle_url('/local/enrolstaff/enrolstaff.php'), get_string('enrolmenthome', 'local_enrolstaff'));
+}
+
  echo "</div>";
  echo $OUTPUT->footer();
-?>
