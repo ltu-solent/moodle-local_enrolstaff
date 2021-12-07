@@ -211,7 +211,7 @@ trait local_enrolstaff_helper_trait {
             'email' => 'studentrecords@solent.ac.uk',
             'department' => 'support'
         ]);
-        $this->users['studentrecords'] = $this->getDataGenerator()->create_user([
+        $this->users['academicpartnerships'] = $this->getDataGenerator()->create_user([
             'username' => 'academicpartnerships',
             'firstname' => 'Academic',
             'lastname' => 'Partnerships',
