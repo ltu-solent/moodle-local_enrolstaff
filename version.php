@@ -1,4 +1,4 @@
 <?php
-$plugin->version  = 2021022200;   // The (date) version of this plugin
-$plugin->requires = 2014111005;   // Requires this Moodle version
+$plugin->version  = 2021120700;   // The (date) version of this plugin
+$plugin->requires = 2020061500;   // Requires this Moodle version
 $plugin->component = 'local_enrolstaff';

@@ -278,6 +278,5 @@ class local_enrolstaff_user_testcase extends advanced_testcase {
         $this->assertCount(0, $courses);
         $courses = $activeuser->course_search('counselling');
         $this->assertCount(0, $courses);
-
     }
 }
