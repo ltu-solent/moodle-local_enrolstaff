@@ -37,6 +37,10 @@ $settings->add(new admin_setting_configtext('local_enrolstaff/excludefullname', 
 $settings->add(new admin_setting_configtext('local_enrolstaff/excludeid', get_string('excludeid', 'local_enrolstaff'), '', '328, 22679, 6432'));
 $settings->add(new admin_setting_configtext('local_enrolstaff/studentrecords', get_string('studentrecords', 'local_enrolstaff'), '', ''));
 
+$name = new lang_string('qahecontact', 'local_enrolstaff');
+$desc = new lang_string('qahecontact_desc', 'local_enrolstaff');
+$settings->add(new admin_setting_configtext('local_enrolstaff/qahecontact', $name, $desc, ''));
+
 $name = new lang_string('enrolmentnotificationmessageenable', 'local_enrolstaff');
 $desc = new lang_string('enrolmentnotificationmessageenable_desc', 'local_enrolstaff');
 $settings->add(new admin_setting_configcheckbox('local_enrolstaff/enrolmentnotificationmessageenable', $name, $desc, 1));

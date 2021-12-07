@@ -34,7 +34,7 @@ class search_form extends moodleform {
         $mform->setType('action', PARAM_ALPHANUMEXT);
         $mform->addElement('hidden', 'role', $customdata['role']);
         $mform->setType('role', PARAM_ALPHANUMEXT);
-        $this->add_action_buttons($cancel = false, $submitlabel='Search');
+        $this->add_action_buttons(false, get_string('search'));
     }
 }
 

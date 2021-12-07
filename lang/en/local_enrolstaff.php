@@ -45,6 +45,9 @@ $string['nomatchingmodules'] = 'No modules match the term <strong>{$a->coursesea
 $string['nopermission'] = "You do not have permission to view this page (please check you are logged in).";
 $string['otherunitleaders'] = "Other module leaders currently enrolled on this module are: ";
 $string['pluginname'] = "Staff Enrolment";
+
+$string['qahecontact'] = 'QAHE contact email';
+$string['qahecontact_desc'] = 'This account will be emailed when someone requests to be enrolled on a QA module as Module leader';
 $string['requestemailsubject'] = 'Module Leader enrolment request for {$a->shortname}';
 $string['requestforenrolment'] = 'You are about to send a request for enrolment on <strong>{$a->coursename}</strong> with the role of <strong>{$a->rolename}</strong><br /><br />';
 $string['role'] = "Select a role";

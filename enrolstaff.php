@@ -26,6 +26,8 @@ $activeuser = new \local_enrolstaff\local\user($USER);
 if (!$activeuser->user_can_enrolself()) {
     throw new moodle_exception('cannotenrolself', 'local_enrolstaff');
 }
+
+$unitleaderroleids = explode(',', get_config('local_enrolstaff', 'unitleaderid'));
 echo "<div class='maindiv'>";
 
 //Role selection
@@ -110,7 +112,7 @@ if ($action == 'role_select') {
     $c = $DB->get_record('course', ['id' => $courseid]);
     $r = $DB->get_record('role', ['id' => $roleid]);
     $rolename = role_get_name($r, $coursecontext);
-    if ($roleid == get_config('local_enrolstaff', 'unitleaderid')) {
+    if (in_array($roleid, $unitleaderroleids)) {
         echo get_string('requestforenrolment', 'local_enrolstaff', [
             'coursename' => $c->fullname,
             'rolename' => $rolename
@@ -164,8 +166,16 @@ if ($action == 'confirm_select') {
     $moduleleaders = \local_enrolstaff\local\api::moduleleader($courseid);
     $studentrecordsemail = get_config('local_enrolstaff', 'studentrecords');
     $studentrecords = $DB->get_record('user', ['email' => $studentrecordsemail]);
+    if (!$studentrecords) {
+        $studentrecords = get_admin();
+    }
+    $qaheemail = get_config('local_enrolstaff', 'qaheemail');
+    $qahe = $DB->get_record('user', ['email' => $qaheemail]);
+    if (!$qahe) {
+        $qahe = get_admin();
+    }
     
-    if ($roleid == get_config('local_enrolstaff', 'unitleaderid')) {
+    if (in_array($roleid, $unitleaderroleids)) {
         // Send request to student registery
         $sql = "SELECT cc1.id, c.shortname, cc1.*
                         FROM {course} c
@@ -179,8 +189,11 @@ if ($action == 'confirm_select') {
             'fullname' => $c->fullname . " " . userdate($c->startdate, '%d/%m/%Y') . " - " . userdate($c->enddate, '%d/%m/%Y'),
             'rolename' => $rolename
         ]);
-
-        \local_enrolstaff\local\api::send_message($studentrecords, $USER, $subject, $message);
+        $contact = $studentrecords;
+        if (\local_enrolstaff\local\api::is_partner_course($c)) {
+            $contact = $qahe;
+        }
+        \local_enrolstaff\local\api::send_message($contact, $USER, $subject, $message);
 
         // Inform user of request
         echo $OUTPUT->notification(get_string('enrolrequestalert', 'local_enrolstaff', [
@@ -192,7 +205,7 @@ if ($action == 'confirm_select') {
         $message = get_string('enrolrequesteduser', 'local_enrolstaff', [
             'fullname' => $c->fullname,
             'rolename' => $rolename]);
-        \local_enrolstaff\local\api::send_message($USER, $studentrecords, $subject, $message);
+        \local_enrolstaff\local\api::send_message($USER, $contact, $subject, $message);
 
     } else {
         $plugin = enrol_get_plugin('manual');
@@ -213,8 +226,8 @@ if ($action == 'confirm_select') {
         $plugin->enrol_user($instance, $USER->id, $r->id, time(), 0, null, null);
         // Is there a module leader already enrolled? Are they active? If not, send request to Registry.
         if (count($moduleleaders) == 0) {
-            // Send message to registry? Perhaps other editing roles?
-            $moduleleaders[] = $studentrecords;
+            // Send message to registry? Perhaps other editing roles? Or perhaps lt.systems  - site admin email
+            $moduleleaders[] = get_admin();
         }
         $notificationenabled = get_config('local_enrolstaff', 'enrolmentnotificationmessageenable');
         if ($notificationenabled) {

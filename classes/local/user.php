@@ -10,6 +10,7 @@ class user {
     private $config;
     private $department;
     private $isjobshopuser;
+    private $validdepts;
 
     /**
      * Sets up variables that are used in subsequent queries
@@ -21,15 +22,29 @@ class user {
         $emailparts = explode('@', $user->email);
         $this->domain = $emailparts[1];
         $this->config = get_config('local_enrolstaff');
+        // This should be a setting.
+        $this->validdepts = ['academic', 'management', 'support'];
+        $this->department = $user->department;
+
         if ($this->domain == 'qa.com') {
             $this->validroles = explode(',', $this->config->qaheroleids);
         } elseif ($this->domain == 'solent.ac.uk') {
             $this->validroles = explode(',', $this->config->roleids);
+        } elseif (is_siteadmin($user)) {
+            $this->validroles = explode(',', $this->config->roleids);
+            return;
         } else {
             $this->validroles = [];
         }
+
         $this->isjobshopuser = strpos($user->email, 'jobshop') === 0;
-        $this->department = $user->department;
+        if ($this->isjobshopuser) {
+            $this->validroles = [];
+        }
+        if (!in_array($this->department, $this->validdepts)) {
+            $this->validroles = [];
+        }
+        
     }
 
     /**
@@ -39,7 +54,9 @@ class user {
      */
     public function get_roles_menu() {
         global $DB;
-    
+        if (empty($this->validroles)) {
+            return [];
+        }
         list($inorequalsql, $params) = $DB->get_in_or_equal($this->validroles, SQL_PARAMS_NAMED, '', true);							
 
         $sql = "SELECT id, name
@@ -85,9 +102,8 @@ class user {
         if ($this->isjobshopuser) {
             return false;
         }
-        // This should be a setting.
-        $validdepts = ['academic', 'management', 'support'];
-        if (in_array($this->department, $validdepts)) {
+        
+        if (in_array($this->department, $this->validdepts)) {
             return true;
         }
         return false;
@@ -138,7 +154,11 @@ class user {
      */
     public function course_search($coursesearch) {
         global $DB;
-        
+        $canenrolself = $this->user_can_enrolself();
+        if (!$canenrolself) {
+            return [];
+        }
+
         $excludecourses = $this->config->excludeid;	
         $excludecourses = explode(',', $excludecourses);	
 

@@ -16,17 +16,36 @@ class api {
      */
     public static function moduleleader($courseid) {
         global $DB;
-        $roleid = get_config('local_enrolstaff', 'unitleaderid');
+        $roleids = explode(',', get_config('local_enrolstaff', 'unitleaderid'));
+        list($insql, $inparams) = $DB->get_in_or_equal($roleids, SQL_PARAMS_NAMED);
         $sql = "SELECT u.*
             FROM {course} c
             JOIN {context} cx ON cx.instanceid = c.id AND cx.contextlevel = 50
             JOIN {role_assignments} ra ON ra.contextid = cx.id
-            JOIN {role} r ON r.id = ra.roleid AND ra.roleid = :roleid
+            JOIN {role} r ON r.id = ra.roleid AND ra.roleid $insql
             JOIN {user} u ON u.id = ra.userid
             WHERE c.id = :courseid";
-        
-        $users = $DB->get_records_sql($sql, ['courseid' => $courseid, 'roleid' => $roleid]);
+        $params = ['courseid' => $courseid] + $inparams;
+        $users = $DB->get_records_sql($sql, $params);
         return $users;
+    }
+
+    /**
+     * Determines if a course is a partner course
+     *
+     * @param object $course
+     * @return bool
+     */
+    public static function is_partner_course($course) {
+        $qacodes = explode(',', get_config('local_enrolstaff', 'qahecodes'));
+        $match = false;
+        foreach ($qacodes as $qacode) {
+            $ismatch = preg_match('#^' . $qacode . '#i', $course->shortname);
+            if ($ismatch == 1) {
+                $match = true;
+            }
+        }
+        return $match;
     }
 
     /**
