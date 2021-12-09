@@ -4,8 +4,8 @@ namespace local_enrolstaff\local;
 
 class user {
 
-    public array $validroles;
-    public string $domain;
+    public $validroles;
+    public $domain;
     public $user;
     private $config;
     private $department;
