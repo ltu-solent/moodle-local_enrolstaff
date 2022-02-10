@@ -5,7 +5,7 @@ Feature: Staff member self-enrols onto an existing course
     I should be able to enrol myself onto another teacher's course
     Background:
         Given the following "categories" exist:
-        | name         | parent   | idnumber |
+        | name         | category | idnumber |
         | Courses      | 0        | CAT1 |
         | Faculty1     | CAT1     | FAC1 |
         | Course pages | FAC1     | courses_FAC1 |
