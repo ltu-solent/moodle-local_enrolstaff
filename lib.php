@@ -39,7 +39,7 @@ function local_enrolstaff_extend_navigation_menuuser($navitems, $user, $context,
     if ($enabled) {
         $usermenuitem = new stdClass();
         $usermenuitem->itemtype = 'link';
-        $usermenuitem->url = new moodle_url('/local/enrolstaff/index.php');
+        $usermenuitem->url = new moodle_url('/local/enrolstaff/enrolstaff.php');
         $usermenuitem->pix = "i/course";
         $usermenuitem->title = get_string('enrol-selfservice', 'local_enrolstaff');
         $usermenuitem->titleidentifier = 'enrol-selfservice,local_enrolstaff';
