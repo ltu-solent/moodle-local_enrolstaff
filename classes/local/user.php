@@ -1,15 +1,81 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * User object with calculated properties and permissions for enrolment features
+ *
+ * @package   local_enrolstaff
+ * @author    Mark Sharp <mark.sharp@solent.ac.uk>
+ * @copyright 2022 Solent University {@link https://www.solent.ac.uk}
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 
 namespace local_enrolstaff\local;
 
+/**
+ * User class
+ */
 class user {
-
+    /**
+     * List of valid roles this person can enrol with
+     *
+     * @var array id list
+     */
     public $validroles;
+
+    /**
+     * Domain of email address
+     *
+     * @var string
+     */
     public $domain;
+
+    /**
+     * Moodle user object
+     *
+     * @var stdClass
+     */
     public $user;
+
+    /**
+     * Plugin config settings
+     *
+     * @var stdClass
+     */
     private $config;
+
+    /**
+     * Department field from user object
+     *
+     * @var string
+     */
     private $department;
+
+    /**
+     * Is this user working in the jobshop
+     *
+     * @var boolean
+     */
     private $isjobshopuser;
+
+    /**
+     * Departments that are valid for the enrol staff features
+     *
+     * @var array
+     */
     private $validdepts;
 
     /**
@@ -28,9 +94,9 @@ class user {
 
         if ($this->domain == 'qa.com') {
             $this->validroles = explode(',', $this->config->qaheroleids);
-        } elseif ($this->domain == 'solent.ac.uk') {
+        } else if ($this->domain == 'solent.ac.uk') {
             $this->validroles = explode(',', $this->config->roleids);
-        } elseif (is_siteadmin($user)) {
+        } else if (is_siteadmin($user)) {
             $this->validroles = explode(',', $this->config->roleids);
             return;
         } else {
@@ -44,7 +110,6 @@ class user {
         if (!in_array($this->department, $this->validdepts)) {
             $this->validroles = [];
         }
-        
     }
 
     /**
@@ -57,7 +122,7 @@ class user {
         if (empty($this->validroles)) {
             return [];
         }
-        list($inorequalsql, $params) = $DB->get_in_or_equal($this->validroles, SQL_PARAMS_NAMED, '', true);							
+        list($inorequalsql, $params) = $DB->get_in_or_equal($this->validroles, SQL_PARAMS_NAMED, '', true);
 
         $sql = "SELECT id, name
                 FROM {role}
@@ -102,7 +167,7 @@ class user {
         if ($this->isjobshopuser) {
             return false;
         }
-        
+
         if (in_array($this->department, $this->validdepts)) {
             return true;
         }
@@ -159,17 +224,17 @@ class user {
             return [];
         }
 
-        $excludecourses = $this->config->excludeid;	
-        $excludecourses = explode(',', $excludecourses);	
+        $excludecourses = $this->config->excludeid;
+        $excludecourses = explode(',', $excludecourses);
 
         list($inorequalsql, $inparams) = $DB->get_in_or_equal($excludecourses, SQL_PARAMS_NAMED, '', false);
-                
+
         $params = [
             'coursesearch1' => '%'.$coursesearch.'%',
             'coursesearch2' => '%'.$coursesearch.'%'
         ];
         $params += $inparams;
-        
+
         $and = $this->get_course_filter();
 
         $sql = "SELECT c.id, c.idnumber, c.shortname, c.fullname, DATE_FORMAT(FROM_UNIXTIME(c.startdate), '%d-%m-%Y') as startunix
@@ -183,9 +248,8 @@ class user {
                 AND c.visible = 1
                 ORDER BY c.shortname DESC";
         $courses = $DB->get_records_sql($sql, $params);
-        
+
         return $courses;
-        
     }
 
     /**
@@ -196,27 +260,25 @@ class user {
     private function get_course_filter(): string {
         $excludename = explode(',', $this->config->excludeshortname);
         $excludeterm = explode(',', $this->config->excludefullname);
-        
         $and = '';
-        
+
         foreach ($excludename as $value) {
             $and .= "AND (c.shortname NOT LIKE '$value%' OR c.fullname NOT LIKE '%$value%') ";
         }
-        
+
         foreach ($excludeterm as $value) {
             $and .= "AND c.fullname NOT LIKE '%$value%' ";
         }
 
         // Limit QA accounts to only these courses.
         if ($this->domain == 'qa.com') {
-            $validcodes = explode(',', $this->config->qahecodes);	
+            $validcodes = explode(',', $this->config->qahecodes);
         }
-        if(isset($validcodes)){
-            foreach($validcodes as $value){
+        if (isset($validcodes)) {
+            foreach ($validcodes as $value) {
                 $and .= "AND c.shortname LIKE '%$value%' ";
             }
         }
-
         return $and;
     }
 
@@ -228,7 +290,7 @@ class user {
      */
     public function user_courses(): array {
         global $DB;
-        $enrolledcourses =  $DB->get_records_sql("SELECT FLOOR(RAND() * 401) + 100 as id, c.id course_id, c.fullname, c.idnumber,
+        $enrolledcourses = $DB->get_records_sql("SELECT FLOOR(RAND() * 401) + 100 as id, c.id course_id, c.fullname, c.idnumber,
             FROM_UNIXTIME(c.startdate, '%d-%m-%Y') startdate, r.id role_id, r.name,
             (SELECT GROUP_CONCAT(r.name SEPARATOR ', ')
                 FROM {user} u1
@@ -239,11 +301,11 @@ class user {
                 WHERE c2.id = c.id
                 AND u1.id = u.id
             ) AS roles
-            FROM {course} AS c
-                JOIN {context} AS ctx ON c.id = ctx.instanceid
-                JOIN {role_assignments} AS ra ON ra.contextid = ctx.id
-                JOIN {role} AS r ON ra.roleid = r.id
-                JOIN {user} AS u ON u.id = ra.userid
+            FROM {course} c
+                JOIN {context} ctx ON c.id = ctx.instanceid
+                JOIN {role_assignments} ra ON ra.contextid = ctx.id
+                JOIN {role} r ON ra.roleid = r.id
+                JOIN {user} u ON u.id = ra.userid
             WHERE u.id = :userid
                 AND ra.component != 'enrol_cohort'
                 AND ra.component != 'enrol_meta'

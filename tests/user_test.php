@@ -23,22 +23,40 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace local_enrolstaff;
+
+use advanced_testcase;
+
 defined('MOODLE_INTERNAL') || die();
 
 require_once(__DIR__ . '/helper_trait.php');
 
-class local_enrolstaff_user_testcase extends advanced_testcase {
+/**
+ * Tests user functions
+ * @covers \local_enrolstaff\local\user
+ */
+class user_test extends advanced_testcase {
 
-    use local_enrolstaff_helper_trait;
+    use helper_trait;
+
+    /**
+     * Set up the required default settings, roles, courses etc
+     *
+     * @return void
+     */
     private function setup_bitsnbobs() {
         $this->create_roles();
         $this->create_categories();
         $this->create_courses();
         $this->create_users();
         $this->set_configs();
-        
     }
 
+    /**
+     * When setting up a user object, various properties are calculated. This sets what comes out of that.
+     *
+     * @return void
+     */
     public function test_properties() {
         global $USER;
         $this->resetAfterTest();
@@ -52,7 +70,7 @@ class local_enrolstaff_user_testcase extends advanced_testcase {
         $activeuser = new \local_enrolstaff\local\user($USER);
         $this->assertEquals('solent.ac.uk', $activeuser->domain);
         $this->assertEquals(explode(',', get_config('local_enrolstaff', 'roleids')), $activeuser->validroles);
-        
+
         $this->setUser($this->users['qateacher1']);
         $activeuser = new \local_enrolstaff\local\user($USER);
         $this->assertEquals('qa.com', $activeuser->domain);
@@ -67,6 +85,11 @@ class local_enrolstaff_user_testcase extends advanced_testcase {
         $this->assertEquals([], $activeuser->validroles);
     }
 
+    /**
+     * The roles menu depends on who you are.
+     *
+     * @return void
+     */
     public function test_get_roles_menu() {
         global $USER;
         $this->resetAfterTest();
@@ -101,6 +124,11 @@ class local_enrolstaff_user_testcase extends advanced_testcase {
         $this->assertCount(0, $menuitems);
     }
 
+    /**
+     * Validation of selected role.
+     *
+     * @return void
+     */
     public function test_is_role_valid() {
         global $DB, $USER;
         $this->resetAfterTest();
@@ -123,7 +151,6 @@ class local_enrolstaff_user_testcase extends advanced_testcase {
         $isvalid = $activeuser->is_role_valid($role->id);
         $this->assertFalse($isvalid);
 
-
         $this->setUser($this->users['qateacher1']);
         $activeuser = new \local_enrolstaff\local\user($USER);
         foreach ($this->teachingroles as $teachingrole) {
@@ -142,6 +169,11 @@ class local_enrolstaff_user_testcase extends advanced_testcase {
         $this->assertFalse($isvalid);
     }
 
+    /**
+     * Can this person enrol themeselves?
+     *
+     * @return void
+     */
     public function test_user_can_enrolself() {
         global $USER;
         $this->resetAfterTest();
@@ -184,6 +216,11 @@ class local_enrolstaff_user_testcase extends advanced_testcase {
 
     }
 
+    /**
+     * Can this user enrol themselves on a given course?
+     *
+     * @return void
+     */
     public function test_can_enrolselfon() {
         global $USER;
         $this->resetAfterTest();

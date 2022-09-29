@@ -39,8 +39,11 @@ use Behat\Mink\Exception\ExpectationException as ExpectationException;
  */
 class behat_local_enrolstaff extends behat_base {
     /**
-    * @Given /^I set the enrolstaff role setting "([^"]*)" to "([^"]*)"$/
-    */
+     * Step to setting role ids in configuration
+     * @param string $setting setting name
+     * @param string $values comma separated list of role shortnames
+     * @Given /^I set the enrolstaff role setting "([^"]*)" to "([^"]*)"$/
+     */
     public function set_enrolstaff_role_setting(string $setting, string $values): void {
         global $DB;
         $values = explode(",", $values);

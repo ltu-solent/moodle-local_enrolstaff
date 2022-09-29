@@ -1,14 +1,47 @@
 <?php
-require_once('../../config.php');
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Various forms
+ *
+ * @package   local_enrolstaff
+ * @author    Mark Sharp <mark.sharp@solent.ac.uk>
+ * @copyright 2022 Solent University {@link https://www.solent.ac.uk}
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+defined('MOODLE_INTERNAL') || die();
+
 require_once("$CFG->libdir/formslib.php");
 
+/**
+ * Roles menu form
+ */
 class role_form extends moodleform {
+    /**
+     * {@inheritDoc}
+     *
+     * @return void
+     */
     public function definition() {
         $mform = $this->_form;
         $customdata = $this->_customdata;
-             
+
         $options = $customdata['activeuser']->get_roles_menu();
-        $options = array('' => get_string('selectarole', 'local_enrolstaff')) + $options;		
+        $options = array('' => get_string('selectarole', 'local_enrolstaff')) + $options;
         $result = count($options);
 
         if ($result > 0) {
@@ -21,7 +54,15 @@ class role_form extends moodleform {
     }
 }
 
+/**
+ * Search for course/module form
+ */
 class search_form extends moodleform {
+    /**
+     * {@inheritDoc}
+     *
+     * @return void
+     */
     public function definition() {
         $mform = $this->_form;
         $customdata = $this->_customdata;
@@ -38,7 +79,15 @@ class search_form extends moodleform {
     }
 }
 
+/**
+ * Confirm enrolment on chosen course
+ */
 class course_form extends moodleform {
+    /**
+     * {@inheritDoc}
+     *
+     * @return void
+     */
     public function definition() {
         global $DB;
 
@@ -48,30 +97,30 @@ class course_form extends moodleform {
         $activeuser = $customdata['activeuser'];
         $role = $customdata['role'];
 
-        $enrolledon =  $DB->get_records_sql("	SELECT FLOOR(RAND() * 401) + 100 as id, r.id role_id, c.id course_id, r.name
-                                                FROM {course} AS c
-                                                JOIN {context} AS ctx ON c.id = ctx.instanceid
-                                                JOIN {role_assignments} AS ra ON ra.contextid = ctx.id
-                                                JOIN {role} AS r ON ra.roleid = r.id
-                                                JOIN {user} AS u ON u.id = ra.userid
-                                                WHERE u.id = :userid", array('userid' => $activeuser->user->id));
+        $enrolledon = $DB->get_records_sql("SELECT FLOOR(RAND() * 401) + 100 as id, r.id role_id, c.id course_id, r.name
+            FROM {course} c
+            JOIN {context} ctx ON c.id = ctx.instanceid
+            JOIN {role_assignments} ra ON ra.contextid = ctx.id
+            JOIN {role} r ON ra.roleid = r.id
+            JOIN {user} u ON u.id = ra.userid
+            WHERE u.id = :userid", array('userid' => $activeuser->user->id));
 
-        //loop through and add role names string and id to array id=>2 roles=>student, teacher etc.
-        $course_array = array();
-        
+        // Loop through and add role names string and id to array id=>2 roles=>student, teacher etc.
+        $coursearray = array();
+
         // Initialise the arrays to avoid offsets.
-        for ($x=0; $x<count($enrolledon); $x++) {
-            foreach ($enrolledon as $evalue){
-                if (!array_key_exists($evalue->course_id, $course_array)){
-                    $course_array[$evalue->course_id] = '';
+        for ($x = 0; $x < count($enrolledon); $x++) {
+            foreach ($enrolledon as $evalue) {
+                if (!array_key_exists($evalue->course_id, $coursearray)) {
+                    $coursearray[$evalue->course_id] = '';
                 }
             }
         }
 
         // Fill arrays.
-        if(!empty($enrolledon)){
-            foreach($enrolledon as $evalue){
-                $course_array[$evalue->course_id] .= $evalue->name . ', ';
+        if (!empty($enrolledon)) {
+            foreach ($enrolledon as $evalue) {
+                $coursearray[$evalue->course_id] .= $evalue->name . ', ';
             }
         }
 
@@ -83,17 +132,19 @@ class course_form extends moodleform {
                 'idnumber' => $course->idnumber,
                 'fullname' => $fullname[0],
                 'startunix' => $course->startunix]);
-            if (array_key_exists($course->id, $course_array)) {
+            if (array_key_exists($course->id, $coursearray)) {
                 $radioarray[] =& $mform->createElement('radio', 'course', '',
-                    $courselabel . get_string('existingroles', 'local_enrolstaff', rtrim($course_array[$course->id], ", ")),
+                    $courselabel .
+                    get_string('existingroles', 'local_enrolstaff', rtrim($coursearray[$course->id], ", ")),
                     $course->id, 'disabled');
-               } else {
+            } else {
                 $radioarray[] =& $mform->createElement('radio', 'course', '',
                     $courselabel, $course->id, 'required');
-               }
+            }
         }
 
-        $mform->addGroup($radioarray, 'radioar', get_string('selectamodule', 'local_enrolstaff'), array('<br /><br />', '<br /><br />'), false);
+        $mform->addGroup($radioarray, 'radioar', get_string('selectamodule', 'local_enrolstaff'),
+            array('<br /><br />', '<br /><br />'), false);
         $mform->addGroupRule('radioar', get_string('required'), 'required');
         $mform->addElement('hidden', 'action', 'role_select');
         $mform->setType('action', PARAM_ALPHANUMEXT);
@@ -103,7 +154,15 @@ class course_form extends moodleform {
     }
 }
 
+/**
+ * Submit enrolment request.
+ */
 class submit_form extends moodleform {
+    /**
+     * {@inheritDoc}
+     *
+     * @return void
+     */
     public function definition() {
         $mform = $this->_form;
         $data = $this->_customdata;
@@ -118,12 +177,20 @@ class submit_form extends moodleform {
     }
 }
 
+/**
+ * Unenrol form
+ */
 class unenrol_form extends moodleform {
+    /**
+     * {@inheritDoc}
+     *
+     * @return void
+     */
     public function definition() {
         $mform = $this->_form;
         $customdata = $this->_customdata;
         $enrolments = $customdata['enrolments'];
-       
+
         echo get_string('unenrolselect', 'local_enrolstaff');
 
         foreach ($enrolments as $course) {
@@ -132,7 +199,7 @@ class unenrol_form extends moodleform {
                 'idnumber' => $course->idnumber,
                 'startunix' => $course->startdate]);
             $label .= get_string('existingroles', 'local_enrolstaff', $course->roles);
-            
+
             $mform->addElement("html", "
                 <div id='fitem_id_courses' class='fitem fitem_fcheckbox femptylabel'>
                     <div class='felement fcheckbox'>
@@ -150,7 +217,15 @@ class unenrol_form extends moodleform {
     }
 }
 
+/**
+ * Confirm unenrolment request
+ */
 class unenrol_confirm extends moodleform {
+    /**
+     * {@inheritDoc}
+     *
+     * @return void
+     */
     public function definition() {
         global $DB;
 
@@ -159,13 +234,13 @@ class unenrol_confirm extends moodleform {
         $courses = $customdata['courses'];
 
         list($wheresql, $whereparams) = $DB->get_in_or_equal($courses);
-        $enroled_courses = $DB->get_records_sql("	SELECT id, fullname, shortname
-                                                    FROM {course}
-                                                    WHERE id {$wheresql}", $whereparams);
+        $enroledcourses = $DB->get_records_sql("SELECT id, fullname, shortname
+                                FROM {course}
+                                WHERE id {$wheresql}", $whereparams);
 
         $mform->addElement("html", get_string('unenrolwarning', 'local_enrolstaff'));
         $courselist = '';
-        foreach($enroled_courses as $course){
+        foreach ($enroledcourses as $course) {
             $courselist .= html_writer::tag('li', $course->shortname . ' - ' . $course->fullname);
         }
         $courselist = html_writer::tag('ul', $courselist);
@@ -179,4 +254,3 @@ class unenrol_confirm extends moodleform {
         $this->add_action_buttons(true, get_string('confirm'));
     }
 }
-

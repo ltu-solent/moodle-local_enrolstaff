@@ -22,23 +22,40 @@
  * @copyright 2021 Solent University {@link https://www.solent.ac.uk}
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+namespace local_enrolstaff;
+
+use advanced_testcase;
 
 defined('MOODLE_INTERNAL') || die();
 
 require_once(__DIR__ . '/helper_trait.php');
 
-class local_enrolstaff_api_testcase extends advanced_testcase {
+/**
+ * Tests for API class
+ * @covers \local_enrolstaff\local\api
+ */
+class api_test extends advanced_testcase {
 
-    use local_enrolstaff_helper_trait;
+    use helper_trait;
 
+    /**
+     * Set up the required default settings, roles, courses etc
+     *
+     * @return void
+     */
     private function setup_bitsnbobs() {
         $this->create_roles();
         $this->create_categories();
         $this->create_courses();
         $this->create_users();
         $this->set_configs();
-        
     }
+
+    /**
+     * Tests finding module leaders on course
+     *
+     * @return void
+     */
     public function test_moduleleader() {
         $this->resetAfterTest();
         $this->setup_bitsnbobs();
@@ -64,13 +81,18 @@ class local_enrolstaff_api_testcase extends advanced_testcase {
         $this->assertCount(3, $moduleleaders);
     }
 
+    /**
+     * Is this a partner course?
+     *
+     * @return void
+     */
     public function test_is_partner_course() {
         $this->resetAfterTest();
         $this->setup_bitsnbobs();
-        $is_partner = \local_enrolstaff\local\api::is_partner_course($this->courses['QHO1']);
-        $this->assertTrue($is_partner);
+        $ispartner = \local_enrolstaff\local\api::is_partner_course($this->courses['QHO1']);
+        $this->assertTrue($ispartner);
 
-        $is_partner = \local_enrolstaff\local\api::is_partner_course($this->courses['M1']);
-        $this->assertFalse($is_partner);
+        $ispartner = \local_enrolstaff\local\api::is_partner_course($this->courses['M1']);
+        $this->assertFalse($ispartner);
     }
 }

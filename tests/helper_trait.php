@@ -23,10 +23,13 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+namespace local_enrolstaff;
 
-trait local_enrolstaff_helper_trait {
-    
+/**
+ * Some reusable components for unit tests
+ */
+trait helper_trait {
+
     public $moduleleader;
     public $qamoduleleader;
     public $coursescat;
@@ -38,19 +41,20 @@ trait local_enrolstaff_helper_trait {
     public $qateachingroles;
     public $users;
 
+    /**
+     * Sets up roles and role settings for plugins
+     *
+     * @return void
+     */
     public function create_roles() {
-        /**
-         * Module leader roles will only send a message to student registry, partnerships or admin.
-         * Users will not be automatically enrolled.
-         */
+         // Module leader roles will only send a message to student registry, partnerships or admin.
+         // Users will not be automatically enrolled.
         $this->moduleleader = $this->getDataGenerator()->create_role([
             'shortname' => 'moduleleader',
             'name' => 'Module leader',
             'archetype' => 'editingteacher'
         ]);
-        /**
-         * Teaching roles will be automatically enrolled with a curtesy email sent to the module leader.
-         */
+        // Teaching roles will be automatically enrolled with a curtesy email sent to the module leader.
         $this->teachingroles[] = $this->moduleleader;
         $this->qamoduleleader = $this->getDataGenerator()->create_role([
             'shortname' => 'qamoduleleader',
@@ -59,7 +63,7 @@ trait local_enrolstaff_helper_trait {
         ]);
         $this->qateachingroles[] = $this->qamoduleleader;
         set_config('unitleaderid', $this->moduleleader . ',' . $this->qamoduleleader, 'local_enrolstaff');
-        
+
         $this->teachingroles[] = $this->getDataGenerator()->create_role([
             'shortname' => 'tutor',
             'name' => 'Tutor',
@@ -74,14 +78,17 @@ trait local_enrolstaff_helper_trait {
         set_config('qaheroleids', implode(",", $this->qateachingroles), 'local_enrolstaff');
     }
 
+    /**
+     * Sets up a Solent category structure, used to find modules/courses.
+     *
+     * @return void
+     */
     public function create_categories() {
-        /**
-         * Our basic course category structure is:
-         * /Courses/Faculty/Courses
-         * /Courses/Faculty/Modules
-         * 
-         * The courses that will be enrollable will be in a category with courses_ or modules_ idnumbers.
-         */
+        // Our basic course category structure is:
+        // /Courses/Faculty/Courses
+        // /Courses/Faculty/Modules
+        // The courses that will be enrollable will be in a category with courses_ or modules_ idnumbers.
+
         // Not discoverable.
         $cat1 = $this->getDataGenerator()->create_category([
             'idnumber' => 'CAT1',
@@ -121,6 +128,11 @@ trait local_enrolstaff_helper_trait {
 
     }
 
+    /**
+     * Sets up some courses which can or cannot be selected
+     *
+     * @return void
+     */
     public function create_courses() {
         // Discoverable.
         $this->courses['C1'] = $this->getDataGenerator()->create_course([
@@ -180,8 +192,12 @@ trait local_enrolstaff_helper_trait {
         ]);
     }
 
+    /**
+     * Different types of users to test.
+     *
+     * @return void
+     */
     public function create_users() {
-
         $this->users['teacher1'] = $this->getDataGenerator()->create_user([
             'username' => 'teacher1',
             'firstname' => 'Teacher',
@@ -258,6 +274,11 @@ trait local_enrolstaff_helper_trait {
         ]);
     }
 
+    /**
+     * Plugin settings with some realistic defaults.
+     *
+     * @return void
+     */
     public function set_configs() {
         set_config('excludeshortname', 'EDU', 'local_enrolstaff');
         set_config('excludefullname', 'counselling', 'local_enrolstaff');
