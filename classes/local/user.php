@@ -192,17 +192,24 @@ class user {
             return false;
         }
 
-        $and = $this->get_course_filter();
-
+        $moduleslike = $DB->sql_like('cc.idnumber', ':moduleslike', false, false);
+        $courseslike = $DB->sql_like('cc.idnumber', ':courseslike', false, false);
+        $params = [
+            'courseid' => $courseid,
+            'moduleslike' => 'modules_%',
+            'courseslike' => 'courses_%'
+        ];
+        [$andsql, $andparams] = $this->get_course_filter();
+        $params += $andparams;
         $sql = "SELECT c.id
             FROM {course} c
             JOIN {course_categories} cc on c.category = cc.id
             WHERE c.id = :courseid
-            $and
-            AND (cc.idnumber LIKE 'modules_%' OR cc.idnumber LIKE 'courses_%')
+            $andsql
+            AND ({$moduleslike} OR {$courseslike})
             AND c.visible = 1";
 
-        $courses = $DB->get_records_sql($sql, ['courseid' => $courseid]);
+        $courses = $DB->get_records_sql($sql, $params);
         if (count($courses) == 1) {
             return true;
         }
@@ -228,23 +235,28 @@ class user {
         $excludecourses = explode(',', $excludecourses);
 
         list($inorequalsql, $inparams) = $DB->get_in_or_equal($excludecourses, SQL_PARAMS_NAMED, '', false);
-
+        $coursesearch1like = $DB->sql_like('c.shortname', ':coursesearch1', false, false);
+        $coursesearch2like = $DB->sql_like('c.fullname', ':coursesearch2', false, false);
+        $moduleslike = $DB->sql_like('cc.idnumber', ':moduleslike', false, false);
+        $courseslike = $DB->sql_like('cc.idnumber', ':courseslike', false, false);
         $params = [
-            'coursesearch1' => '%'.$coursesearch.'%',
-            'coursesearch2' => '%'.$coursesearch.'%'
+            'coursesearch1' => '%' . $DB->sql_like_escape($coursesearch) . '%',
+            'coursesearch2' => '%' . $DB->sql_like_escape($coursesearch) . '%',
+            'moduleslike' => 'modules_%',
+            'courseslike' => 'courses_%'
         ];
         $params += $inparams;
 
-        $and = $this->get_course_filter();
+        [$andsql, $andparams] = $this->get_course_filter();
 
+        $params += $andparams;
         $sql = "SELECT c.id, c.idnumber, c.shortname, c.fullname, c.startdate as startunix
                 FROM {course} c
                 JOIN {course_categories} cc on c.category = cc.id
-                WHERE (c.shortname LIKE :coursesearch1
-                OR c.fullname LIKE :coursesearch2)
-                $and
+                WHERE ({$coursesearch1like} OR {$coursesearch2like})
+                $andsql
                 AND c.id {$inorequalsql}
-                AND (cc.idnumber LIKE 'modules_%' OR cc.idnumber LIKE 'courses_%')
+                AND ({$moduleslike} OR {$courseslike})
                 AND c.visible = 1
                 ORDER BY c.shortname DESC";
         $courses = $DB->get_records_sql($sql, $params);
@@ -255,19 +267,24 @@ class user {
     /**
      * Prepares an SQL snippet to limit the choice of courses available to the requesting user.
      *
-     * @return string SQL snippet
+     * @return array [SQL snippet, params]
      */
-    private function get_course_filter(): string {
+    private function get_course_filter(): array {
+        global $DB;
         $excludename = explode(',', $this->config->excludeshortname);
         $excludeterm = explode(',', $this->config->excludefullname);
-        $and = '';
-
-        foreach ($excludename as $value) {
-            $and .= "AND (c.shortname NOT LIKE '$value%' OR c.fullname NOT LIKE '%$value%') ";
+        $andsql = '';
+        $andparams = [];
+        foreach ($excludename as $key => $value) {
+            $andsql .= " AND (" . $DB->sql_like('c.shortname', ":eshortname{$key}", false, false, true) . " ";
+            $andsql .= " OR " . $DB->sql_like('c.fullname', ":efullname{$key}", false, false, true) . ") ";
+            $andparams["eshortname{$key}"] = $DB->sql_like_escape($value) . '%';
+            $andparams["efullname{$key}"] = '%' . $DB->sql_like_escape($value) . '%';
         }
 
-        foreach ($excludeterm as $value) {
-            $and .= "AND c.fullname NOT LIKE '%$value%' ";
+        foreach ($excludeterm as $key => $value) {
+            $andsql .= " AND " . $DB->sql_like('c.fullname', ":eterm{$key}", false, false, true) . " ";
+            $andparams["eterm{$key}"] = '%' . $DB->sql_like_escape($value) . '%';
         }
 
         // Limit QA accounts to only these courses.
@@ -275,11 +292,12 @@ class user {
             $validcodes = explode(',', $this->config->qahecodes);
         }
         if (isset($validcodes)) {
-            foreach ($validcodes as $value) {
-                $and .= "AND c.shortname LIKE '%$value%' ";
+            foreach ($validcodes as $key => $value) {
+                $andsql .= " AND " . $DB->sql_like('c.shortname', ":codes{$key}", false, false) . " ";
+                $andparams["codes{$key}"] = '%' . $DB->sql_like_escape($value) . '%';
             }
         }
-        return $and;
+        return [$andsql, $andparams];
     }
 
 
