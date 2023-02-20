@@ -90,7 +90,7 @@ class user {
         $this->config = get_config('local_enrolstaff');
         // This should be a setting.
         $this->validdepts = ['academic', 'management', 'support'];
-        $this->department = $user->department;
+        $this->department = strtolower($user->department);
 
         if ($this->domain == 'qa.com') {
             $this->validroles = explode(',', $this->config->qaheroleids);

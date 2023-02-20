@@ -210,7 +210,7 @@ trait helper_trait {
             'firstname' => 'Leader',
             'lastname' => '1',
             'email' => 'leader1@solent.ac.uk',
-            'department' => 'academic'
+            'department' => 'Academic'
         ]);
         $this->users['support1'] = $this->getDataGenerator()->create_user([
             'username' => 'support1',
@@ -248,7 +248,7 @@ trait helper_trait {
             'firstname' => 'QaLeader',
             'lastname' => '1',
             'email' => 'qaleader1@qa.com',
-            'department' => 'academic'
+            'department' => 'Academic'
         ]);
         $this->users['studentrecords'] = $this->getDataGenerator()->create_user([
             'username' => 'studentrecords',
@@ -262,7 +262,7 @@ trait helper_trait {
             'firstname' => 'Academic',
             'lastname' => 'Partnerships',
             'email' => 'academic.partnerships@solent.ac.uk',
-            'department' => 'support'
+            'department' => 'Support'
         ]);
         // Cannot use this service.
         $this->users['jobshop101'] = $this->getDataGenerator()->create_user([
