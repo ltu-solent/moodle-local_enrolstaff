@@ -237,7 +237,7 @@ class user {
 
         $and = $this->get_course_filter();
 
-        $sql = "SELECT c.id, c.idnumber, c.shortname, c.fullname, DATE_FORMAT(FROM_UNIXTIME(c.startdate), '%d-%m-%Y') as startunix
+        $sql = "SELECT c.id, c.idnumber, c.shortname, c.fullname, c.startdate as startunix
                 FROM {course} c
                 JOIN {course_categories} cc on c.category = cc.id
                 WHERE (c.shortname LIKE :coursesearch1
@@ -290,8 +290,8 @@ class user {
      */
     public function user_courses(): array {
         global $DB;
-        $enrolledcourses = $DB->get_records_sql("SELECT FLOOR(RAND() * 401) + 100 as id, c.id course_id, c.fullname, c.idnumber,
-            FROM_UNIXTIME(c.startdate, '%d-%m-%Y') startdate, r.id role_id, r.name,
+        $enrolledcourses = $DB->get_records_sql("SELECT DISTINCT(c.id) course_id, c.fullname, c.idnumber,
+            c.startdate, r.id role_id, r.name,
             (SELECT GROUP_CONCAT(r.name SEPARATOR ', ')
                 FROM {user} u1
                 INNER JOIN {role_assignments} ra ON ra.userid = u1.id

@@ -131,7 +131,7 @@ class course_form extends moodleform {
             $courselabel = get_string('courselabel', 'local_enrolstaff', [
                 'idnumber' => $course->idnumber,
                 'fullname' => $fullname[0],
-                'startunix' => $course->startunix]);
+                'startunix' => date('d/m/Y', $course->startunix)]);
             if (array_key_exists($course->id, $coursearray)) {
                 $radioarray[] =& $mform->createElement('radio', 'course', '',
                     $courselabel .
@@ -197,7 +197,7 @@ class unenrol_form extends moodleform {
             $label = get_string('courselabel', 'local_enrolstaff', [
                 'fullname' => $course->fullname,
                 'idnumber' => $course->idnumber,
-                'startunix' => $course->startdate]);
+                'startunix' => date('d/m/Y', $course->startdate)]);
             $label .= get_string('existingroles', 'local_enrolstaff', $course->roles);
 
             $mform->addElement("html", "
