@@ -97,7 +97,7 @@ class course_form extends moodleform {
         $activeuser = $customdata['activeuser'];
         $role = $customdata['role'];
 
-        $enrolledon = $DB->get_records_sql("SELECT FLOOR(RAND() * 401) + 100 as id, r.id role_id, c.id course_id, r.name
+        $enrolledon = $DB->get_records_sql("SELECT ra.id as id, r.id role_id, c.id course_id, r.name
             FROM {course} c
             JOIN {context} ctx ON c.id = ctx.instanceid
             JOIN {role_assignments} ra ON ra.contextid = ctx.id
