@@ -63,7 +63,7 @@ if ($action == 'unenrol') {
     $uform = new unenrol_form(null, ['enrolments' => $enrolments]);
     if ($uform->is_cancelled()) {
         redirect('unenrolstaff.php');
-    } else if ($frouform = $uform->get_data()) {
+    } else if ($frouform = $uform->get_data()) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
 
     } else {
         $uform->display();
@@ -84,7 +84,7 @@ if ($action == 'unenrol_select') {
 
     if ($cform->is_cancelled()) {
         redirect('unenrolstaff.php');
-    } else if ($frocform = $cform->get_data()) {
+    } else if ($frocform = $cform->get_data()) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
 
     } else {
         $cform->display();

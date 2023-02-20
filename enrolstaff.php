@@ -61,7 +61,7 @@ if ($action == 'select_role') {
     echo $OUTPUT->notification(get_string('enrolintro', 'local_enrolstaff'), 'notifymessage');
     if ($rform->is_cancelled()) {
         redirect($CFG->wwwroot. '/local/enrolstaff/enrolstaff.php');
-    } else if ($frorform = $rform->get_data()) {
+    } else if ($frorform = $rform->get_data()) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
 
     } else {
         $rform->display();
@@ -87,7 +87,7 @@ if ($action == 'unit_select') {
     $sform = new search_form(null, array('role' => $role, 'activeuser' => $activeuser));
     if ($sform->is_cancelled()) {
         redirect($CFG->wwwroot. '/local/enrolstaff/enrolstaff.php');
-    } else if ($frosform = $sform->get_data()) {
+    } else if ($frosform = $sform->get_data()) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
 
     } else {
         $sform->display();
@@ -112,7 +112,7 @@ if ($action == 'search_select') {
 
         if ($cform->is_cancelled()) {
             redirect($CFG->wwwroot. '/local/enrolstaff/enrolstaff.php');
-        } else if ($frocform = $cform->get_data()) {
+        } else if ($frocform = $cform->get_data()) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
 
         } else {
             $cform->display();
@@ -167,7 +167,7 @@ if ($action == 'role_select') {
     $sform = new submit_form(null, $submitparams);
     if ($sform->is_cancelled()) {
         redirect($CFG->wwwroot. '/local/enrolstaff/enrolstaff.php');
-    } else if ($frosform = $sform->get_data()) {
+    } else if ($frosform = $sform->get_data()) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
 
     } else {
         $sform->display();
