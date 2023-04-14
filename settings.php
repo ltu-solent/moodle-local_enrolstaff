@@ -54,7 +54,8 @@ if ($hassiteconfig) {
     $name = new lang_string('enrolmentnotificationsubject', 'local_enrolstaff');
     $desc = new lang_string('enrolmentnotificationsubject_desc', 'local_enrolstaff');
     $default = new lang_string('enrolmentnotificationsubject_default', 'local_enrolstaff');
-    $settings->add(new admin_setting_configtext('local_enrolstaff/enrolmentnotificationsubject', $name, $desc, $default, PARAM_TEXT));
+    $settings->add(new admin_setting_configtext(
+        'local_enrolstaff/enrolmentnotificationsubject', $name, $desc, $default, PARAM_TEXT));
 
     $name = new lang_string('enrolmentnotificationmessage', 'local_enrolstaff');
     $desc = new lang_string('enrolmentnotificationmessage_desc', 'local_enrolstaff');
