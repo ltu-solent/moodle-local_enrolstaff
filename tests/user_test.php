@@ -34,6 +34,7 @@ require_once(__DIR__ . '/helper_trait.php');
 /**
  * Tests user functions
  * @covers \local_enrolstaff\local\user
+ * @group sol
  */
 class user_test extends advanced_testcase {
 

@@ -33,6 +33,7 @@ require_once(__DIR__ . '/helper_trait.php');
 /**
  * Tests for API class
  * @covers \local_enrolstaff\local\api
+ * @group sol
  */
 class api_test extends advanced_testcase {
 
