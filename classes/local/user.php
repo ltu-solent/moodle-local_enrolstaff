@@ -329,6 +329,7 @@ class user {
             WHERE u.id = :userid
                 AND ra.component != 'enrol_cohort'
                 AND ra.component != 'enrol_meta'
+                AND ra.component != 'enrol_solaissits'
             GROUP BY c.id", ['userid' => $this->user->id]);
         return $enrolledcourses;
     }
