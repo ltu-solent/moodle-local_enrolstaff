@@ -308,29 +308,27 @@ class user {
      */
     public function user_courses(): array {
         global $DB;
-        // Platform agnostic group concat.
-        $groupconcat = $DB->sql_group_concat('r.name', ', ');
-        $enrolledcourses = $DB->get_records_sql("SELECT DISTINCT(c.id) course_id, c.fullname, c.idnumber,
-            c.startdate,
-            (SELECT {$groupconcat}
-                FROM {user} u1
-                INNER JOIN {role_assignments} ra ON ra.userid = u1.id
-                INNER JOIN {context} ct ON ct.id = ra.contextid
-                INNER JOIN {course} c2 ON c2.id = ct.instanceid
-                INNER JOIN {role} r ON r.id = ra.roleid
-                WHERE c2.id = c.id
-                AND u1.id = u.id
-            ) AS roles
-            FROM {course} c
-                JOIN {context} ctx ON c.id = ctx.instanceid
-                JOIN {role_assignments} ra ON ra.contextid = ctx.id
-                JOIN {role} r ON ra.roleid = r.id
-                JOIN {user} u ON u.id = ra.userid
-            WHERE u.id = :userid
-                AND ra.component != 'enrol_cohort'
-                AND ra.component != 'enrol_meta'
-                AND ra.component != 'enrol_solaissits'
-            GROUP BY c.id", ['userid' => $this->user->id]);
+        $roles = $DB->get_records_sql("SELECT ra.id raid, c.id course_id, c.fullname, c.idnumber,
+        c.startdate, r.name rolename
+        FROM {course} c
+            JOIN {context} ctx ON c.id = ctx.instanceid
+            JOIN {role_assignments} ra ON ra.contextid = ctx.id
+            JOIN {role} r ON ra.roleid = r.id
+            JOIN {user} u ON u.id = ra.userid
+        WHERE u.id = :userid
+            AND ra.component != 'enrol_cohort'
+            AND ra.component != 'enrol_meta'
+            AND ra.component != 'enrol_solaissits'",
+        ['userid' => $this->user->id]);
+        $enrolledcourses = [];
+        foreach ($roles as $role) {
+            if (isset($enrolledcourses[$role->course_id])) {
+                $enrolledcourses[$role->course_id]->roles .= ', ' . $role->rolename;
+            } else {
+                $enrolledcourses[$role->course_id] = $role;
+                $enrolledcourses[$role->course_id]->roles = $role->rolename;
+            }
+        }
         return $enrolledcourses;
     }
 
