@@ -308,9 +308,11 @@ class user {
      */
     public function user_courses(): array {
         global $DB;
+        // Platform agnostic group concat.
+        $groupconcat = $DB->sql_group_concat('r.name', ', ');
         $enrolledcourses = $DB->get_records_sql("SELECT DISTINCT(c.id) course_id, c.fullname, c.idnumber,
             c.startdate, r.id role_id, r.name,
-            (SELECT GROUP_CONCAT(r.name SEPARATOR ', ')
+            (SELECT {$groupconcat}
                 FROM {user} u1
                 INNER JOIN {role_assignments} ra ON ra.userid = u1.id
                 INNER JOIN {context} ct ON ct.id = ra.contextid
