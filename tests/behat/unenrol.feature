@@ -57,12 +57,13 @@ Feature: Staff member self-unenrols from an existing course
     Given the following "course enrolments" exist:
     | user     | course | role    |
     | teacher1 | M2     | tutor   |
+    | teacher1 | M2     | qatutor |
     And I log in as "teacher1"
     When I visit "/local/enrolstaff/enrolstaff.php"
     And I press "Unenrol from modules"
     Then I should see "Staff Unenrolment"
-    And I should see "M2 - Module 2 - Start date: 01/09/2023 (already enrolled as Tutor)"
-    When I click on "M2 - Module 2 - Start date: 01/09/2023 (already enrolled as Tutor)" "checkbox"
+    And I should see "M2 - Module 2 - Start date: 01/09/2023 (already enrolled as Tutor, QA Tutor)"
+    When I click on "M2 - Module 2 - Start date: 01/09/2023 (already enrolled as Tutor, QA Tutor)" "checkbox"
     And I press "Unenrol from modules"
     Then I should see "You have selected to unenrol from the following modules:"
     And I should see "M2 - Module 2"

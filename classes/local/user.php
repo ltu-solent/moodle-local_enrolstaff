@@ -322,11 +322,13 @@ class user {
         ['userid' => $this->user->id]);
         $enrolledcourses = [];
         foreach ($roles as $role) {
+            $rolename = $role->rolename;
+            unset($role->rolename);
             if (isset($enrolledcourses[$role->course_id])) {
-                $enrolledcourses[$role->course_id]->roles .= ', ' . $role->rolename;
+                $enrolledcourses[$role->course_id]->roles .= ', ' . $rolename;
             } else {
                 $enrolledcourses[$role->course_id] = $role;
-                $enrolledcourses[$role->course_id]->roles = $role->rolename;
+                $enrolledcourses[$role->course_id]->roles = $rolename;
             }
         }
         return $enrolledcourses;
