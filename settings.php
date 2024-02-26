@@ -26,6 +26,21 @@ defined('MOODLE_INTERNAL') || die;
 
 $settings = new admin_settingpage('local_enrolstaff', new lang_string('pluginname', 'local_enrolstaff'));
 if ($hassiteconfig) {
+
+    $settings->add(new admin_setting_configselect(
+        'local_enrolstaff/expireenrolment',
+        new lang_string('expireenrolments', 'local_enrolstaff'),
+        new lang_string('expireenrolments_desc', 'local_enrolstaff'),
+        0,
+        [
+            0   => new lang_string('neverexpire', 'local_enrolstaff'),
+            182 => new lang_string('numdays', '', 182),
+            365 => new lang_string('numdays', '', 365),
+            547 => new lang_string('numdays', '', 547),
+            730 => new lang_string('numdays', '', 730),
+        ]
+    ));
+
     $settings->add(new admin_setting_configtext(
         'local_enrolstaff/unitleaderid', get_string('unitleaderid', 'local_enrolstaff'), '', '19'));
     $settings->add(new admin_setting_configtext(

@@ -247,9 +247,12 @@ if ($action == 'confirm_select') {
                 'expirythreshold' => '86400');
             $instance = $plugin->add_instance($course, $fields);
         }
-
+        $expiry = get_config('local_enrolstaff', 'expireenrolment') ?? 0;
+        if ($expiry > 0) {
+            $expiry = time() + (DAYSECS * $expiry);
+        }
         $instance = $DB->get_record('enrol', array('courseid' => $c->id, 'enrol' => 'manual'));
-        $plugin->enrol_user($instance, $USER->id, $r->id, time(), 0, null, null);
+        $plugin->enrol_user($instance, $USER->id, $r->id, time(), $expiry, null, null);
         // Is there a module leader already enrolled? Are they active? If not, send request to Registry.
         if (count($moduleleaders) == 0) {
             // Send message to registry? Perhaps other editing roles? Or perhaps lt.systems - site admin email.
