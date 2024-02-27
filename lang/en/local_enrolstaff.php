@@ -66,6 +66,7 @@ $string['expireenrolments'] = 'Expire enrolments';
 $string['expireenrolments_desc'] = 'How long should the enrolment last. Expiry date is calculated when the enrolment is created, and can be altered after the fact.';
 
 $string['intro'] = 'Please speak to the Module or Course Leader if you are unsure of the correct module or instance code.<br /><br /><strong>Modules that may contain sensitive data or have lecturers studying as students have been excluded from this service:</strong><ul><li>Module codes containing {$a->excludeshortname}</li><li>Module names containing {$a->excludefullname}</li><li>Modules removed from search results at the request of the module leader</li><li>QAHE staff are restricted to searching for module codes with the prefixes {$a->qahecodes}</li></ul>If your module does not appear in the search results, or if you feel a module should be excluded from this service please contact ltu@solent.ac.uk<br /><br />';
+$string['invalidcourse'] = 'You have selected an invalid course.';
 $string['invalidrole'] = "You have selected an invalid role.";
 
 $string['neverexpire'] = 'Never expire';
