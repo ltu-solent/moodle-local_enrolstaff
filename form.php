@@ -41,7 +41,7 @@ class role_form extends moodleform {
         $customdata = $this->_customdata;
 
         $options = $customdata['activeuser']->get_roles_menu();
-        $options = array('' => get_string('selectarole', 'local_enrolstaff')) + $options;
+        $options = ['' => get_string('selectarole', 'local_enrolstaff')] + $options;
         $result = count($options);
 
         if ($result > 0) {
@@ -103,10 +103,10 @@ class course_form extends moodleform {
             JOIN {role_assignments} ra ON ra.contextid = ctx.id
             JOIN {role} r ON ra.roleid = r.id
             JOIN {user} u ON u.id = ra.userid
-            WHERE u.id = :userid", array('userid' => $activeuser->user->id));
+            WHERE u.id = :userid", ['userid' => $activeuser->user->id]);
 
         // Loop through and add role names string and id to array id=>2 roles=>student, teacher etc.
-        $coursearray = array();
+        $coursearray = [];
 
         // Initialise the arrays to avoid offsets.
         for ($x = 0; $x < count($enrolledon); $x++) {
@@ -125,7 +125,7 @@ class course_form extends moodleform {
         }
 
         // Then loop through that array and check for roles.
-        $radioarray = array();
+        $radioarray = [];
         foreach ($courses as $course) {
             $fullname = explode('(Start', $course->fullname);
             $courselabel = get_string('courselabel', 'local_enrolstaff', [
@@ -144,7 +144,7 @@ class course_form extends moodleform {
         }
 
         $mform->addGroup($radioarray, 'radioar', get_string('selectamodule', 'local_enrolstaff'),
-            array('<br /><br />', '<br /><br />'), false);
+            ['<br /><br />', '<br /><br />'], false);
         $mform->addGroupRule('radioar', get_string('required'), 'required');
         $mform->addElement('hidden', 'action', 'role_select');
         $mform->setType('action', PARAM_ALPHANUMEXT);

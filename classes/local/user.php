@@ -197,7 +197,7 @@ class user {
         $params = [
             'courseid' => $courseid,
             'moduleslike' => 'modules_%',
-            'courseslike' => 'courses_%'
+            'courseslike' => 'courses_%',
         ];
         [$andsql, $andparams] = $this->get_course_filter();
         $params += $andparams;
@@ -243,7 +243,7 @@ class user {
             'coursesearch1' => '%' . $DB->sql_like_escape($coursesearch) . '%',
             'coursesearch2' => '%' . $DB->sql_like_escape($coursesearch) . '%',
             'moduleslike' => 'modules_%',
-            'courseslike' => 'courses_%'
+            'courseslike' => 'courses_%',
         ];
         $params += $inparams;
 

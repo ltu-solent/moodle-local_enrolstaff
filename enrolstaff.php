@@ -57,7 +57,7 @@ echo "<div class='maindiv'>";
 
 // Role selection.
 if ($action == 'select_role') {
-    $rform = new role_form(null, array('activeuser' => $activeuser));
+    $rform = new role_form(null, ['activeuser' => $activeuser]);
     echo $OUTPUT->notification(get_string('enrolintro', 'local_enrolstaff'), 'notifymessage');
     if ($rform->is_cancelled()) {
         redirect($CFG->wwwroot. '/local/enrolstaff/enrolstaff.php');
@@ -84,7 +84,7 @@ if ($action == 'unit_select') {
         'excludefullname' => get_config('local_enrolstaff', 'excludefullname'),
         'qahecodes' => get_config('local_enrolstaff', 'qahecodes')]);
 
-    $sform = new search_form(null, array('role' => $role, 'activeuser' => $activeuser));
+    $sform = new search_form(null, ['role' => $role, 'activeuser' => $activeuser]);
     if ($sform->is_cancelled()) {
         redirect($CFG->wwwroot. '/local/enrolstaff/enrolstaff.php');
     } else if ($frosform = $sform->get_data()) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
@@ -108,7 +108,7 @@ if ($action == 'search_select') {
     if (count($courses) > 0) {
         echo get_string('unitselect', 'local_enrolstaff');
 
-        $cform = new course_form(null, array('courses' => $courses, 'activeuser' => $activeuser, 'role' => $roleid));
+        $cform = new course_form(null, ['courses' => $courses, 'activeuser' => $activeuser, 'role' => $roleid]);
 
         if ($cform->is_cancelled()) {
             redirect($CFG->wwwroot. '/local/enrolstaff/enrolstaff.php');
@@ -141,12 +141,12 @@ if ($action == 'role_select') {
     if (in_array($roleid, $unitleaderroleids)) {
         echo get_string('requestforenrolment', 'local_enrolstaff', [
             'coursename' => $c->fullname,
-            'rolename' => $rolename
+            'rolename' => $rolename,
         ]);
     } else {
         echo get_string('abouttobeenrolled', 'local_enrolstaff', [
             'coursename' => $c->fullname,
-            'rolename' => $rolename
+            'rolename' => $rolename,
         ]);
     }
 
@@ -161,7 +161,7 @@ if ($action == 'role_select') {
 
     $submitparams = [
         'role' => $r->id,
-        'course' => $c->id
+        'course' => $c->id,
     ];
 
     $sform = new submit_form(null, $submitparams);
@@ -213,7 +213,7 @@ if ($action == 'confirm_select') {
         $subject = get_string('requestemailsubject', 'local_enrolstaff', ['shortname' => $c->shortname]);
         $message = get_string('enrolrequestedschool', 'local_enrolstaff', [
             'fullname' => $c->fullname . " " . userdate($c->startdate, '%d/%m/%Y') . " - " . userdate($c->enddate, '%d/%m/%Y'),
-            'rolename' => $rolename
+            'rolename' => $rolename,
         ]);
         $contact = $studentrecords;
         if (\local_enrolstaff\local\api::is_partner_course($c)) {
@@ -225,33 +225,36 @@ if ($action == 'confirm_select') {
         echo $OUTPUT->notification(get_string('enrolrequestalert', 'local_enrolstaff', [
             'schoolemail' => $studentrecordsemail,
             'shortname' => $c->shortname,
-            'rolename' => $rolename]), 'notifysuccess');
+            'rolename' => $rolename,
+        ]), 'notifysuccess');
         // Email receipt to user of requested.
         $subject = get_string('requestemailsubject', 'local_enrolstaff', ['shortname' => $c->shortname]);
         $message = get_string('enrolrequesteduser', 'local_enrolstaff', [
             'fullname' => $c->fullname,
-            'rolename' => $rolename]);
+            'rolename' => $rolename,
+        ]);
         \local_enrolstaff\local\api::send_message($USER, $contact, $subject, $message);
 
     } else {
         $plugin = enrol_get_plugin('manual');
-        $instance = $DB->get_record('enrol', array('courseid' => $c->id, 'enrol' => 'manual'));
+        $instance = $DB->get_record('enrol', ['courseid' => $c->id, 'enrol' => 'manual']);
         if (!$instance) {
-            $course = $DB->get_record('course', array('id' => $c->id));
-            $fields = array(
+            $course = $DB->get_record('course', ['id' => $c->id]);
+            $fields = [
                 'status'          => '0',
                 'roleid'          => '5',
                 'enrolperiod'     => '0',
                 'expirynotify'    => '0',
                 'notifyall'       => '0',
-                'expirythreshold' => '86400');
+                'expirythreshold' => '86400',
+            ];
             $instance = $plugin->add_instance($course, $fields);
         }
         $expiry = get_config('local_enrolstaff', 'expireenrolment') ?? 0;
         if ($expiry > 0) {
             $expiry = time() + (DAYSECS * $expiry);
         }
-        $instance = $DB->get_record('enrol', array('courseid' => $c->id, 'enrol' => 'manual'));
+        $instance = $DB->get_record('enrol', ['courseid' => $c->id, 'enrol' => 'manual']);
         $plugin->enrol_user($instance, $USER->id, $r->id, time(), $expiry, null, null);
         // Is there a module leader already enrolled? Are they active? If not, send request to Registry.
         if (count($moduleleaders) == 0) {
@@ -265,7 +268,7 @@ if ($action == 'confirm_select') {
                 'recipientfirstname' => '',
                 'rolename' => $rolename,
                 'shortname' => $c->shortname,
-                'userfullname' => fullname($USER)
+                'userfullname' => fullname($USER),
             ];
             foreach ($moduleleaders as $moduleleader) {
                 $options['recipientfirstname'] = $moduleleader->firstname;

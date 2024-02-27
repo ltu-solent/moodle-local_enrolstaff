@@ -52,14 +52,14 @@ trait helper_trait {
         $this->moduleleader = $this->getDataGenerator()->create_role([
             'shortname' => 'moduleleader',
             'name' => 'Module leader',
-            'archetype' => 'editingteacher'
+            'archetype' => 'editingteacher',
         ]);
         // Teaching roles will be automatically enrolled with a curtesy email sent to the module leader.
         $this->teachingroles[] = $this->moduleleader;
         $this->qamoduleleader = $this->getDataGenerator()->create_role([
             'shortname' => 'qamoduleleader',
             'name' => 'QA Module leader',
-            'archetype' => 'editingteacher'
+            'archetype' => 'editingteacher',
         ]);
         $this->qateachingroles[] = $this->qamoduleleader;
         set_config('unitleaderid', $this->moduleleader . ',' . $this->qamoduleleader, 'local_enrolstaff');
@@ -67,12 +67,12 @@ trait helper_trait {
         $this->teachingroles[] = $this->getDataGenerator()->create_role([
             'shortname' => 'tutor',
             'name' => 'Tutor',
-            'archetype' => 'teacher'
+            'archetype' => 'teacher',
         ]);
         $this->qateachingroles[] = $this->getDataGenerator()->create_role([
             'shortname' => 'qatutor',
             'name' => 'QA Tutor',
-            'archetype' => 'teacher'
+            'archetype' => 'teacher',
         ]);
         set_config('roleids', implode(",", $this->teachingroles), 'local_enrolstaff');
         set_config('qaheroleids', implode(",", $this->qateachingroles), 'local_enrolstaff');
@@ -93,37 +93,37 @@ trait helper_trait {
         $cat1 = $this->getDataGenerator()->create_category([
             'idnumber' => 'CAT1',
             'parent' => 0,
-            'name' => 'Courses'
+            'name' => 'Courses',
         ]);
         // Not discoverable.
         $catfac1 = $this->getDataGenerator()->create_category([
             'idnumber' => 'FAC1',
             'parent' => $cat1->id,
-            'name' => 'Faculty1'
+            'name' => 'Faculty1',
         ]);
         // Discoverable.
         $this->coursescat = $this->getDataGenerator()->create_category([
             'idnumber' => 'courses_FAC1',
             'parent' => $catfac1->id,
-            'name' => 'Course pages'
+            'name' => 'Course pages',
         ]);
         // Discoverable.
         $this->modulescat = $this->getDataGenerator()->create_category([
             'idnumber' => 'modules_FAC1',
             'parent' => $catfac1->id,
-            'name' => 'Module pages'
+            'name' => 'Module pages',
         ]);
         // Not discoverable.
         $this->levelscat = $this->getDataGenerator()->create_category([
             'idnumber' => 'level_FAC1',
             'parent' => $catfac1->id,
-            'name' => 'Level pages'
+            'name' => 'Level pages',
         ]);
         // Not discoverable.
         $this->otherscat = $this->getDataGenerator()->create_category([
             'idnumber' => 'Other',
             'parent' => 0,
-            'name' => 'Other'
+            'name' => 'Other',
         ]);
 
     }
@@ -139,56 +139,56 @@ trait helper_trait {
             'fullname' => 'Course 1',
             'shortname' => 'C1',
             'idnumber' => 'C1',
-            'category' => $this->coursescat->id
+            'category' => $this->coursescat->id,
         ]);
         // Not discoverable.
         $this->courses['C2'] = $this->getDataGenerator()->create_course([
             'fullname' => 'Course 2',
             'shortname' => 'C2',
             'idnumber' => 'C2',
-            'category' => $this->otherscat->id
+            'category' => $this->otherscat->id,
         ]);
         // Discoverable.
         $this->courses['M1'] = $this->getDataGenerator()->create_course([
             'fullname' => 'Module 1',
             'shortname' => 'M1',
             'idnumber' => 'M1',
-            'category' => $this->modulescat->id
+            'category' => $this->modulescat->id,
         ]);
         // Discoverable.
         $this->courses['M2'] = $this->getDataGenerator()->create_course([
             'fullname' => 'Module 2',
             'shortname' => 'M2',
             'idnumber' => 'M2',
-            'category' => $this->modulescat->id
+            'category' => $this->modulescat->id,
         ]);
         // Restricted.
         $this->courses['counselling'] = $this->getDataGenerator()->create_course([
             'fullname' => 'Counselling 101',
             'shortname' => 'counselling',
             'idnumber' => 'counselling',
-            'category' => $this->modulescat->id
+            'category' => $this->modulescat->id,
         ]);
         // Restricted.
         $this->courses['EDU101'] = $this->getDataGenerator()->create_course([
             'fullname' => 'Education 101',
             'shortname' => 'EDU101',
             'idnumber' => 'EDU101',
-            'category' => $this->modulescat->id
+            'category' => $this->modulescat->id,
         ]);
         // Restricted.
         $this->courses['EXCLUDE101'] = $this->getDataGenerator()->create_course([
             'fullname' => 'Exclude 101',
             'shortname' => 'EXCLUDE101',
             'idnumber' => 'EXCLUDE101',
-            'category' => $this->modulescat->id
+            'category' => $this->modulescat->id,
         ]);
         // Limited to QAHE partners.
         $this->courses['QHO1'] = $this->getDataGenerator()->create_course([
             'fullname' => 'QModule 1',
             'shortname' => 'QHO1',
             'idnumber' => 'QHO1',
-            'category' => $this->modulescat->id
+            'category' => $this->modulescat->id,
         ]);
     }
 
@@ -203,28 +203,28 @@ trait helper_trait {
             'firstname' => 'Teacher',
             'lastname' => '1',
             'email' => 'teacher1@solent.ac.uk',
-            'department' => 'academic'
+            'department' => 'academic',
         ]);
         $this->users['leader1'] = $this->getDataGenerator()->create_user([
             'username' => 'leader1',
             'firstname' => 'Leader',
             'lastname' => '1',
             'email' => 'leader1@solent.ac.uk',
-            'department' => 'Academic'
+            'department' => 'Academic',
         ]);
         $this->users['support1'] = $this->getDataGenerator()->create_user([
             'username' => 'support1',
             'firstname' => 'Support',
             'lastname' => '1',
             'email' => 'support1@solent.ac.uk',
-            'department' => 'support'
+            'department' => 'support',
         ]);
         $this->users['manage1'] = $this->getDataGenerator()->create_user([
             'username' => 'manage1',
             'firstname' => 'Manage',
             'lastname' => '1',
             'email' => 'manage1@solent.ac.uk',
-            'department' => 'management'
+            'department' => 'management',
         ]);
         // Cannot use this service.
         $this->users['student1'] = $this->getDataGenerator()->create_user([
@@ -232,7 +232,7 @@ trait helper_trait {
             'firstname' => 'Student',
             'lastname' => '1',
             'email' => 'student1@solent.ac.uk',
-            'department' => 'student'
+            'department' => 'student',
         ]);
         // Limited to QAHE courses.
         $this->users['qateacher1'] = $this->getDataGenerator()->create_user([
@@ -240,7 +240,7 @@ trait helper_trait {
             'firstname' => 'QaTeacher',
             'lastname' => '1',
             'email' => 'qateacher1@qa.com',
-            'department' => 'academic'
+            'department' => 'academic',
         ]);
         // Limited to QAHE courses.
         $this->users['qaleader1'] = $this->getDataGenerator()->create_user([
@@ -248,21 +248,21 @@ trait helper_trait {
             'firstname' => 'QaLeader',
             'lastname' => '1',
             'email' => 'qaleader1@qa.com',
-            'department' => 'Academic'
+            'department' => 'Academic',
         ]);
         $this->users['studentrecords'] = $this->getDataGenerator()->create_user([
             'username' => 'studentrecords',
             'firstname' => 'Student',
             'lastname' => 'Records',
             'email' => 'studentrecords@solent.ac.uk',
-            'department' => 'support'
+            'department' => 'support',
         ]);
         $this->users['academicpartnerships'] = $this->getDataGenerator()->create_user([
             'username' => 'academicpartnerships',
             'firstname' => 'Academic',
             'lastname' => 'Partnerships',
             'email' => 'academic.partnerships@solent.ac.uk',
-            'department' => 'Support'
+            'department' => 'Support',
         ]);
         // Cannot use this service.
         $this->users['jobshop101'] = $this->getDataGenerator()->create_user([
@@ -270,7 +270,7 @@ trait helper_trait {
             'firstname' => 'Herbert',
             'lastname' => 'Jobshop',
             'email' => 'jobshop101@solent.ac.uk',
-            'department' => 'support'
+            'department' => 'support',
         ]);
     }
 

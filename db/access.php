@@ -25,15 +25,15 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$capabilities = array(
-    'local/enrolstaff:managestaffenrolments' => array(
+$capabilities = [
+    'local/enrolstaff:managestaffenrolments' => [
         'riskbitmask'  => RISK_SPAM | RISK_PERSONAL | RISK_XSS | RISK_CONFIG,
         'captype'      => 'view',
         'contextlevel' => CONTEXT_SYSTEM,
-        'archetypes'   => array(
+        'archetypes'   => [
             'teacher'        => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
-            'manager'          => CAP_ALLOW
-            )
-    ),
-);
+            'manager'          => CAP_ALLOW,
+        ],
+    ],
+];
