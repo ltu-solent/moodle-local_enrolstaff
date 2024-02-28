@@ -156,7 +156,7 @@ class user {
      *
      * @return bool
      */
-    public function user_can_enrolself():bool {
+    public function user_can_enrolself(): bool {
         if (is_siteadmin()) {
             return true;
         }

@@ -107,9 +107,9 @@ class course_form extends moodleform {
 
         // Loop through and add role names string and id to array id=>2 roles=>student, teacher etc.
         $coursearray = [];
-
+        $countenrolledon = count($enrolledon);
         // Initialise the arrays to avoid offsets.
-        for ($x = 0; $x < count($enrolledon); $x++) {
+        for ($x = 0; $x < $countenrolledon; $x++) {
             foreach ($enrolledon as $evalue) {
                 if (!array_key_exists($evalue->course_id, $coursearray)) {
                     $coursearray[$evalue->course_id] = '';
