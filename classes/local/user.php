@@ -308,12 +308,11 @@ class user {
      */
     public function user_courses(): array {
         global $DB;
-        $roles = $DB->get_records_sql("SELECT ra.id raid, c.id course_id, c.fullname, c.idnumber,
-        c.startdate, r.name rolename
+        $roleassignments = $DB->get_records_sql("SELECT ra.id raid, c.id course_id, c.fullname, c.idnumber,
+        c.startdate, ra.roleid
         FROM {course} c
-            JOIN {context} ctx ON c.id = ctx.instanceid
+            JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = 50
             JOIN {role_assignments} ra ON ra.contextid = ctx.id
-            JOIN {role} r ON ra.roleid = r.id
             JOIN {user} u ON u.id = ra.userid
         WHERE u.id = :userid
             AND ra.component != 'enrol_cohort'
@@ -321,14 +320,15 @@ class user {
             AND ra.component != 'enrol_solaissits'",
         ['userid' => $this->user->id]);
         $enrolledcourses = [];
-        foreach ($roles as $role) {
-            $rolename = $role->rolename;
-            unset($role->rolename);
-            if (isset($enrolledcourses[$role->course_id])) {
-                $enrolledcourses[$role->course_id]->roles .= ', ' . $rolename;
+        $roles = $DB->get_records('role');
+        foreach ($roleassignments as $ra) {
+            $rolename = role_get_name($roles[$ra->roleid]);
+            unset($ra->roleid);
+            if (isset($enrolledcourses[$ra->course_id])) {
+                $enrolledcourses[$ra->course_id]->roles .= ', ' . $rolename;
             } else {
-                $enrolledcourses[$role->course_id] = $role;
-                $enrolledcourses[$role->course_id]->roles = $rolename;
+                $enrolledcourses[$ra->course_id] = $ra;
+                $enrolledcourses[$ra->course_id]->roles = $rolename;
             }
         }
         return $enrolledcourses;

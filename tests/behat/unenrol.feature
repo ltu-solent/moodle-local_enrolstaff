@@ -97,3 +97,29 @@ Feature: Staff member self-unenrols from an existing course
     Then I should see "You have been unenrolled from your selected modules."
     When I am on "Module 2" course homepage
     Then I should see "This course is currently unavailable to students"
+
+  Scenario: Removes other enrolments (self, csv)
+    Given I log in as "admin"
+    And I am on the "Module 2" "enrolment methods" page
+    And I click on "Enable" "link" in the "Self enrolment (Student)" "table_row"
+    And the following "course enrolments" exist:
+    | user     | course | role    | enrol    |
+    | teacher1 | M2     | student | self     |
+    | teacher1 | M2     | tutor   | manual   |
+    | teacher1 | M2     | qatutor | manual   |
+    And I log in as "teacher1"
+    When I am on "Module 2" course homepage
+    Then I should see "Topic 1"
+    When I visit "/local/enrolstaff/enrolstaff.php"
+    And I press "Unenrol from modules"
+    Then I should see "Staff Unenrolment"
+    And I should see "M2 - Module 2 - Start date: 01/09/2023 (already enrolled as Student, Tutor, QA Tutor)"
+    When I click on "M2 - Module 2 - Start date: 01/09/2023 (already enrolled as Student, Tutor, QA Tutor)" "checkbox"
+    And I press "Unenrol from modules"
+    Then I should see "You have selected to unenrol from the following modules:"
+    And I should see "M2 - Module 2"
+    When I press "Confirm"
+    Then I should see "You have been unenrolled from your selected modules."
+    When I am on "Module 2" course homepage
+    # Because the module has self-enrolment enabled
+    Then I should see "Self enrolment (Student)"

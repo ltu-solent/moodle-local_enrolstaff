@@ -92,8 +92,11 @@ if ($action == 'unenrol_select') {
 }
 
 if ($action == 'unenrol_confirm') {
+    /** @var enrol_manual_plugin $pluginmanual */
     $pluginmanual = enrol_get_plugin('manual');
+    /** @var enrol_flatfile_plugin $pluginflat */
     $pluginflat = enrol_get_plugin('flatfile');
+    /** @var enrol_self_plugin $pluginself */
     $pluginself = enrol_get_plugin('self');
     $courses = required_param('courses', PARAM_SEQUENCE);
     $courses = explode(',', $courses);
@@ -103,16 +106,11 @@ if ($action == 'unenrol_confirm') {
     });
     list($insql, $inparams) = $DB->get_in_or_equal($listed, SQL_PARAMS_NAMED);
     $params = ['userid' => $USER->id] + $inparams;
-    $enrolinstances = $DB->get_records_sql("SELECT e.*
-                FROM {user_enrolments} ue
-                JOIN {enrol} e ON e.id = ue.enrolid
-                JOIN {course} c ON c.id = e.courseid
-                JOIN {user} u ON u.id = ue.userid
-                INNER JOIN {role_assignments} ra ON ra.userid = u.id
-                INNER JOIN {context} ct ON (ct.id = ra.contextid AND c.id = ct.instanceid)
-                WHERE ra.userid = :userid
-                AND c.id {$insql}
-                GROUP BY c.id", $params);
+    $enrolinstances = $DB->get_records_sql("SELECT ue.id ueid, e.*
+        FROM {user_enrolments} ue
+        JOIN {enrol} e ON e.id = ue.enrolid
+        WHERE ue.userid = :userid
+            AND e.courseid {$insql}", $params);
 
     foreach ($enrolinstances as $k => $v) {
         if ($v->enrol == 'manual') {
