@@ -52,7 +52,9 @@ if (!$activeuser->user_can_enrolself()) {
     throw new moodle_exception('cannotenrolself', 'local_enrolstaff');
 }
 
-$unitleaderroleids = explode(',', get_config('local_enrolstaff', 'unitleaderid'));
+$esconfig = get_config('local_enrolstaff');
+
+$unitleaderroleids = explode(',', $esconfig->unitleaderid);
 echo "<div class='maindiv'>";
 
 // Role selection.
@@ -79,10 +81,34 @@ if ($action == 'unit_select') {
     if (!$activeuser->is_role_valid($role)) {
         throw new moodle_exception('invalidrole', 'local_enrolstaff');
     }
+    $excludeshortname = trim($esconfig->excludeshortname);
+    if ($excludeshortname == '') {
+        $excludeshortname = [get_string('na', 'local_enrolstaff')];
+    } else {
+        $excludeshortname = explode(',', $excludeshortname);
+    }
+    core_collator::asort($excludeshortname, core_collator::SORT_NATURAL);
+
+    $excludefullname = trim($esconfig->excludefullname);
+    if ($excludefullname == '') {
+        $excludefullname = [get_string('na', 'local_enrolstaff')];
+    } else {
+        $excludefullname = explode(',', $excludefullname);
+    }
+    core_collator::asort($excludefullname, core_collator::SORT_NATURAL);
+
+    $qahecodes = trim($esconfig->qahecodes);
+    if ($qahecodes == '') {
+        $qahecodes = [get_string('na', 'local_enrolstaff')];
+    } else {
+        $qahecodes = explode(',', $qahecodes);
+    }
+    core_collator::asort($qahecodes, core_collator::SORT_NATURAL);
+
     echo get_string('intro', 'local_enrolstaff', [
-        'excludeshortname' => get_config('local_enrolstaff', 'excludeshortname'),
-        'excludefullname' => get_config('local_enrolstaff', 'excludefullname'),
-        'qahecodes' => get_config('local_enrolstaff', 'qahecodes')]);
+        'excludeshortname' => join(', ', $excludeshortname),
+        'excludefullname' => join(', ', $excludefullname),
+        'qahecodes' => join(', ', $qahecodes)]);
 
     $sform = new search_form(null, ['role' => $role, 'activeuser' => $activeuser]);
     if ($sform->is_cancelled()) {
@@ -151,6 +177,10 @@ if ($action == 'role_select') {
     }
 
     echo $OUTPUT->notification(get_string('enrolwarning', 'local_enrolstaff'), 'notifymessage');
+
+    if ($esconfig->expireenrolment > 0) {
+        echo html_writer::tag('p', get_string('enrolmentsexpireafter', 'local_enrolstaff', $esconfig->expireenrolment));
+    }
     $startdate = new DateTime();
     $startdate->setTimestamp($c->startdate);
     $startdate = userdate($startdate->getTimestamp(), '%d/%m/%Y');

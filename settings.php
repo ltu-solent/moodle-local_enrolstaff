@@ -41,20 +41,26 @@ if ($hassiteconfig) {
         ]
     ));
 
+    $commaseparated = new lang_string('commaseparatedlist', 'local_enrolstaff');
+
     $settings->add(new admin_setting_configtext(
-        'local_enrolstaff/unitleaderid', get_string('unitleaderid', 'local_enrolstaff'), '', '19'));
+        'local_enrolstaff/unitleaderid', get_string('unitleaderid', 'local_enrolstaff'), $commaseparated, '19'));
     $settings->add(new admin_setting_configtext(
-        'local_enrolstaff/roleids', get_string('roleidssolent', 'local_enrolstaff'), '', '0'));
+        'local_enrolstaff/roleids', get_string('roleidssolent', 'local_enrolstaff'), $commaseparated, '0'));
     $settings->add(new admin_setting_configtext(
-        'local_enrolstaff/qaheroleids', get_string('roleidsqahe', 'local_enrolstaff'), '', '0'));
+        'local_enrolstaff/qaheroleids', get_string('roleidsqahe', 'local_enrolstaff'), $commaseparated, '0'));
+    $settings->add(new admin_setting_configtextarea(
+        'local_enrolstaff/qahecodes', get_string('codesqahe', 'local_enrolstaff'), $commaseparated, ''));
+    $settings->add(new admin_setting_configtextarea(
+        'local_enrolstaff/excludeshortname', get_string('excludeshortname', 'local_enrolstaff'), $commaseparated, ''));
+    $settings->add(new admin_setting_configtextarea(
+        'local_enrolstaff/excludefullname',
+        get_string('excludeshortname', 'local_enrolstaff'),
+        $commaseparated,
+        'counselling,social work'
+    ));
     $settings->add(new admin_setting_configtext(
-        'local_enrolstaff/qahecodes', get_string('codesqahe', 'local_enrolstaff'), '', '0'));
-    $settings->add(new admin_setting_configtext(
-        'local_enrolstaff/excludeshortname', get_string('excludeshortname', 'local_enrolstaff'), '', '0'));
-    $settings->add(new admin_setting_configtext(
-        'local_enrolstaff/excludefullname', get_string('excludeshortname', 'local_enrolstaff'), '', 'counselling,social work'));
-    $settings->add(new admin_setting_configtext(
-        'local_enrolstaff/excludeid', get_string('excludeid', 'local_enrolstaff'), '', '328, 22679, 6432'));
+        'local_enrolstaff/excludeid', get_string('excludeid', 'local_enrolstaff'), $commaseparated, '328, 22679, 6432'));
     $settings->add(new admin_setting_configtext(
         'local_enrolstaff/studentrecords', get_string('studentrecords', 'local_enrolstaff'), '', ''));
 

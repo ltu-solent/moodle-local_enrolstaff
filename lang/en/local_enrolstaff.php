@@ -30,6 +30,7 @@ $string['addmore'] = "Enrol on another module";
 $string['cannotenrolself'] = 'You are not permitted to do this action';
 $string['codesbcas'] = "Comma separated list of BCAS module code prefixes";
 $string['codesqahe'] = "Comma separated list of QAHE module code prefixes";
+$string['commaseparatedlist'] = 'Comma separated list';
 $string['courselabel'] = '{$a->idnumber} - {$a->fullname} - Start date: {$a->startunix}';
 $string['coursesearch'] = "Module code";
 $string['currentcourses'] = 'Current enrolments';
@@ -52,6 +53,7 @@ $string['enrolmentnotificationmessageenable_desc'] = 'Should emails be sent to t
 $string['enrolmentnotificationsubject'] = 'Subject of notification email';
 $string['enrolmentnotificationsubject_default'] = 'New enrolment on [shortname]';
 $string['enrolmentnotificationsubject_desc'] = 'You can include the following codes in the subject [coursefullname], [rolename], [shortname], [userfullname]';
+$string['enrolmentsexpireafter'] = 'Enrolments expire after {$a} days. You may reenrol any time. We do this to help keep unnecessary enrolments down.';
 $string['enrolrequestalert'] = '{$a->schoolemail} has been sent a request for you to be enrolled on {$a->shortname} as {$a->rolename}. <br /><br /> You will receive an email confirmation with further information.';
 $string['enrolrequestedschool'] = 'Please enrol me on {$a->fullname} as {$a->rolename}.';
 $string['enrolrequesteduser'] = 'This is confirmation of your request to be added to {$a->fullname} as {$a->rolename}. The turnaround time for processing module leader requests is 2-3 working days. If you do not have access to the module after that time, please let us know.';
@@ -65,10 +67,18 @@ $string['existingroles'] = ' <strong>(already enrolled as {$a})</strong>';
 $string['expireenrolments'] = 'Expire enrolments';
 $string['expireenrolments_desc'] = 'How long should the enrolment last. Expiry date is calculated when the enrolment is created, and can be altered after the fact.';
 
-$string['intro'] = 'Please speak to the Module or Course Leader if you are unsure of the correct module or instance code.<br /><br /><strong>Modules that may contain sensitive data or have lecturers studying as students have been excluded from this service:</strong><ul><li>Module codes containing {$a->excludeshortname}</li><li>Module names containing {$a->excludefullname}</li><li>Modules removed from search results at the request of the module leader</li><li>QAHE staff are restricted to searching for module codes with the prefixes {$a->qahecodes}</li></ul>If your module does not appear in the search results, or if you feel a module should be excluded from this service please contact ltu@solent.ac.uk<br /><br />';
+$string['intro'] = 'Please speak to the Module or Course Leader if you are unsure of the correct module or instance code.<br /><br /><strong>Modules that may contain sensitive data or have lecturers studying as students have been excluded from this service:</strong>
+    <ul>
+        <li>Module codes containing: {$a->excludeshortname}</li>
+        <li>Module names containing: {$a->excludefullname}</li>
+        <li>Modules removed from search results at the request of the module leader</li>
+        <li>QAHE staff are restricted to searching for module codes with the prefixes: {$a->qahecodes}</li>
+    </ul>
+    If your module does not appear in the search results, or if you feel a module should be excluded from this service please contact guided.learning@solent.ac.uk<br /><br />';
 $string['invalidcourse'] = 'You have selected an invalid course.';
 $string['invalidrole'] = "You have selected an invalid role.";
 
+$string['na'] = 'n/a';
 $string['neverexpire'] = 'Never expire';
 $string['nocourses'] = "You are not enrolled on any courses that can be un-enrolled from via this service.";
 $string['nomatchingmodules'] = 'No modules match the term <strong>{$a->coursesearch}</strong>';
