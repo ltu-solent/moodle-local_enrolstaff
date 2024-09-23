@@ -126,25 +126,33 @@ class course_form extends moodleform {
 
         // Then loop through that array and check for roles.
         $radioarray = [];
+        $ccount = 0;
         foreach ($courses as $course) {
+            $odd = $ccount & 1;
+            $style = $odd ? 'background-color: var(--gray-200)' : 'background-color: var(--gray-100)';
             $fullname = explode('(Start', $course->fullname);
             $courselabel = get_string('courselabel', 'local_enrolstaff', [
                 'idnumber' => $course->idnumber,
                 'fullname' => $fullname[0],
-                'startunix' => date('d/m/Y', $course->startunix)]);
+                'startunix' => date('d/m/Y', $course->startunix),
+                'endunix' => date('d/m/Y', $course->endunix),
+            ]);
             if (array_key_exists($course->id, $coursearray)) {
+                $style = 'background-color: var(--teal)';
                 $radioarray[] =& $mform->createElement('radio', 'course', '',
-                    $courselabel .
-                    get_string('existingroles', 'local_enrolstaff', rtrim($coursearray[$course->id], ", ")),
+                    '<div class="w-100 p-1" style="' . $style . '">' . $courselabel .
+                    '<br>' . get_string('existingroles', 'local_enrolstaff', rtrim($coursearray[$course->id], ", ")) .
+                    '</div>',
                     $course->id, 'disabled');
             } else {
                 $radioarray[] =& $mform->createElement('radio', 'course', '',
-                    $courselabel, $course->id, 'required');
+                    '<div class="w-100 p-1" style="' . $style . '">' . $courselabel . '</div>', $course->id, 'required');
             }
+            $ccount++;
         }
 
         $mform->addGroup($radioarray, 'radioar', get_string('selectamodule', 'local_enrolstaff'),
-            ['<br /><br />', '<br /><br />'], false);
+            '<br />', false);
         $mform->addGroupRule('radioar', get_string('required'), 'required');
         $mform->addElement('hidden', 'action', 'role_select');
         $mform->setType('action', PARAM_ALPHANUMEXT);

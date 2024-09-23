@@ -67,7 +67,7 @@ class user {
     /**
      * Is this user working in the jobshop
      *
-     * @var boolean
+     * @var bool
      */
     private $isjobshopuser;
 
@@ -250,7 +250,7 @@ class user {
         [$andsql, $andparams] = $this->get_course_filter();
 
         $params += $andparams;
-        $sql = "SELECT c.id, c.idnumber, c.shortname, c.fullname, c.startdate as startunix
+        $sql = "SELECT c.id, c.idnumber, c.shortname, c.fullname, c.startdate as startunix, c.enddate as endunix
                 FROM {course} c
                 JOIN {course_categories} cc on c.category = cc.id
                 WHERE ({$coursesearch1like} OR {$coursesearch2like})
@@ -258,7 +258,7 @@ class user {
                 AND c.id {$inorequalsql}
                 AND ({$moduleslike} OR {$courseslike})
                 AND c.visible = 1
-                ORDER BY c.shortname DESC";
+                ORDER BY c.startdate DESC, c.shortname ASC";
         $courses = $DB->get_records_sql($sql, $params);
 
         return $courses;

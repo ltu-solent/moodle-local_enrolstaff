@@ -25,21 +25,83 @@
 
 namespace local_enrolstaff;
 
+use core_course_category;
+use stdClass;
+
 /**
  * Some reusable components for unit tests
  */
 trait helper_trait {
 
-    public $moduleleader;
-    public $qamoduleleader;
-    public $coursescat;
-    public $modulescat;
-    public $levelscat;
-    public $otherscat;
-    public $courses;
-    public $teachingroles;
-    public $qateachingroles;
-    public $users;
+    /**
+     * Module leader role
+     *
+     * @var int
+     */
+    public int $moduleleader;
+
+    /**
+     * QA module leader role
+     *
+     * @var int
+     */
+    public int $qamoduleleader;
+
+    /**
+     * Courses category
+     *
+     * @var core_course_category
+     */
+    public core_course_category $coursescat;
+
+    /**
+     * Modules category
+     *
+     * @var core_course_category
+     */
+    public core_course_category $modulescat;
+
+    /**
+     * Levels category
+     *
+     * @var core_course_category
+     */
+    public core_course_category $levelscat;
+
+    /**
+     * Others category
+     *
+     * @var core_course_category
+     */
+    public core_course_category $otherscat;
+
+    /**
+     * Courses/Modules
+     *
+     * @var array
+     */
+    public array $courses;
+
+    /**
+     * Teaching role
+     *
+     * @var array
+     */
+    public array $teachingroles;
+
+    /**
+     * Qa teaching roles
+     *
+     * @var array
+     */
+    public array $qateachingroles;
+
+    /**
+     * Users
+     *
+     * @var array
+     */
+    public array $users;
 
     /**
      * Sets up roles and role settings for plugins

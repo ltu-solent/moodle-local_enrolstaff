@@ -31,7 +31,7 @@ $string['cannotenrolself'] = 'You are not permitted to do this action';
 $string['codesbcas'] = "Comma separated list of BCAS module code prefixes";
 $string['codesqahe'] = "Comma separated list of QAHE module code prefixes";
 $string['commaseparatedlist'] = 'Comma separated list';
-$string['courselabel'] = '{$a->idnumber} - {$a->fullname} - Start date: {$a->startunix}';
+$string['courselabel'] = '{$a->idnumber}<br />{$a->fullname}</br />Start/End: {$a->startunix} - {$a->endunix}';
 $string['coursesearch'] = "Module code";
 $string['currentcourses'] = 'Current enrolments';
 
