@@ -308,8 +308,8 @@ class user {
      */
     public function user_courses(): array {
         global $DB;
-        $roleassignments = $DB->get_records_sql("SELECT ra.id raid, c.id course_id, c.fullname, c.idnumber,
-        c.startdate, ra.roleid
+        $roleassignments = $DB->get_records_sql("SELECT ra.id raid, c.id course_id, c.fullname, c.idnumber, c.shortname,
+        c.startdate, c.enddate, ra.roleid
         FROM {course} c
             JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = 50
             JOIN {role_assignments} ra ON ra.contextid = ctx.id

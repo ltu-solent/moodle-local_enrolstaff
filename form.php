@@ -200,23 +200,25 @@ class unenrol_form extends moodleform {
         $enrolments = $customdata['enrolments'];
 
         echo get_string('unenrolselect', 'local_enrolstaff');
-
+        $ccount = 0;
         foreach ($enrolments as $course) {
+            $odd = $ccount & 1;
+            $style = $odd ? 'background-color: var(--gray-200)' : 'background-color: var(--gray-100)';
+            $enddate = ($course->enddate > 0) ? date('d/m/Y', $course->enddate) : '';
             $label = get_string('courselabel', 'local_enrolstaff', [
                 'fullname' => $course->fullname,
-                'idnumber' => $course->idnumber,
-                'startunix' => date('d/m/Y', $course->startdate)]);
-            $label .= get_string('existingroles', 'local_enrolstaff', $course->roles);
+                'idnumber' => $course->shortname,
+                'startunix' => date('d/m/Y', $course->startdate),
+                'endunix' => $enddate,
+            ]);
+            $label .= '<br />' . get_string('existingroles', 'local_enrolstaff', $course->roles);
 
-            $mform->addElement("html", "
-                <div id='fitem_id_courses' class='fitem fitem_fcheckbox femptylabel'>
-                    <div class='felement fcheckbox'>
-                        <span>
-                            <input name='courses[]' type='checkbox' value='" . $course->course_id . "' id='id_courses'>
-                            <label for='id_courses'>" . $label . "</label>
-                        </span>
-                    </div>
-                </div>");
+            $mform->addElement("html", '
+                <div class="w-100 p1" style="' . $style . '">
+                            <input name="courses[]" type="checkbox" value="' . $course->course_id . '" id="id_courses">
+                            <label for="id_courses">' . $label . '</label>
+                </div>');
+            $ccount++;
         }
 
         $mform->addElement('hidden', 'action', 'unenrol_select');
