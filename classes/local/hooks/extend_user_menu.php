@@ -14,36 +14,37 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Lib file for Enrolstaff
- *
- * @package   local_enrolstaff
- * @author    Mark Sharp <mark.sharp@solent.ac.uk>
- * @copyright 2022 Solent University {@link https://www.solent.ac.uk}
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+namespace local_enrolstaff\local\hooks;
 
+use stdClass;
 
 /**
- * Add enrolstaff link to user profile menu if the user is allowed to.
+ * Class extend_user_menu
  *
- * @param array $navitems
- * @param stdClass $user
- * @param context $context
- * @param stdClass $course
- * @return array
+ * @package    local_enrolstaff
+ * @copyright  2024 Southampton Solent University {@link https://www.solent.ac.uk}
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-function local_enrolstaff_extend_navigation_menuuser($navitems, $user, $context, $course) {
-    $activeuser = new \local_enrolstaff\local\user($user);
-    $enabled = $activeuser->user_can_enrolself();
-    if ($enabled) {
+class extend_user_menu {
+    /**
+     * Add Enrol staff to the user menu
+     *
+     * @param \core_user\hook\extend_user_menu $hook
+     * @return void
+     */
+    public static function callback(\core_user\hook\extend_user_menu $hook): void {
+        global $USER;
+        $activeuser = new \local_enrolstaff\local\user($USER);
+        $enabled = $activeuser->user_can_enrolself();
+        if (!$enabled) {
+            return;
+        }
         $usermenuitem = new stdClass();
         $usermenuitem->itemtype = 'link';
-        $usermenuitem->url = new moodle_url('/local/enrolstaff/enrolstaff.php');
+        $usermenuitem->url = new \core\url('/local/enrolstaff/enrolstaff.php');
         $usermenuitem->pix = "i/course";
         $usermenuitem->title = get_string('enrol-selfservice', 'local_enrolstaff');
         $usermenuitem->titleidentifier = 'enrol-selfservice,local_enrolstaff';
-        $navitems[] = $usermenuitem;
+        $hook->add_navitem($usermenuitem);
     }
-    return $navitems;
 }
