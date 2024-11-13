@@ -36,7 +36,7 @@ require_once(__DIR__ . '/helper_trait.php');
  * @covers \local_enrolstaff\local\user
  * @group sol
  */
-class user_test extends advanced_testcase {
+final class user_test extends advanced_testcase {
 
     use helper_trait;
 
@@ -58,7 +58,7 @@ class user_test extends advanced_testcase {
      *
      * @return void
      */
-    public function test_properties() {
+    public function test_properties(): void {
         global $USER;
         $this->resetAfterTest();
         $this->setup_bitsnbobs();
@@ -91,7 +91,7 @@ class user_test extends advanced_testcase {
      *
      * @return void
      */
-    public function test_get_roles_menu() {
+    public function test_get_roles_menu(): void {
         global $USER;
         $this->resetAfterTest();
         $this->setup_bitsnbobs();
@@ -130,7 +130,7 @@ class user_test extends advanced_testcase {
      *
      * @return void
      */
-    public function test_is_role_valid() {
+    public function test_is_role_valid(): void {
         global $DB, $USER;
         $this->resetAfterTest();
         $this->setup_bitsnbobs();
@@ -175,7 +175,7 @@ class user_test extends advanced_testcase {
      *
      * @return void
      */
-    public function test_user_can_enrolself() {
+    public function test_user_can_enrolself(): void {
         global $USER;
         $this->resetAfterTest();
         $this->setup_bitsnbobs();
@@ -222,7 +222,7 @@ class user_test extends advanced_testcase {
      *
      * @return void
      */
-    public function test_can_enrolselfon() {
+    public function test_can_enrolselfon(): void {
         global $USER;
         $this->resetAfterTest();
         $this->setup_bitsnbobs();
@@ -279,7 +279,7 @@ class user_test extends advanced_testcase {
      *
      * @return void
      */
-    public function test_course_search() {
+    public function test_course_search(): void {
         global $USER;
         $this->resetAfterTest();
         $this->setup_bitsnbobs();

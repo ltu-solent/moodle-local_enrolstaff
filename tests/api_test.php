@@ -35,7 +35,7 @@ require_once(__DIR__ . '/helper_trait.php');
  * @covers \local_enrolstaff\local\api
  * @group sol
  */
-class api_test extends advanced_testcase {
+final class api_test extends advanced_testcase {
 
     use helper_trait;
 
@@ -57,7 +57,7 @@ class api_test extends advanced_testcase {
      *
      * @return void
      */
-    public function test_moduleleader() {
+    public function test_moduleleader(): void {
         $this->resetAfterTest();
         $this->setup_bitsnbobs();
         $this->getDataGenerator()->enrol_user($this->users['leader1']->id,
@@ -87,7 +87,7 @@ class api_test extends advanced_testcase {
      *
      * @return void
      */
-    public function test_is_partner_course() {
+    public function test_is_partner_course(): void {
         $this->resetAfterTest();
         $this->setup_bitsnbobs();
         $ispartner = \local_enrolstaff\local\api::is_partner_course($this->courses['QHO1']);

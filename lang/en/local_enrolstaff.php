@@ -27,6 +27,7 @@ defined('MOODLE_INTERNAL') || die();
 
 $string['abouttobeenrolled'] = 'You are about to be enrolled on <strong>{$a->coursename}</strong> with the role of <strong>{$a->rolename}</strong><br /><br />';
 $string['addmore'] = "Enrol on another module";
+
 $string['cannotenrolself'] = 'You are not permitted to do this action';
 $string['codesbcas'] = "Comma separated list of BCAS module code prefixes";
 $string['codesqahe'] = "Comma separated list of QAHE module code prefixes";
@@ -35,11 +36,11 @@ $string['courselabel'] = '{$a->idnumber}<br />{$a->fullname}</br />Start/End: {$
 $string['coursesearch'] = "Module code";
 $string['currentcourses'] = 'Current enrolments';
 
+$string['enrol-selfservice'] = "Staff enrolment self-service";
 $string['enrolconfirmation'] = 'You have been enrolled on {$a->shortname} as {$a->rolename}';
 $string['enrolintro'] = "<p>To remove yourself as module leader from a module page, <strong><a href='mailto:student.registry@solent.ac.uk?subject=Module%20Leader%20enrolment%20deletion%20request&amp;body=Dear%20Student%20Registry,%0D%0A%0D%0APlease%20remove%20me%20as%20module%20leader%20from%20module'>please click here to generate an email template to send to Student Registry</a></strong></p>";
 $string['enrolmenthome'] = 'Enrolment home';
 $string['enrolmentnotificationmessage'] = 'Notification message';
-$string['enrolmentnotificationmessage_desc'] = 'You can include the following codes in the message [coursefullname], [recipientfirstname], [rolename], [shortname], [userfullname]';
 $string['enrolmentnotificationmessage_default'] = "Dear [recipientfirstname],
 
 [userfullname] has been enrolled on \"[coursefullname]\" with the \"[rolename]\" role.
@@ -48,6 +49,7 @@ Depending on the role, they may be able to edit your page, reuse the content on 
 
 Kind regards
 ";
+$string['enrolmentnotificationmessage_desc'] = 'You can include the following codes in the message [coursefullname], [recipientfirstname], [rolename], [shortname], [userfullname]';
 $string['enrolmentnotificationmessageenable'] = 'Enable Module Leader notifications';
 $string['enrolmentnotificationmessageenable_desc'] = 'Should emails be sent to the module leader when someone self-enrols?';
 $string['enrolmentnotificationsubject'] = 'Subject of notification email';
@@ -57,9 +59,8 @@ $string['enrolmentsexpireafter'] = 'Enrolments expire after {$a} days. You may r
 $string['enrolrequestalert'] = '{$a->schoolemail} has been sent a request for you to be enrolled on {$a->shortname} as {$a->rolename}. <br /><br /> You will receive an email confirmation with further information.';
 $string['enrolrequestedschool'] = 'Please enrol me on {$a->fullname} as {$a->rolename}.';
 $string['enrolrequesteduser'] = 'This is confirmation of your request to be added to {$a->fullname} as {$a->rolename}. The turnaround time for processing module leader requests is 2-3 working days. If you do not have access to the module after that time, please let us know.';
-$string['enrolwarning'] = "Please only enrol yourself on this module if you are teaching on it or have a specific operational requirement.";
-$string['enrol-selfservice'] = "Staff enrolment self-service";
 $string['enrolstaff:managestaffenrolments'] = "Manage staff enrolments";
+$string['enrolwarning'] = "Please only enrol yourself on this module if you are teaching on it or have a specific operational requirement.";
 $string['excludefullname'] = "Exclude from search by fullname (comma separated)";
 $string['excludeid'] = "Exclude from search by id (comma separated)";
 $string['excludeshortname'] = "Exclude from search by shortname (comma separated)";
@@ -83,25 +84,30 @@ $string['neverexpire'] = 'Never expire';
 $string['nocourses'] = "You are not enrolled on any courses that can be un-enrolled from via this service.";
 $string['nomatchingmodules'] = 'No modules match the term <strong>{$a->coursesearch}</strong>';
 $string['nopermission'] = "You do not have permission to view this page (please check you are logged in).";
+
 $string['otherunitleaders'] = "Other module leaders currently enrolled on this module are: ";
+
 $string['pluginname'] = "Staff Enrolment";
 
 $string['qahecontact'] = 'QAHE contact email';
 $string['qahecontact_desc'] = 'This account will be emailed when someone requests to be enrolled on a QA module as Module leader';
+
 $string['requestemailsubject'] = 'Module Leader enrolment request for {$a->shortname}';
 $string['requestforenrolment'] = 'You are about to send a request for enrolment on <strong>{$a->coursename}</strong> with the role of <strong>{$a->rolename}</strong><br /><br />';
 $string['role'] = "Select a role";
-$string['roleidssolent'] = 'Comma separated list of Solent role IDs';
 $string['roleidsbcas'] = 'Comma separated list of BCAS role IDs';
 $string['roleidsqahe'] = 'Comma separated list of QAHE role IDs';
-$string['selectmodule'] = 'Select module';
+$string['roleidssolent'] = 'Comma separated list of Solent role IDs';
+
 $string['selectamodule'] = 'Select a module';
 $string['selectarole'] = 'Select a role';
+$string['selectmodule'] = 'Select module';
 $string['sendrequest'] = 'You are about to be enrolled on <strong>{$a->fullname}</strong> with the role of <strong>{$a->role}</strong><br /><br />';
 $string['sendrequestleader'] = 'You are about to send a request for enrolment on <strong>{$a->fullname}</strong> with the role of <strong>{$a->role}</strong><br /><br />';
 $string['studentrecords'] = 'Student records email';
-$string['unenrolconfirm'] = "You have been unenrolled from your selected modules.";
+
 $string['unenrol'] = "Unenrol from modules";
+$string['unenrolconfirm'] = "You have been unenrolled from your selected modules.";
 $string['unenrolfrommodules'] = 'Unenrol from modules';
 $string['unenrolheader'] = "<br /><hr><h2>Staff unenrolment self-service</h2>";
 $string['unenrolintro'] = "To un-enrol yourself from modules you no longer require access to as tutor, non-editing tutor or technician please use the unenrolment self-service:<br /><br />";
