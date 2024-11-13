@@ -89,7 +89,7 @@ Feature: Staff member self-enrols onto an existing course
     Then I should see "You have been enrolled on M2 as Tutor"
     And I am on "Module 2" course homepage
     And I should see "Module 2"
-    And I should see "Topic 1"
+    And I should see "New section"
 
   @javascript
   Scenario: QAHE academic requests enrolment as Module leader
@@ -127,4 +127,4 @@ Feature: Staff member self-enrols onto an existing course
     Then I should see "You have been enrolled on QHO1 as QA Tutor"
     And I am on "QModule 1" course homepage
     And I should see "QModule 1"
-    And I should see "Topic 1"
+    And I should see "New section"

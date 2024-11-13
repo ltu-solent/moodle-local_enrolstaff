@@ -71,7 +71,7 @@ Feature: Staff member self-unenrols from an existing course
     When I press "Confirm"
     Then I should see "You have been unenrolled from your selected modules."
     When I am on "Module 2" course homepage
-    Then I should not see "Topic 1"
+    Then I should not see "New section"
     And I should see "Enrolment options"
 
   Scenario: SOL academic can unenrol from a hidden module
@@ -85,7 +85,7 @@ Feature: Staff member self-unenrols from an existing course
     And I press "Save and display"
     And I log in as "teacher1"
     When I am on "Module 2" course homepage
-    Then I should see "Topic 1"
+    Then I should see "New section"
     When I visit "/local/enrolstaff/enrolstaff.php"
     And I press "Unenrol from modules"
     Then I should see "Staff Unenrolment"
@@ -111,7 +111,7 @@ Feature: Staff member self-unenrols from an existing course
     | teacher1 | M2     | qatutor | manual   |
     And I log in as "teacher1"
     When I am on "Module 2" course homepage
-    Then I should see "Topic 1"
+    Then I should see "New section"
     When I visit "/local/enrolstaff/enrolstaff.php"
     And I press "Unenrol from modules"
     Then I should see "Staff Unenrolment"
