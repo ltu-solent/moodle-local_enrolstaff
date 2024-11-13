@@ -25,7 +25,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version  = 2021120704;
-$plugin->release = 'v2021120703';
+$plugin->version  = 2021120705;
+$plugin->release = '4.1-r5';
 $plugin->requires = 2020061500;
 $plugin->component = 'local_enrolstaff';
+$plugin->supports = [401, 401];
