@@ -25,7 +25,7 @@
 
 require_once('../../config.php');
 require_once('form.php');
-require_once('lib.php');
+
 require_login(true);
 $PAGE->set_context(context_system::instance());
 $PAGE->set_url($CFG->wwwroot. '/local/enrolstaff/enrolstaff.php');
