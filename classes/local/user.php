@@ -34,7 +34,7 @@ class user {
      *
      * @var array id list
      */
-    public $validroles;
+    public $validroles = [];
 
     /**
      * Domain of email address
@@ -91,6 +91,9 @@ class user {
         // This should be a setting.
         $this->validdepts = ['academic', 'management', 'support'];
         $this->department = strtolower($user->department);
+        if ($this->department == 'student') {
+            return;
+        }
 
         if ($this->domain == 'qa.com') {
             $this->validroles = explode(',', $this->config->qaheroleids);
@@ -99,8 +102,6 @@ class user {
         } else if (is_siteadmin($user)) {
             $this->validroles = explode(',', $this->config->roleids);
             return;
-        } else {
-            $this->validroles = [];
         }
 
         $this->isjobshopuser = strpos($user->email, 'jobshop') === 0;
@@ -108,7 +109,7 @@ class user {
             $this->validroles = [];
         }
         if (!in_array($this->department, $this->validdepts)) {
-            $this->validroles = [];
+            return;
         }
     }
 
