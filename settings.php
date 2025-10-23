@@ -43,6 +43,15 @@ if ($hassiteconfig) {
 
     $commaseparated = new lang_string('commaseparatedlist', 'local_enrolstaff');
 
+    $settings->add(
+        new admin_setting_configtext(
+            'local_enrolstaff/validdepts',
+            new lang_string('validdepts', 'local_enrolstaff'),
+            new lang_string('commaseparatedlistof', 'local_enrolstaff', get_string('validdepts', 'local_enrolstaff')),
+            'academic,management,support',
+            PARAM_TEXT
+        )
+    );
     $settings->add(new admin_setting_configtext(
         'local_enrolstaff/unitleaderid', get_string('unitleaderid', 'local_enrolstaff'), $commaseparated, '19'));
     $settings->add(new admin_setting_configtext(

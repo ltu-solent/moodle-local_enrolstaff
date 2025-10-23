@@ -32,6 +32,7 @@ $string['cannotenrolself'] = 'You are not permitted to do this action';
 $string['codesbcas'] = "Comma separated list of BCAS module code prefixes";
 $string['codesqahe'] = "Comma separated list of QAHE module code prefixes";
 $string['commaseparatedlist'] = 'Comma separated list';
+$string['commaseparatedlistof'] = 'Commas separated list of {$a}';
 $string['courselabel'] = '{$a->idnumber}<br />{$a->fullname}</br />Start/End: {$a->startunix} - {$a->endunix}';
 $string['coursesearch'] = "Module code";
 $string['currentcourses'] = 'Current enrolments';
@@ -115,3 +116,5 @@ $string['unenrolselect'] = "Select the modules you wish to unenrol from:<br /><b
 $string['unenrolwarning'] = "You have selected to unenrol from the following modules:<br /><br />";
 $string['unitleaderid'] = "Module leader role id";
 $string['unitselect'] = "Select a module from the list.<br /><br />If you are already enrolled on a module it will appear in the list but won't be available for selection.<br /><br />";
+
+$string['validdepts'] = 'Valid Department';

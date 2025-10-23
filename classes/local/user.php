@@ -76,7 +76,7 @@ class user {
      *
      * @var array
      */
-    private $validdepts;
+    private $validdepts = [];
 
     /**
      * Sets up variables that are used in subsequent queries
@@ -88,8 +88,9 @@ class user {
         $emailparts = explode('@', $user->email);
         $this->domain = $emailparts[1];
         $this->config = get_config('local_enrolstaff');
-        // This should be a setting.
-        $this->validdepts = ['academic', 'management', 'support'];
+
+        $defaultdepts = 'academic,management,support';
+        $this->validdepts = explode(',', $this->config->validdepts ?? $defaultdepts);
         $this->department = strtolower($user->department);
         if ($this->department == 'student') {
             return;
