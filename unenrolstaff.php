@@ -23,8 +23,10 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use local_enrolstaff\forms\unenrol_confirm_form;
+use local_enrolstaff\forms\unenrol_form;
+
 require_once('../../config.php');
-require_once('form.php');
 
 require_login(true);
 $PAGE->set_context(context_system::instance());
@@ -35,7 +37,7 @@ $PAGE->set_pagelayout('standard');
 $PAGE->navbar->add(get_string('enrol-selfservice', 'local_enrolstaff'), new moodle_url('/local/enrolstaff/enrolstaff.php'));
 $PAGE->navbar->add(get_string('unenrol', 'local_enrolstaff'));
 global $USER;
-$return = $CFG->wwwroot.'/local/enrolstaff/unenrolstaff.php';
+$return = $CFG->wwwroot . '/local/enrolstaff/unenrolstaff.php';
 
 $action = optional_param('action', 'unenrol', PARAM_ALPHANUMEXT);
 
@@ -54,8 +56,10 @@ if (!$activeuser->user_can_enrolself()) {
 $enrolments = $activeuser->user_courses();
 if (count($enrolments) == 0) {
     echo $OUTPUT->notification(get_string('nocourses', 'local_enrolstaff'));
-    echo $OUTPUT->single_button(new moodle_url('/local/enrolstaff/enrolstaff.php'),
-        get_string('enrolmenthome', 'local_enrolstaff'));
+    echo $OUTPUT->single_button(
+        new moodle_url('/local/enrolstaff/enrolstaff.php'),
+        get_string('enrolmenthome', 'local_enrolstaff')
+    );
     $action = 'none';
 }
 
@@ -80,7 +84,7 @@ if ($action == 'unenrol_select') {
         }
     }
 
-    $cform = new unenrol_confirm(null, ['courses' => $courses]);
+    $cform = new unenrol_confirm_form(null, ['courses' => $courses]);
 
     if ($cform->is_cancelled()) {
         redirect('unenrolstaff.php');
@@ -101,10 +105,10 @@ if ($action == 'unenrol_confirm') {
     $courses = required_param('courses', PARAM_SEQUENCE);
     $courses = explode(',', $courses);
     $enrolmentscourseids = array_column($enrolments, 'course_id');
-    $listed = array_filter($courses, function($course) use ($enrolmentscourseids) {
+    $listed = array_filter($courses, function ($course) use ($enrolmentscourseids) {
         return in_array($course, $enrolmentscourseids);
     });
-    list($insql, $inparams) = $DB->get_in_or_equal($listed, SQL_PARAMS_NAMED);
+    [$insql, $inparams] = $DB->get_in_or_equal($listed, SQL_PARAMS_NAMED);
     $params = ['userid' => $USER->id] + $inparams;
     $enrolinstances = $DB->get_records_sql("SELECT ue.id ueid, e.*
         FROM {user_enrolments} ue
@@ -123,8 +127,10 @@ if ($action == 'unenrol_confirm') {
     }
 
     echo $OUTPUT->notification(get_string('unenrolconfirm', 'local_enrolstaff'), 'notifysuccess');
-    echo $OUTPUT->single_button(new moodle_url('/local/enrolstaff/enrolstaff.php'),
-        get_string('enrolmenthome', 'local_enrolstaff'));
+    echo $OUTPUT->single_button(
+        new moodle_url('/local/enrolstaff/enrolstaff.php'),
+        get_string('enrolmenthome', 'local_enrolstaff')
+    );
 }
 
 echo "</div>";

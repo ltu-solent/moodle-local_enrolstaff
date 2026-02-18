@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+  <XMLDB PATH="local/enrolstaff/db" VERSION="20251023" COMMENT="XMLDB file for Moodle local/enrolstaff">
+    <TABLES>
+      <TABLE NAME="local_enrolstaff" COMMENT="">
+        <FIELDS>
+          <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" UNSIGNED="true" />
+          <FIELD NAME="title" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" />
+          <FIELD NAME="email" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Acceptable email pattern" />
+          <FIELD NAME="username" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Acceptable username pattern" />
+          <FIELD NAME="exemail" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Unacceptable email pattern" />
+          <FIELD NAME="exusername" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Unacceptable username pattern" />
+          <FIELD NAME="departments" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="List of acceptable departments" />
+          <FIELD NAME="cohortids" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="List of acceptable cohorts" />
+          <FIELD NAME="institution" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Restrict to this institution" />
+          <FIELD NAME="auths" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Restrict to these cohort ids" />
+          <FIELD NAME="roleids" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Available roles" />
+          <FIELD NAME="duration" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="How long the enrolment should last" />
+          <FIELD NAME="codes" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Restrict enrolments to these module codes" />
+          <FIELD NAME="excodes" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Ban these module codes" />
+          <FIELD NAME="sendas" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Notification, Authorisation or Not required" />
+          <FIELD NAME="notify" TYPE="char" LENGTH="1000" NOTNULL="false" SEQUENCE="false" COMMENT="Who to nofify" />
+          <FIELD NAME="enabled" TYPE="int" LENGTH="1" NOTNULL="true" SEQUENCE="false" UNSIGNED="true" />
+          <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" UNSIGNED="true" />
+          <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" UNSIGNED="true" />
+          <FIELD NAME="usermodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" UNSIGNED="true" />
+        </FIELDS>
+        <KEYS>
+          <KEY NAME="primary" TYPE="primary" FIELDS="id" />
+        </KEYS>
+      </TABLE>
+      <TABLE NAME="local_enrolstaff_auth" COMMENT="Tokens for enrolment authorisation">
+        <FIELDS>
+          <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" UNSIGNED="true" />
+          <FIELD NAME="ruleid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" UNSIGNED="true" />
+          <FIELD NAME="requestorid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" UNSIGNED="true" />
+          <FIELD NAME="roleid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" UNSIGNED="true" />
+          <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" UNSIGNED="true" />
+          <FIELD NAME="authoriserid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" UNSIGNED="true" />
+          <FIELD NAME="token" TYPE="CHAR" LENGTH="32" NOTNULL="true" SEQUENCE="false" />
+          <FIELD NAME="validuntil" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" UNSIGNED="true" />
+          <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" UNSIGNED="true" />
+          <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" UNSIGNED="true" />
+          <FIELD NAME="usermodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" UNSIGNED="true" />
+        </FIELDS>
+        <KEYS>
+          <KEY NAME="primary" TYPE="primary" FIELDS="id" />
+          <KEY NAME="ruleid" TYPE="foreign" FIELDS="ruleid" REFTABLE="local_enrolstaff" REFFIELDS="id" />
+          <KEY NAME="requestorid" TYPE="foreign" FIELDS="requestorid" REFTABLE="user" REFFIELDS="id" />
+          <KEY NAME="roleid" TYPE="foreign" FIELDS="roleid" REFTABLE="role" REFFIELDS="id" />
+          <KEY NAME="courseid" TYPE="foreign" FIELDS="courseid" REFTABLE="course" REFFIELDS="id" />
+          <KEY NAME="authoriserid" TYPE="foreign" FIELDS="authoriserid" REFTABLE="user" REFFIELDS="id" />
+        </KEYS>
+        <INDEXES>
+          <INDEX NAME="token" UNIQUE="true" FIELDS="token" />
+        </INDEXES>
+      </TABLE>
+    </TABLES>
+  </XMLDB>

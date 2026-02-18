@@ -36,4 +36,13 @@ $capabilities = [
             'manager'          => CAP_ALLOW,
         ],
     ],
+    'local/enrolstaff:authoriseenrolments' => [
+        'riskbitmask'  => RISK_SPAM | RISK_PERSONAL | RISK_XSS | RISK_CONFIG,
+        'captype'      => 'view',
+        'contextlevel' => CONTEXT_COURSE,
+        'archetypes'   => [
+            'editingteacher' => CAP_ALLOW,
+            'manager'          => CAP_ALLOW,
+        ],
+    ],
 ];

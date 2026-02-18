@@ -32,7 +32,6 @@ use stdClass;
  * Some reusable components for unit tests
  */
 trait helper_trait {
-
     /**
      * Module leader role
      *
@@ -76,11 +75,25 @@ trait helper_trait {
     public core_course_category $otherscat;
 
     /**
+     * Cohorts
+     *
+     * @var array
+     */
+    public array $cohorts = [];
+
+    /**
      * Courses/Modules
      *
      * @var array
      */
     public array $courses;
+
+    /**
+     * All roles
+     *
+     * @var array
+     */
+    public array $roles = [];
 
     /**
      * Teaching role
@@ -116,6 +129,13 @@ trait helper_trait {
             'name' => 'Module leader',
             'archetype' => 'editingteacher',
         ]);
+        $this->roles['moduleleader'] = $this->moduleleader;
+        $this->roles['contentretrieval'] = $this->getDataGenerator()->create_role([
+            'shortname' => 'contentretrieval',
+            'name' => 'Content retrieval',
+            'archetype' => 'student',
+        ]);
+
         // Teaching roles will be automatically enrolled with a curtesy email sent to the module leader.
         $this->teachingroles[] = $this->moduleleader;
         $this->qamoduleleader = $this->getDataGenerator()->create_role([
@@ -123,6 +143,7 @@ trait helper_trait {
             'name' => 'QA Module leader',
             'archetype' => 'editingteacher',
         ]);
+        $this->roles['qamoduleleader'] = $this->qamoduleleader;
         $this->qateachingroles[] = $this->qamoduleleader;
         set_config('unitleaderid', $this->moduleleader . ',' . $this->qamoduleleader, 'local_enrolstaff');
 
@@ -131,11 +152,13 @@ trait helper_trait {
             'name' => 'Tutor',
             'archetype' => 'teacher',
         ]);
+        $this->roles['tutor'] = end($this->teachingroles);
         $this->qateachingroles[] = $this->getDataGenerator()->create_role([
             'shortname' => 'qatutor',
             'name' => 'QA Tutor',
             'archetype' => 'teacher',
         ]);
+        $this->roles['qatutor'] = end($this->qateachingroles);
         set_config('roleids', implode(",", $this->teachingroles), 'local_enrolstaff');
         set_config('qaheroleids', implode(",", $this->qateachingroles), 'local_enrolstaff');
     }
@@ -187,7 +210,27 @@ trait helper_trait {
             'parent' => 0,
             'name' => 'Other',
         ]);
+    }
 
+    /**
+     * Sets up some cohorts to use in testing.
+     *
+     * @return void
+     */
+    public function create_cohorts() {
+        // Create some cohorts to use in testing.
+        $this->cohorts['cohort1'] = $this->getDataGenerator()->create_cohort([
+            'name' => 'Cohort 1',
+            'idnumber' => 'COH1',
+        ]);
+        $this->cohorts['cohort2'] = $this->getDataGenerator()->create_cohort([
+            'name' => 'Cohort 2',
+            'idnumber' => 'COH2',
+        ]);
+        $this->cohorts['cohort3'] = $this->getDataGenerator()->create_cohort([
+            'name' => 'Cohort 3',
+            'idnumber' => 'COH3',
+        ]);
     }
 
     /**
@@ -197,31 +240,31 @@ trait helper_trait {
      */
     public function create_courses() {
         // Discoverable.
-        $this->courses['C1'] = $this->getDataGenerator()->create_course([
+        $this->courses['XXBAMAK1'] = $this->getDataGenerator()->create_course([
             'fullname' => 'Course 1',
-            'shortname' => 'C1',
-            'idnumber' => 'C1',
+            'shortname' => 'XXBAMAK1',
+            'idnumber' => 'XXBAMAK1',
             'category' => $this->coursescat->id,
         ]);
         // Not discoverable.
-        $this->courses['C2'] = $this->getDataGenerator()->create_course([
+        $this->courses['XXBAMAK2'] = $this->getDataGenerator()->create_course([
             'fullname' => 'Course 2',
-            'shortname' => 'C2',
-            'idnumber' => 'C2',
+            'shortname' => 'XXBAMAK2',
+            'idnumber' => 'XXBAMAK2',
             'category' => $this->otherscat->id,
         ]);
         // Discoverable.
-        $this->courses['M1'] = $this->getDataGenerator()->create_course([
+        $this->courses['ABC101'] = $this->getDataGenerator()->create_course([
             'fullname' => 'Module 1',
-            'shortname' => 'M1',
-            'idnumber' => 'M1',
+            'shortname' => 'ABC101',
+            'idnumber' => 'ABC101',
             'category' => $this->modulescat->id,
         ]);
         // Discoverable.
-        $this->courses['M2'] = $this->getDataGenerator()->create_course([
+        $this->courses['ABC102'] = $this->getDataGenerator()->create_course([
             'fullname' => 'Module 2',
-            'shortname' => 'M2',
-            'idnumber' => 'M2',
+            'shortname' => 'ABC102',
+            'idnumber' => 'ABC102',
             'category' => $this->modulescat->id,
         ]);
         // Restricted.
@@ -243,6 +286,13 @@ trait helper_trait {
             'fullname' => 'Exclude 101',
             'shortname' => 'EXCLUDE101',
             'idnumber' => 'EXCLUDE101',
+            'category' => $this->modulescat->id,
+        ]);
+        // Restricted.
+        $this->courses['EXCLUDE102'] = $this->getDataGenerator()->create_course([
+            'fullname' => 'Exclude 102',
+            'shortname' => 'EXCLUDE102',
+            'idnumber' => 'EXCLUDE102',
             'category' => $this->modulescat->id,
         ]);
         // Limited to QAHE partners.
@@ -333,6 +383,13 @@ trait helper_trait {
             'lastname' => 'Jobshop',
             'email' => 'jobshop101@solent.ac.uk',
             'department' => 'support',
+        ]);
+        $this->users['contentretrieval'] = $this->getDataGenerator()->create_user([
+            'username' => 'contentretrieval',
+            'firstname' => 'Content',
+            'lastname' => 'Retrieval',
+            'email' => 'contentretrieval@qa.com',
+            'department' => 'academic',
         ]);
     }
 

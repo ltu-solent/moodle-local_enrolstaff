@@ -23,30 +23,43 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use core\context\course;
+use core\context\system;
+use core\exception\moodle_exception;
+use core\output\html_writer;
+use core\url;
+use local_enrolstaff\forms\course_form;
+use local_enrolstaff\forms\role_form;
+use local_enrolstaff\forms\search_form;
+use local_enrolstaff\forms\submit_form;
+use local_enrolstaff\local\api;
+
 require_once('../../config.php');
-require_once('form.php');
 
 require_login(true);
-$PAGE->set_context(context_system::instance());
-$PAGE->set_url($CFG->wwwroot. '/local/enrolstaff/enrolstaff.php');
+$enrolstaffurl = new url('/local/enrolstaff/enrolstaff.php');
+$PAGE->set_context(system::instance());
+$PAGE->set_url($enrolstaffurl);
 $PAGE->set_title(get_string('enrol-selfservice', 'local_enrolstaff'));
 $PAGE->set_heading(get_string('enrol-selfservice', 'local_enrolstaff'));
 $PAGE->set_pagelayout('standard');
-$PAGE->navbar->add(get_string('enrol-selfservice', 'local_enrolstaff'),
-    new moodle_url($CFG->wwwroot. '/local/enrolstaff/enrolstaff.php'));
-$PAGE->navbar->add('Enrol onto courses');
+$PAGE->navbar->add(
+    get_string('enrol-selfservice', 'local_enrolstaff'),
+    $enrolstaffurl
+);
+$PAGE->navbar->add(new lang_string('enrolontocourse', 'local_enrolstaff'));
 global $USER;
-$return = $CFG->wwwroot.'/local/enrolstaff/enrolstaff.php';
 
 $action = optional_param('action', 'select_role', PARAM_ALPHANUMEXT);
 
 if ($action == 'enrol_home') {
-    redirect($CFG->wwwroot. '/local/enrolstaff/enrolstaff.php');
+    redirect($enrolstaffurl);
 }
 if ($action == 'unenrol') {
-        redirect($CFG->wwwroot. '/local/enrolstaff/unenrolstaff.php');
+        redirect(new url('/local/enrolstaff/unenrolstaff.php'));
 }
 echo $OUTPUT->header();
+// This will populate the cache, if not done so already.
 $activeuser = new \local_enrolstaff\local\user($USER);
 if (!$activeuser->user_can_enrolself()) {
     throw new moodle_exception('cannotenrolself', 'local_enrolstaff');
@@ -54,7 +67,19 @@ if (!$activeuser->user_can_enrolself()) {
 
 $esconfig = get_config('local_enrolstaff');
 
-$unitleaderroleids = explode(',', $esconfig->unitleaderid);
+$ruleids = $activeuser->usercache->get('ruleids');
+if (count($ruleids) == 0) {
+    echo html_writer::tag(
+        'h2',
+        get_string('norolesavailable', 'local_enrolstaff')
+    ) . html_writer::tag(
+        'p',
+        get_string('staffselfenrolmentunavailable', 'local_enrolstaff')
+    );
+    echo $OUTPUT->footer();
+    exit();
+}
+
 echo "<div class='maindiv'>";
 
 // Role selection.
@@ -62,7 +87,7 @@ if ($action == 'select_role') {
     $rform = new role_form(null, ['activeuser' => $activeuser]);
     echo $OUTPUT->notification(get_string('enrolintro', 'local_enrolstaff'), 'notifymessage');
     if ($rform->is_cancelled()) {
-        redirect($CFG->wwwroot. '/local/enrolstaff/enrolstaff.php');
+        redirect($enrolstaffurl);
     } else if ($frorform = $rform->get_data()) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
 
     } else {
@@ -71,8 +96,10 @@ if ($action == 'select_role') {
 
     echo get_string('unenrolheader', 'local_enrolstaff');
     echo get_string('unenrolintro', 'local_enrolstaff');
-    echo $OUTPUT->single_button(new moodle_url('/local/enrolstaff/unenrolstaff.php'),
-        get_string('unenrolfrommodules', 'local_enrolstaff'));
+    echo $OUTPUT->single_button(
+        new url('/local/enrolstaff/unenrolstaff.php'),
+        get_string('unenrolfrommodules', 'local_enrolstaff')
+    );
 }
 
 // Course search.
@@ -81,6 +108,7 @@ if ($action == 'unit_select') {
     if (!$activeuser->is_role_valid($role)) {
         throw new moodle_exception('invalidrole', 'local_enrolstaff');
     }
+    // Apart from core exclusions, most exclusions are handled by rules.
     $excludeshortname = trim($esconfig->excludeshortname);
     if ($excludeshortname == '') {
         $excludeshortname = [get_string('na', 'local_enrolstaff')];
@@ -112,9 +140,9 @@ if ($action == 'unit_select') {
 
     $sform = new search_form(null, ['role' => $role, 'activeuser' => $activeuser]);
     if ($sform->is_cancelled()) {
-        redirect($CFG->wwwroot. '/local/enrolstaff/enrolstaff.php');
-    } else if ($frosform = $sform->get_data()) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
-
+        redirect($enrolstaffurl);
+    } else if ($frosform = $sform->get_data()) {
+        // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
     } else {
         $sform->display();
     }
@@ -128,8 +156,14 @@ if ($action == 'search_select') {
         throw new moodle_exception('invalidrole', 'local_enrolstaff');
     }
     if ($coursesearch != '') {
-        $courses = $activeuser->course_search($coursesearch);
+        $courses = $activeuser->course_search($coursesearch, $roleid);
     }
+    $r = $DB->get_record('role', ['id' => $roleid]);
+    $rolename = role_get_name($r, system::instance());
+    echo html_writer::tag(
+        'p',
+        get_string('currentsearch', 'local_enrolstaff', ['search' => $coursesearch, 'rolename' => $rolename])
+    );
 
     if (count($courses) > 0) {
         echo get_string('unitselect', 'local_enrolstaff');
@@ -137,7 +171,7 @@ if ($action == 'search_select') {
         $cform = new course_form(null, ['courses' => $courses, 'activeuser' => $activeuser, 'role' => $roleid]);
 
         if ($cform->is_cancelled()) {
-            redirect($CFG->wwwroot. '/local/enrolstaff/enrolstaff.php');
+            redirect($enrolstaffurl);
         } else if ($frocform = $cform->get_data()) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
 
         } else {
@@ -145,8 +179,10 @@ if ($action == 'search_select') {
         }
     } else {
         echo $OUTPUT->notification(get_string('nomatchingmodules', 'local_enrolstaff', ['coursesearch' => $coursesearch]));
-        echo $OUTPUT->single_button(new moodle_url('/local/enrolstaff/enrolstaff.php'),
-            get_string('enrolmenthome', 'local_enrolstaff'));
+        echo $OUTPUT->single_button(
+            new url('/local/enrolstaff/enrolstaff.php'),
+            get_string('enrolmenthome', 'local_enrolstaff')
+        );
     }
 }
 
@@ -154,17 +190,23 @@ if ($action == 'search_select') {
 if ($action == 'role_select') {
     $courseid = required_param('course', PARAM_INT);
     $roleid = required_param('role', PARAM_INT);
-    $coursecontext = context_course::instance($courseid);
+    $coursecontext = course::instance($courseid);
     if (!$activeuser->is_role_valid($roleid)) {
         throw new moodle_exception('invalidrole', 'local_enrolstaff');
     }
     if (!$activeuser->can_enrolselfon($courseid)) {
         throw new moodle_exception('invalidcourse', 'local_enrolstaff');
     }
+
     $c = $DB->get_record('course', ['id' => $courseid]);
     $r = $DB->get_record('role', ['id' => $roleid]);
+    $rule = $activeuser->find_best_rule($courseid, $roleid);
+    if (!$rule) {
+        throw new moodle_exception('noruleapplies', 'local_enrolstaff');
+    }
     $rolename = role_get_name($r, $coursecontext);
-    if (in_array($roleid, $unitleaderroleids)) {
+
+    if (in_array($rule->get('sendas'), ['authorisation', 'registryrequest'])) {
         echo get_string('requestforenrolment', 'local_enrolstaff', [
             'coursename' => $c->fullname,
             'rolename' => $rolename,
@@ -178,16 +220,9 @@ if ($action == 'role_select') {
 
     echo $OUTPUT->notification(get_string('enrolwarning', 'local_enrolstaff'), 'notifymessage');
 
-    if ($esconfig->expireenrolment > 0) {
-        echo html_writer::tag('p', get_string('enrolmentsexpireafter', 'local_enrolstaff', $esconfig->expireenrolment));
+    if ($rule->get('duration') > 0) {
+        echo html_writer::tag('p', get_string('enrolmentsexpireafter', 'local_enrolstaff', $rule->get('duration')));
     }
-    $startdate = new DateTime();
-    $startdate->setTimestamp($c->startdate);
-    $startdate = userdate($startdate->getTimestamp(), '%d/%m/%Y');
-
-    $enddate = new DateTime();
-    $enddate->setTimestamp($c->enddate);
-    $enddate = userdate($enddate->getTimestamp(), '%d/%m/%Y');
 
     $submitparams = [
         'role' => $r->id,
@@ -196,19 +231,18 @@ if ($action == 'role_select') {
 
     $sform = new submit_form(null, $submitparams);
     if ($sform->is_cancelled()) {
-        redirect($CFG->wwwroot. '/local/enrolstaff/enrolstaff.php');
-    } else if ($frosform = $sform->get_data()) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
-
+        redirect($enrolstaffurl);
+    } else if ($frosform = $sform->get_data()) {
+        // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
     } else {
         $sform->display();
     }
 }
 
 if ($action == 'confirm_select') {
-    // Inform TAR of unit leader enrolment.
     $roleid = required_param('role', PARAM_INT);
     $courseid = required_param('course', PARAM_INT);
-    $coursecontext = context_course::instance($courseid);
+    $coursecontext = course::instance($courseid);
     if (!$activeuser->is_role_valid($roleid)) {
         throw new moodle_exception('invalidrole', 'local_enrolstaff');
     }
@@ -217,40 +251,85 @@ if ($action == 'confirm_select') {
     }
     $c = $DB->get_record('course', ['id' => $courseid]);
     $r = $DB->get_record('role', ['id' => $roleid]);
+    $rule = $activeuser->find_best_rule($courseid, $roleid);
+    if (!$rule) {
+        throw new moodle_exception('noruleapplies', 'local_enrolstaff');
+    }
     $rolename = role_get_name($r, $coursecontext);
+    $coursefullname = $c->fullname . " " . userdate($c->startdate, '%d/%m/%Y') . " - " . userdate($c->enddate, '%d/%m/%Y');
 
-    $moduleleaders = \local_enrolstaff\local\api::moduleleader($courseid);
-    $studentrecordsemail = get_config('local_enrolstaff', 'studentrecords');
-    $studentrecords = $DB->get_record('user', ['email' => $studentrecordsemail]);
-    if (!$studentrecords) {
-        $studentrecords = get_admin();
+    $contacts = $rule->get_contacts($c, $r);
+
+    $defaultcontact = get_config('local_enrolstaff', 'defaultbackupnotify');
+    $defaultcontact = $DB->get_record('user', ['email' => $defaultcontact, 'deleted' => 0, 'suspended' => 0]);
+    if (!$defaultcontact) {
+        $defaultcontact = get_admin();
     }
-    $qaheemail = get_config('local_enrolstaff', 'qaheemail');
-    $qahe = $DB->get_record('user', ['email' => $qaheemail]);
-    if (!$qahe) {
-        $qahe = get_admin();
+    $backupcontact = (object)[
+        'email' => $defaultcontact->email,
+        'name' => fullname($defaultcontact),
+        'firstname' => $defaultcontact->firstname,
+    ];
+    if ($rule->get('sendas') != 'nonotification' && count($contacts) == 0) {
+        // No module leaders or registry found, use backup contact.
+        $contacts[] = $backupcontact;
     }
+    $emailfields = [
+        'coursefullname' => $coursefullname,
+        'recipientfirstname' => '',
+        'recipientfullname' => '',
+        'rolename' => $rolename,
+        'shortname' => $c->shortname,
+        'userfullname' => fullname($USER),
+    ];
+    // Authorisation required - Enrolment not actioned until authorised.
+    if ($rule->get('sendas') == 'authorisation') {
+        $validitydays = get_config('local_enrolstaff', 'enrolmentauthorisationvalidity');
+        $emailfields['validuntildays'] = $validitydays;
+        // Validate that all email addresses exist as users.
+        foreach ($contacts as $contact) {
+            $contactuser = $DB->get_record('user', ['email' => $contact->email, 'deleted' => 0, 'suspended' => 0]);
+            if (!$contactuser) {
+                throw new moodle_exception('invalidnotifywithauthorisation', 'local_enrolstaff', '', $contact->email);
+            }
+            // Check they have permission to authorise enrolments. Maybe send to backup contact if not?
+            if (!has_capability('local/enrolstaff:authoriseenrolments', course::instance($courseid), $contactuser->id)) {
+                throw new moodle_exception('invalidnotifywithauthorisation', 'local_enrolstaff', '', $contact->email);
+            }
 
-    if (in_array($roleid, $unitleaderroleids)) {
-        // Send request to student registery.
-        $sql = "SELECT cc1.id, c.shortname, cc1.*
-                        FROM {course} c
-                        JOIN {course_categories} cc ON c.category = cc.id
-                        JOIN {course_categories} cc1 ON cc.parent = cc1.id
-                        WHERE c.id = :courseid";
-        $category = $DB->get_record_sql($sql, ['courseid' => $courseid]);
-
-        $subject = get_string('requestemailsubject', 'local_enrolstaff', ['shortname' => $c->shortname]);
-        $message = get_string('enrolrequestedschool', 'local_enrolstaff', [
-            'fullname' => $c->fullname . " " . userdate($c->startdate, '%d/%m/%Y') . " - " . userdate($c->enddate, '%d/%m/%Y'),
-            'rolename' => $rolename,
-        ]);
-        $contact = $studentrecords;
-        if (\local_enrolstaff\local\api::is_partner_course($c)) {
-            $contact = $qahe;
+            $emailfields['recipientfirstname'] = $contact->firstname;
+            $emailfields['recipientfullname'] = $contact->name;
+            $emailfields['authorisationlink'] = api::generate_authorisation_link(
+                $rule->get('id'),
+                $courseid,
+                $USER->id,
+                $roleid,
+                $contactuser->id,
+                $validitydays
+            );
+            $subject = api::prepare_message('enrolmentauthorisationsubject', $emailfields);
+            $message = api::prepare_message('enrolmentauthorisationmessage', $emailfields);
+            api::send_message($contactuser, $USER, $subject, $message);
+            unset($emailfields['authorisationlink']);
         }
-        \local_enrolstaff\local\api::send_message($contact, $USER, $subject, $message);
+        unset($emailfields['validuntildays']);
 
+        // Inform user of request.
+        echo $OUTPUT->notification(get_string('enrolrequestalertauthorisation', 'local_enrolstaff', [
+            'shortname' => $c->shortname,
+            'rolename' => $rolename,
+        ]), 'notifysuccess');
+    }
+
+    // Send request to registry who will action via SRS.
+    if ($rule->get('sendas') == 'registryrequest') {
+        foreach ($contacts as $contact) {
+            $emailfields['recipientfirstname'] = $contact->firstname;
+            $emailfields['recipientfullname'] = $contact->name;
+            $subject = api::prepare_message('enrolmentregistryrequestsubject', $emailfields);
+            $message = api::prepare_message('enrolmentregistryrequestmessage', $emailfields);
+            api::send_message($contact, $USER, $subject, $message);
+        }
         // Inform user of request.
         echo $OUTPUT->notification(get_string('enrolrequestalert', 'local_enrolstaff', [
             'schoolemail' => $studentrecordsemail,
@@ -263,58 +342,34 @@ if ($action == 'confirm_select') {
             'fullname' => $c->fullname,
             'rolename' => $rolename,
         ]);
-        \local_enrolstaff\local\api::send_message($USER, $contact, $subject, $message);
-
-    } else {
-        $plugin = enrol_get_plugin('manual');
-        $instance = $DB->get_record('enrol', ['courseid' => $c->id, 'enrol' => 'manual']);
-        if (!$instance) {
-            $course = $DB->get_record('course', ['id' => $c->id]);
-            $fields = [
-                'status'          => '0',
-                'roleid'          => '5',
-                'enrolperiod'     => '0',
-                'expirynotify'    => '0',
-                'notifyall'       => '0',
-                'expirythreshold' => '86400',
-            ];
-            $instance = $plugin->add_instance($course, $fields);
-        }
-        $expiry = get_config('local_enrolstaff', 'expireenrolment') ?? 0;
-        if ($expiry > 0) {
-            $expiry = time() + (DAYSECS * $expiry);
-        }
-        $instance = $DB->get_record('enrol', ['courseid' => $c->id, 'enrol' => 'manual']);
-        $plugin->enrol_user($instance, $USER->id, $r->id, time(), $expiry, null, null);
-        // Is there a module leader already enrolled? Are they active? If not, send request to Registry.
-        if (count($moduleleaders) == 0) {
-            // Send message to registry? Perhaps other editing roles? Or perhaps lt.systems - site admin email.
-            $moduleleaders[] = get_admin();
-        }
-        $notificationenabled = get_config('local_enrolstaff', 'enrolmentnotificationmessageenable');
-        if ($notificationenabled) {
-            $options = [
-                'coursefullname' => $c->fullname,
-                'recipientfirstname' => '',
-                'rolename' => $rolename,
-                'shortname' => $c->shortname,
-                'userfullname' => fullname($USER),
-            ];
-            foreach ($moduleleaders as $moduleleader) {
-                $options['recipientfirstname'] = $moduleleader->firstname;
-                $options['recipientfullname'] = fullname($moduleleader);
-                $subject = \local_enrolstaff\local\api::prepare_message('enrolmentnotificationsubject', $options);
-                $message = \local_enrolstaff\local\api::prepare_message('enrolmentnotificationmessage', $options);
-                \local_enrolstaff\local\api::send_message($moduleleader, $USER, $subject, $message);
-            }
-        }
-
-        echo $OUTPUT->notification(get_string('enrolconfirmation', 'local_enrolstaff',
-            ['shortname' => $c->shortname, 'rolename' => $rolename]), 'notifysuccess');
+        api::send_message($USER, $backupcontact, $subject, $message);
     }
 
-    echo $OUTPUT->single_button(new moodle_url('/local/enrolstaff/enrolstaff.php'),
-        get_string('enrolmenthome', 'local_enrolstaff'));
+    // Automatic enrolment, with optional notification.
+    if (in_array($rule->get('sendas'), ['notification', 'nonotification'])) {
+        $rule->enrol_user($USER->id, $courseid, $roleid);
+        if ($rule->get('sendas') == 'notification') {
+            foreach ($contacts as $contact) {
+                $emailfields['recipientfirstname'] = $contact->firstname;
+                $emailfields['recipientfullname'] = $contact->name;
+                $subject = api::prepare_message('enrolmentnotificationsubject', $emailfields);
+                $message = api::prepare_message('enrolmentnotificationmessage', $emailfields);
+                api::send_message($contact, $USER, $subject, $message);
+            }
+        }
+        echo $OUTPUT->notification(
+            get_string('enrolconfirmation', 'local_enrolstaff', [
+                'shortname' => $c->shortname,
+                'rolename' => $rolename,
+            ]),
+            'notifysuccess'
+        );
+    }
+
+    echo $OUTPUT->single_button(
+        new url('/local/enrolstaff/enrolstaff.php'),
+        get_string('enrolmenthome', 'local_enrolstaff')
+    );
 }
 
 echo "</div>";

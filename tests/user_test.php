@@ -37,7 +37,6 @@ require_once(__DIR__ . '/helper_trait.php');
  * @group sol
  */
 final class user_test extends advanced_testcase {
-
     use helper_trait;
 
     /**
@@ -54,40 +53,7 @@ final class user_test extends advanced_testcase {
     }
 
     /**
-     * When setting up a user object, various properties are calculated. This sets what comes out of that.
-     *
-     * @return void
-     */
-    public function test_properties(): void {
-        global $USER;
-        $this->resetAfterTest();
-        $this->setup_bitsnbobs();
-
-        $this->setUser(get_admin());
-        $activeuser = new \local_enrolstaff\local\user($USER);
-        $this->assertEquals(explode(',', get_config('local_enrolstaff', 'roleids')), $activeuser->validroles);
-
-        $this->setUser($this->users['teacher1']);
-        $activeuser = new \local_enrolstaff\local\user($USER);
-        $this->assertEquals('solent.ac.uk', $activeuser->domain);
-        $this->assertEquals(explode(',', get_config('local_enrolstaff', 'roleids')), $activeuser->validroles);
-
-        $this->setUser($this->users['qateacher1']);
-        $activeuser = new \local_enrolstaff\local\user($USER);
-        $this->assertEquals('qa.com', $activeuser->domain);
-        $this->assertEquals(explode(',', get_config('local_enrolstaff', 'qaheroleids')), $activeuser->validroles);
-
-        $this->setUser($this->users['jobshop101']);
-        $activeuser = new \local_enrolstaff\local\user($USER);
-        $this->assertEquals([], $activeuser->validroles);
-
-        $this->setUser($this->users['student1']);
-        $activeuser = new \local_enrolstaff\local\user($USER);
-        $this->assertEquals([], $activeuser->validroles);
-    }
-
-    /**
-     * The roles menu depends on who you are.
+     * The roles menu depends on who you are and the rules that apply.
      *
      * @return void
      */
@@ -95,6 +61,47 @@ final class user_test extends advanced_testcase {
         global $USER;
         $this->resetAfterTest();
         $this->setup_bitsnbobs();
+        set_config('availableroles', implode(',', [
+            $this->roles['tutor'],
+            $this->roles['moduleleader'],
+            $this->roles['contentretrieval'],
+            $this->roles['qatutor'],
+            $this->roles['qamoduleleader'],
+        ]), 'local_enrolstaff');
+
+        // Needs some rules.
+        /** @var \local_enrolstaff_generator $esdg */
+        $esdg = $this->getDataGenerator()->get_plugin_generator('local_enrolstaff');
+        // Rule for normal teaching roles.
+        $esdg->create_rule([
+            'email' => '@solent.ac.uk',
+            'username' => '',
+            'enabled' => 1,
+            'roleids' => [
+                $this->roles['tutor'],
+                $this->roles['moduleleader'],
+            ],
+        ]);
+        // Rule for QA teaching roles.
+        $esdg->create_rule([
+            'email' => '@qa.com',
+            'username' => '',
+            'enabled' => 1,
+            'roleids' => [
+                $this->roles['qatutor'],
+                $this->roles['qamoduleleader'],
+            ],
+        ]);
+        // Rule for content retrieval role.
+        // So now there are 2 rules for qa.com users, but you can set different authorisation requirements.
+        $esdg->create_rule([
+            'email' => '@qa.com',
+            'username' => '',
+            'enabled' => 1,
+            'roleids' => [
+                $this->roles['contentretrieval'],
+            ],
+        ]);
 
         $this->setUser($this->users['teacher1']);
         $activeuser = new \local_enrolstaff\local\user($USER);
@@ -108,11 +115,12 @@ final class user_test extends advanced_testcase {
         $this->setUser($this->users['qateacher1']);
         $activeuser = new \local_enrolstaff\local\user($USER);
         $menuitems = $activeuser->get_roles_menu();
-        $this->assertCount(count($this->qateachingroles), $menuitems);
+        $this->assertCount(3, $menuitems);
         $this->assertNotContains('Module leader', $menuitems);
         $this->assertNotContains('Tutor', $menuitems);
         $this->assertContains('QA Module leader', $menuitems);
         $this->assertContains('QA Tutor', $menuitems);
+        $this->assertContains('Content retrieval', $menuitems);
 
         $this->setUser($this->users['jobshop101']);
         $activeuser = new \local_enrolstaff\local\user($USER);
@@ -123,6 +131,16 @@ final class user_test extends advanced_testcase {
         $activeuser = new \local_enrolstaff\local\user($USER);
         $menuitems = $activeuser->get_roles_menu();
         $this->assertCount(0, $menuitems);
+
+        $this->setUser($this->users['contentretrieval']);
+        $activeuser = new \local_enrolstaff\local\user($USER);
+        $menuitems = $activeuser->get_roles_menu();
+        $this->assertCount(3, $menuitems);
+        $this->assertContains('Content retrieval', $menuitems);
+        $this->assertNotContains('Module leader', $menuitems);
+        $this->assertNotContains('Tutor', $menuitems);
+        $this->assertContains('QA Module leader', $menuitems);
+        $this->assertContains('QA Tutor', $menuitems);
     }
 
     /**
@@ -134,6 +152,47 @@ final class user_test extends advanced_testcase {
         global $DB, $USER;
         $this->resetAfterTest();
         $this->setup_bitsnbobs();
+        set_config('availableroles', implode(',', [
+            $this->roles['tutor'],
+            $this->roles['moduleleader'],
+            $this->roles['contentretrieval'],
+            $this->roles['qatutor'],
+            $this->roles['qamoduleleader'],
+        ]), 'local_enrolstaff');
+
+        // Needs some rules.
+        /** @var \local_enrolstaff_generator $esdg */
+        $esdg = $this->getDataGenerator()->get_plugin_generator('local_enrolstaff');
+        // Rule for normal teaching roles.
+        $esdg->create_rule([
+            'email' => '@solent.ac.uk',
+            'username' => '',
+            'enabled' => 1,
+            'roleids' => [
+                $this->roles['tutor'],
+                $this->roles['moduleleader'],
+            ],
+        ]);
+        // Rule for QA teaching roles.
+        $esdg->create_rule([
+            'email' => '@qa.com',
+            'username' => '',
+            'enabled' => 1,
+            'roleids' => [
+                $this->roles['qatutor'],
+                $this->roles['qamoduleleader'],
+            ],
+        ]);
+        // Rule for content retrieval role.
+        // So now there are 2 rules for qa.com users, but you can set different authorisation requirements.
+        $esdg->create_rule([
+            'email' => '@qa.com',
+            'username' => '',
+            'enabled' => 1,
+            'roleids' => [
+                $this->roles['contentretrieval'],
+            ],
+        ]);
 
         $this->setUser($this->users['teacher1']);
         $activeuser = new \local_enrolstaff\local\user($USER);
@@ -162,6 +221,9 @@ final class user_test extends advanced_testcase {
             $isvalid = $activeuser->is_role_valid($teachingrole);
             $this->assertTrue($isvalid);
         }
+        $isvalid = $activeuser->is_role_valid($this->roles['contentretrieval']);
+        $this->assertTrue($isvalid);
+
         $role = $DB->get_record('role', ['shortname' => 'manager']);
         $isvalid = $activeuser->is_role_valid($role->id);
         $this->assertFalse($isvalid);
@@ -179,6 +241,52 @@ final class user_test extends advanced_testcase {
         global $USER;
         $this->resetAfterTest();
         $this->setup_bitsnbobs();
+        set_config('availableroles', implode(',', [
+            $this->roles['tutor'],
+            $this->roles['moduleleader'],
+            $this->roles['contentretrieval'],
+            $this->roles['qatutor'],
+            $this->roles['qamoduleleader'],
+        ]), 'local_enrolstaff');
+
+        set_config('defaultdepartments', 'academic,support,management', 'local_enrolstaff');
+        set_config('defaultexemailpattern', 'jobshop', 'local_enrolstaff');
+        set_config('defaultexusernamepattern', 'jobshop', 'local_enrolstaff');
+
+        // Needs some rules.
+        /** @var \local_enrolstaff_generator $esdg */
+        $esdg = $this->getDataGenerator()->get_plugin_generator('local_enrolstaff');
+        // Rule for normal teaching roles.
+        $esdg->create_rule([
+            'email' => '@solent.ac.uk',
+            'username' => '',
+            'enabled' => 1,
+            'roleids' => [
+                $this->roles['tutor'],
+                $this->roles['moduleleader'],
+            ],
+
+        ]);
+        // Rule for QA teaching roles.
+        $esdg->create_rule([
+            'email' => '@qa.com',
+            'username' => '',
+            'enabled' => 1,
+            'roleids' => [
+                $this->roles['qatutor'],
+                $this->roles['qamoduleleader'],
+            ],
+        ]);
+        // Rule for content retrieval role.
+        // So now there are 2 rules for qa.com users, but you can set different authorisation requirements.
+        $esdg->create_rule([
+            'email' => '@qa.com',
+            'username' => '',
+            'enabled' => 1,
+            'roleids' => [
+                $this->roles['contentretrieval'],
+            ],
+        ]);
 
         $this->setUser($this->users['teacher1']);
         $activeuser = new \local_enrolstaff\local\user($USER);
@@ -200,6 +308,11 @@ final class user_test extends advanced_testcase {
         $canenrol = $activeuser->user_can_enrolself();
         $this->assertTrue($canenrol);
 
+        $this->setUser($this->users['contentretrieval']);
+        $activeuser = new \local_enrolstaff\local\user($USER);
+        $canenrol = $activeuser->user_can_enrolself();
+        $this->assertTrue($canenrol);
+
         $this->setUser($this->users['support1']);
         $activeuser = new \local_enrolstaff\local\user($USER);
         $canenrol = $activeuser->user_can_enrolself();
@@ -215,106 +328,293 @@ final class user_test extends advanced_testcase {
         $canenrol = $activeuser->user_can_enrolself();
         $this->assertFalse($canenrol);
 
+        // Add more tests for more complex rules later.
     }
 
     /**
      * Can this user enrol themselves on a given course?
      *
      * @return void
+     * @dataProvider can_enrolselfon_provider
      */
-    public function test_can_enrolselfon(): void {
+    public function test_can_enrolselfon($rule, $user, $canenrolon): void {
         global $USER;
         $this->resetAfterTest();
         $this->setup_bitsnbobs();
 
-        $this->setUser($this->users['teacher1']);
+        set_config('availableroles', implode(',', [
+            $this->roles['tutor'],
+            $this->roles['moduleleader'],
+            $this->roles['contentretrieval'],
+            $this->roles['qatutor'],
+            $this->roles['qamoduleleader'],
+        ]), 'local_enrolstaff');
+        /** @var \local_enrolstaff_generator $esdg */
+        $esdg = $this->getDataGenerator()->get_plugin_generator('local_enrolstaff');
+        $searchrole = $this->roles['tutor'];
+        if (isset($rule['role'])) {
+            $rule['roleids'][] = $this->roles[$rule['role']];
+            $searchrole = $this->roles[$rule['role']];
+        } else {
+            $rule['roleids'] = [$this->roles['tutor']]; // Tutor role.
+        }
+        $esdg->create_rule($rule);
+
+        $this->setUser($this->users[$user]);
         $activeuser = new \local_enrolstaff\local\user($USER);
-        $canenrol = $activeuser->can_enrolselfon($this->courses['M1']->id);
-        $this->assertTrue($canenrol);
+        foreach ($canenrolon as $coursecode => $expectedcanenrol) {
+            // You need to do a course search first to populate the cache.
+            $activeuser->course_search($coursecode, $searchrole);
+            $canenrol = $activeuser->can_enrolselfon($this->courses[$coursecode]->id);
+            $this->assertEquals(
+                $expectedcanenrol,
+                $canenrol,
+                "Failed asserting that user {$user} can enrolselfon course {$coursecode}."
+            );
+        }
+    }
 
-        $canenrol = $activeuser->can_enrolselfon($this->courses['C1']->id);
-        $this->assertTrue($canenrol);
-
-        $canenrol = $activeuser->can_enrolselfon($this->courses['C2']->id);
-        $this->assertFalse($canenrol);
-
-        $canenrol = $activeuser->can_enrolselfon($this->courses['counselling']->id);
-        $this->assertFalse($canenrol);
-
-        $canenrol = $activeuser->can_enrolselfon($this->courses['EDU101']->id);
-        $this->assertFalse($canenrol);
-
-        $canenrol = $activeuser->can_enrolselfon($this->courses['QHO1']->id);
-        $this->assertTrue($canenrol);
-
-        $canenrol = $activeuser->can_enrolselfon($this->courses['EXCLUDE101']->id);
-        $this->assertFalse($canenrol);
-
-        $this->setUser($this->users['qateacher1']);
-        $activeuser = new \local_enrolstaff\local\user($USER);
-        $canenrol = $activeuser->can_enrolselfon($this->courses['M1']->id);
-        $this->assertFalse($canenrol);
-
-        $canenrol = $activeuser->can_enrolselfon($this->courses['C1']->id);
-        $this->assertFalse($canenrol);
-
-        $canenrol = $activeuser->can_enrolselfon($this->courses['C2']->id);
-        $this->assertFalse($canenrol);
-
-        $canenrol = $activeuser->can_enrolselfon($this->courses['counselling']->id);
-        $this->assertFalse($canenrol);
-
-        $canenrol = $activeuser->can_enrolselfon($this->courses['EDU101']->id);
-        $this->assertFalse($canenrol);
-
-        $canenrol = $activeuser->can_enrolselfon($this->courses['QHO1']->id);
-        $this->assertTrue($canenrol);
-
-        $canenrol = $activeuser->can_enrolselfon($this->courses['EXCLUDE101']->id);
-        $this->assertFalse($canenrol);
+    /**
+     * Data provider for can_enrolselfon
+     *
+     * @return array
+     */
+    public static function can_enrolselfon_provider(): array {
+        return [
+            'Solent' => [
+                'rule' => [
+                    'email' => '@solent.ac.uk',
+                    'username' => '',
+                    'exemail' => 'qa.com$',
+                    'exusername' => 'jobshop',
+                    'enabled' => 1,
+                    'excodes' => ['EXC', 'QHO'],
+                ],
+                'user' => 'teacher1',
+                'canenrolon' => [
+                    'ABC101' => true,
+                    'XXBAMAK1' => true,
+                    'XXBAMAK2' => false,
+                    'counselling' => false,
+                    'EDU101' => false,
+                    'QHO1' => false,
+                    'EXCLUDE101' => false,
+                ],
+            ],
+            'QA' => [
+                'rule' => [
+                    'email' => '@qa.com',
+                    'username' => '',
+                    'exemail' => 'solent.ac.uk$',
+                    'exusername' => 'jobshop',
+                    'enabled' => 1,
+                    'excodes' => ['EXC', 'ABC', 'XX'],
+                ],
+                'user' => 'qateacher1',
+                'canenrolon' => [
+                    'ABC101' => false,
+                    'XXBAMAK1' => false,
+                    'XXBAMAK2' => false,
+                    'counselling' => false,
+                    'EDU101' => false,
+                    'QHO1' => true,
+                    'EXCLUDE101' => false,
+                ],
+            ],
+            'QA content retrieval' => [
+                'rule' => [
+                    'email' => '@qa.com',
+                    'username' => '',
+                    'enabled' => 1,
+                    'excodes' => ['EXC', 'XX', 'QHO'],
+                    'roles' => ['contentretrieval'],
+                ],
+                'user' => 'contentretrieval',
+                'canenrolon' => [
+                    'ABC101' => true,
+                    'XXBAMAK1' => false,
+                    'XXBAMAK2' => false,
+                    'counselling' => false,
+                    'EDU101' => false,
+                    'QHO1' => false,
+                    'EXCLUDE101' => false,
+                ],
+            ],
+        ];
     }
 
     /**
      * Course search is limited by the users permissions to be enrolled on courses.
      *
+     * @param array $rule
+     * @param string $user User this rule applies to.
+     * @return void
+     * @dataProvider course_search_provider
+     */
+    public function test_course_search($rule, $user, $matches): void {
+        $this->resetAfterTest();
+        $this->create_categories();
+        $this->create_courses();
+        $this->create_users();
+        $this->create_roles();
+        $this->set_configs();
+        /** @var \local_enrolstaff_generator $esdg */
+        $esdg = $this->getDataGenerator()->get_plugin_generator('local_enrolstaff');
+        $failingusers = [
+            'teacher1' => 'teacher1',
+            'qateacher1' => 'qateacher1',
+            'jobshop101' => 'jobshop101',
+        ];
+        unset($failingusers[$user]);
+        $rule['roleids'] = [$this->roles['tutor']]; // Tutor role.
+        $newrule = $esdg->create_rule($rule);
+
+        $this->setUser($this->users[$user]);
+        global $USER;
+        $activeuser = new \local_enrolstaff\local\user($USER);
+
+        foreach ($rule['codes'] as $code) {
+            $result = $activeuser->course_search($code, $this->roles['tutor']);
+            // Courses will now be [$ruleid => $courses].
+            $courses = [];
+            foreach ($result as $ruleid => $rcourses) {
+                $courses = array_merge($rcourses, $courses);
+            }
+            $this->assertCount(
+                $matches[$code] ?? 0,
+                $courses,
+                "Failed asserting that user {$user} could access courses with code {$code}."
+            );
+        }
+        foreach ($rule['excodes'] as $code) {
+            $result = $activeuser->course_search($code, $this->roles['tutor']);
+            // Courses will now be [$ruleid => $courses].
+            $courses = [];
+            foreach ($result as $ruleid => $rcourses) {
+                $courses = array_merge($rcourses, $courses);
+            }
+            $this->assertCount(
+                0,
+                $courses,
+                "Failed asserting that user {$user} could not access courses with code {$code}."
+            );
+        }
+        foreach ($failingusers as $failinguser) {
+            $this->setUser($this->users[$failinguser]);
+            $activeuser = new \local_enrolstaff\local\user($USER);
+            foreach ($rule['codes'] as $code) {
+                $result = $activeuser->course_search($code, $this->roles['tutor']);
+                // Courses will now be [$ruleid => $courses].
+                $courses = [];
+                foreach ($result as $ruleid => $rcourses) {
+                    $courses = array_merge($rcourses, $courses);
+                }
+                $this->assertCount(
+                    0,
+                    $courses,
+                    "Failed asserting that user {$failinguser} could not access courses with code {$code}."
+                );
+            }
+        }
+    }
+
+    /**
+     * Data provider for course search
+     *
+     * @return array
+     */
+    public static function course_search_provider(): array {
+        return [
+            'Solent ex qa and jobshop' => [
+                'rule' => [
+                    'email' => '@solent.ac.uk',
+                    'username' => '',
+                    'exemail' => 'qa.com$',
+                    'exusername' => 'jobshop',
+                    'enabled' => 1,
+                    'codes' => ['ABC', 'XXBAMAK'],
+                    'excodes' => ['EXC', 'QHO'],
+                ],
+                'user' => 'teacher1',
+                'matches' => [
+                    'ABC' => 2,
+                    'XXBAMAK' => 1,
+                ],
+            ],
+            'QA ex solent and jobshop' => [
+                'rule' => [
+                    'email' => '@qa.com',
+                    'username' => '',
+                    'exemail' => 'solent.ac.uk$',
+                    'exusername' => 'jobshop',
+                    'codes' => ['QHO'],
+                    'excodes' => ['EXC', 'ABC'],
+                    'enabled' => 1,
+                ],
+                'user' => 'qateacher1',
+                'matches' => [
+                    'QHO' => 1,
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * Course search falls back on hard rules if no other rules apply.
+     *
      * @return void
      */
-    public function test_course_search(): void {
+    public function test_course_search_hard_rules(): void {
         global $USER;
         $this->resetAfterTest();
-        $this->setup_bitsnbobs();
+        $this->create_categories();
+        $this->create_courses();
+        $this->create_users();
+        $this->create_roles();
+        $this->set_configs();
+        /** @var \local_enrolstaff_generator $esdg */
+        $esdg = $this->getDataGenerator()->get_plugin_generator('local_enrolstaff');
 
+        // Create a minimal rule (overriding default exclusions), that falls back on the hard rules.
+        $esdg->create_rule([
+            'email' => '@solent.ac.uk',
+            'username' => '',
+            'exemail' => '',
+            'exusername' => '',
+            'enabled' => 1,
+            'roleids' => [$this->roles['tutor']], // Tutor role.
+        ]);
         $this->setUser($this->users['teacher1']);
         $activeuser = new \local_enrolstaff\local\user($USER);
-        $courses = $activeuser->course_search('course');
+        $result = $activeuser->course_search('course', $this->roles['tutor']);
+        // Courses will now be [$ruleid => $courses].
+        $courses = [];
+        foreach ($result as $ruleid => $rcourses) {
+            $courses = array_merge($rcourses, $courses);
+        }
         $this->assertCount(1, $courses);
-        $courses = $activeuser->course_search('module');
+        $result = $activeuser->course_search('module', $this->roles['tutor']);
+        // Courses will now be [$ruleid => $courses].
+        $courses = [];
+        foreach ($result as $ruleid => $rcourses) {
+            $courses = array_merge($rcourses, $courses);
+        }
         $this->assertCount(3, $courses);
-        $courses = $activeuser->course_search('exclude');
+        // Excode: EDU.
+        $result = $activeuser->course_search('EDU101', $this->roles['tutor']);
+        // Courses will now be [$ruleid => $courses].
+        $courses = [];
+        foreach ($result as $ruleid => $rcourses) {
+            $courses = array_merge($rcourses, $courses);
+        }
         $this->assertCount(0, $courses);
-        $courses = $activeuser->course_search('counselling');
-        $this->assertCount(0, $courses);
-
-        $this->setUser($this->users['qateacher1']);
-        $activeuser = new \local_enrolstaff\local\user($USER);
-        $courses = $activeuser->course_search('course');
-        $this->assertCount(0, $courses);
-        $courses = $activeuser->course_search('module');
-        $this->assertCount(1, $courses);
-        $courses = $activeuser->course_search('exclude');
-        $this->assertCount(0, $courses);
-        $courses = $activeuser->course_search('counselling');
-        $this->assertCount(0, $courses);
-
-        $this->setUser($this->users['jobshop101']);
-        $activeuser = new \local_enrolstaff\local\user($USER);
-        $courses = $activeuser->course_search('course');
-        $this->assertCount(0, $courses);
-        $courses = $activeuser->course_search('module');
-        $this->assertCount(0, $courses);
-        $courses = $activeuser->course_search('exclude');
-        $this->assertCount(0, $courses);
-        $courses = $activeuser->course_search('counselling');
+        // Exfullname: Counselling.
+        $result = $activeuser->course_search('counselling', $this->roles['tutor']);
+        // Courses will now be [$ruleid => $courses].
+        $courses = [];
+        foreach ($result as $ruleid => $rcourses) {
+            $courses = array_merge($rcourses, $courses);
+        }
         $this->assertCount(0, $courses);
     }
 }

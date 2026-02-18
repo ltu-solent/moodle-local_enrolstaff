@@ -15,24 +15,23 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Various forms
+ * Cache definitions for Staff Enrolment
  *
- * @package   local_enrolstaff
- * @author    Mark Sharp <mark.sharp@solent.ac.uk>
- * @copyright 2022 Solent University {@link https://www.solent.ac.uk}
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * Documentation: {@link https://docs.moodle.org/dev/Cache_API}
+ *
+ * @package    local_enrolstaff
+ * @category   cache
+ * @copyright  2025 Southampton Solent University {@link https://www.solent.ac.uk}
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+defined('MOODLE_INTERNAL') || die();
 
-
-// All moved to classes/forms.
-
-// Enrolment.
-// 1. role_form.php
-// 2. search_form.php
-// 3. course_form.php
-// 4. submit_form.php
-// Unenrolment.
-// 1. unenrol_form.php
-// 2. unenrol_confirm_form.php
-// End.
+$definitions = [
+    'rules' => [
+        'mode' => cache_store::MODE_APPLICATION,
+    ],
+    'user' => [
+        'mode' => cache_store::MODE_SESSION,
+    ],
+];

@@ -25,6 +25,7 @@
 namespace local_enrolstaff;
 
 use advanced_testcase;
+use local_enrolstaff\local\api;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -36,7 +37,6 @@ require_once(__DIR__ . '/helper_trait.php');
  * @group sol
  */
 final class api_test extends advanced_testcase {
-
     use helper_trait;
 
     /**
@@ -57,29 +57,29 @@ final class api_test extends advanced_testcase {
      *
      * @return void
      */
-    public function test_moduleleader(): void {
+    public function test_get_users_with_roles(): void {
         $this->resetAfterTest();
         $this->setup_bitsnbobs();
-        $this->getDataGenerator()->enrol_user($this->users['leader1']->id,
-            $this->courses['C1']->id,
-            $this->moduleleader);
-        $this->getDataGenerator()->enrol_user($this->users['leader1']->id,
-            $this->courses['M1']->id,
-            $this->moduleleader);
-        $this->getDataGenerator()->enrol_user($this->users['teacher1']->id,
-            $this->courses['M1']->id,
-            $this->moduleleader);
+        $this->getDataGenerator()->enrol_user(
+            $this->users['leader1']->id,
+            $this->courses['XXBAMAK1']->id,
+            $this->roles['moduleleader']
+        );
+        $this->getDataGenerator()->enrol_user(
+            $this->users['leader1']->id,
+            $this->courses['ABC101']->id,
+            $this->roles['moduleleader']
+        );
+        $this->getDataGenerator()->enrol_user(
+            $this->users['teacher1']->id,
+            $this->courses['ABC101']->id,
+            $this->roles['moduleleader']
+        );
 
-        $moduleleaders = \local_enrolstaff\local\api::moduleleader($this->courses['C1']->id);
+        $moduleleaders = api::get_users_with_roles($this->courses['XXBAMAK1']->id, [$this->roles['moduleleader']]);
         $this->assertCount(1, $moduleleaders);
-        $moduleleaders = \local_enrolstaff\local\api::moduleleader($this->courses['M1']->id);
+        $moduleleaders = api::get_users_with_roles($this->courses['ABC101']->id, [$this->roles['moduleleader']]);
         $this->assertCount(2, $moduleleaders);
-
-        $this->getDataGenerator()->enrol_user($this->users['qateacher1']->id,
-            $this->courses['M1']->id,
-            $this->qamoduleleader);
-        $moduleleaders = \local_enrolstaff\local\api::moduleleader($this->courses['M1']->id);
-        $this->assertCount(3, $moduleleaders);
     }
 
     /**
@@ -93,7 +93,7 @@ final class api_test extends advanced_testcase {
         $ispartner = \local_enrolstaff\local\api::is_partner_course($this->courses['QHO1']);
         $this->assertTrue($ispartner);
 
-        $ispartner = \local_enrolstaff\local\api::is_partner_course($this->courses['M1']);
+        $ispartner = \local_enrolstaff\local\api::is_partner_course($this->courses['ABC101']);
         $this->assertFalse($ispartner);
     }
 }
