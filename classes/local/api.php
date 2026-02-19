@@ -247,6 +247,9 @@ class api {
     public static function get_cohorts_menu(): array {
         global $DB;
         $cohortids = static::clean_csv(get_config('local_enrolstaff', 'availablecohorts'));
+        if (count($cohortids) == 0) {
+            return [];
+        }
         [$insql, $inparams] = $DB->get_in_or_equal($cohortids, SQL_PARAMS_NAMED);
         $cohorts = $DB->get_records_select_menu('cohort', "id {$insql}", $inparams, 'name', 'id,name');
         return $cohorts;
