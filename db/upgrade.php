@@ -25,6 +25,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use local_enrolstaff\local\api;
+
 /**
  * Execute the plugin upgrade steps from the given old version.
  *
@@ -84,6 +86,48 @@ function xmldb_local_enrolstaff_upgrade($oldversion) {
         if (!$dbman->table_exists($table)) {
             $dbman->create_table($table);
         }
+
+        // Copy old settings to new and new defaults.
+        $availableroles = [];
+        foreach (['unitleaderid', 'roleids', 'qaheroleids'] as $name) {
+            $setting = get_config('local_enrolstaff', $name);
+            if ($setting && !empty($setting)) {
+                $roles = api::clean_csv($setting);
+                $availableroles = array_merge($availableroles, $roles);
+            }
+        }
+        if (count($availableroles) > 0) {
+            set_config('availableroles', join(',', $availableroles));
+        }
+        $availablenotifyroles = get_config('local_enrolstaff', 'unitleaderid');
+        set_config('availablenotifyroles', $availablenotifyroles, 'local_enrolstaff');
+        $availableregistryemails = [];
+        foreach (['studentrecords', 'qahecontact'] as $name) {
+            $setting = get_config('local_enrolstaff', $name);
+            if ($setting && !empty($setting)) {
+                $emails = api::clean_csv($setting);
+                $availableregistryemails = array_merge($availableregistryemails, $emails);
+            }
+        }
+        if (count($availableregistryemails) > 0) {
+            set_config('availableregistryemails', $availableregistryemails, 'local_enrolstaff');
+        }
+
+        $defaultexpireenrolments = get_config('local_enrolstaff', 'expireenrolment');
+        set_config('defaultexpireenrolments', $defaultexpireenrolments, 'local_enrolstaff');
+
+        $unitleaderids = get_config('local_enrolstaff', 'unitleaderid');
+        // Convert roleid to roleshortname, if available.
+        $unitleaders = api::clean_csv($unitleaderids);
+        [$insql, $inparams] = $DB->get_in_or_equal($unitleaders, SQL_PARAMS_NAMED);
+        $roleshortnames = $DB->get_field_select('role', 'shortname', "id {$insql}", $inparams);
+        $defaultnotifyroles = [];
+        foreach ($roleshortnames as $shortname) {
+            if (!empty($shortname)) {
+                $defaultnotifyroles[] = $shortname;
+            }
+        }
+        set_config('defaultnotifyroles', join(',', $defaultnotifyroles), 'local_enrolstaff');
 
         upgrade_plugin_savepoint(true, 2025112100, 'local', 'enrolstaff');
     }

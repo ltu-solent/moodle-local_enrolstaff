@@ -174,7 +174,7 @@ if ($hassiteconfig) {
             'local_enrolstaff/defaultusernamepattern',
             new lang_string('defaultusernamepattern', 'local_enrolstaff'),
             new lang_string('defaultusernamepattern_desc', 'local_enrolstaff'),
-            'username',
+            '',
             PARAM_RAW,
             '100',
             '1'
@@ -289,7 +289,7 @@ if ($hassiteconfig) {
         'local_enrolstaff/excludefullname',
         new lang_string('excludefullname', 'local_enrolstaff'),
         new lang_string('excludefullname_desc', 'local_enrolstaff'),
-        'counselling,social work'
+        ''
     ));
 
     // Exclude course IDs.
@@ -298,7 +298,7 @@ if ($hassiteconfig) {
             'local_enrolstaff/excludeid',
             get_string('excludeid', 'local_enrolstaff'),
             $commaseparated,
-            '328,22679,6432'
+            ''
         )
     );
 
