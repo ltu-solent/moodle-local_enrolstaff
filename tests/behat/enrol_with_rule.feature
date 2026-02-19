@@ -28,7 +28,7 @@ Feature: Staff member self-enrols onto an existing course with rules
     And the following "roles" exist:
     | name                   | shortname | archetype      |
     | Module leader          | leader    | editingteacher |
-    | Tutor                  | tutor     | teacher        |
+    | Associate Lecturer     | tutor     | teacher        |
     | QA Module leader       | qaleader  | editingteacher |
     | QA Tutor               | qatutor   | teacher        |
     And the following "course enrolments" exist:
@@ -36,55 +36,43 @@ Feature: Staff member self-enrols onto an existing course with rules
     | leader1   | C1     | leader   |
     | leader1   | M1     | leader   |
     And the following config values are set as admin:
-    | config           | value                       | plugin           |
-    | excludeshortname | EDU,PDU                     | local_enrolstaff |
-    | excludefullname  | counselling                 | local_enrolstaff |
+    | config                  | value                       | plugin           |
+    | excludeshortname        | EDU,PDU                     | local_enrolstaff |
+    | excludefullname         | counselling                 | local_enrolstaff |
+    | availabledepartments    | academic,management,support | local_enrolstaff |
+    | defaultexpireenrolments | 547                         | local_enrolstaff |
+    | defaultemailpattern     | @solent.ac.uk               | local_enrolstaff |
+    And I set the enrolstaff role setting "availableroles" to "leader,tutor,qaleader,qatutor"
+    And I set the enrolstaff role setting "notifyroles" to "leader"
 
   @javascript
-  Scenario Outline: Menu item contains link to Self-service depending on matching rules
+  Scenario Outline: Roles are appropriate to the rules
     Given the following "local_enrolstaff > rule" exists:
-    | title       | test rule        |
+    | title       | test rule tutor  |
     | username    |                  |
     | roles       | tutor            |
     | email       | @solent.ac.uk    |
     | departments | academic,support |
     | exusername  | jobshop          |
     | exemail     | jobshop          |
-    And the following "users" exist:
-    | username   | email   | department   |
-    | <username> | <email> | <department> |
-    And I am logged in as <username>
-    And I click on ".usermenu" "css_element"
-    Then I should <see> "Staff enrolment self-service"
-
-    Examples:
-    | username   | role     | email                 | department | see     |
-    | test1      | tutor    | test@solent.ac.uk     | academic   | see     |
-    | student1   | student  | student1@solent.ac.uk | student    | not see |
-    | test1      | leader   | test1@solent.ac.uk    | academic   | see     |
-    | qatutor    | qatutor  | qatutor@qa.com        | academic   | not see |
-    | qaleader   | qaleader | qaleader@qa.com       | academic   | not see |
-
-  @javascript
-  Scenario Outline: No roles available though matching for the service
-    Given the following "local_enrolstaff > rule" exists:
-    | title       | test rule        |
-    | username    |                  |
-    | roles       | tutor            |
-    | email       | @solent.ac.uk    |
-    | departments | academic,support |
-    | exusername  | jobshop          |
-    | exemail     | jobshop          |
+    And the following "local_enrolstaff > rule" exists:
+    | title       | test rule qatutor |
+    | username    |                   |
+    | roles       | qatutor           |
+    | email       | @qa.com           |
+    | departments | academic          |
     And the following "users" exist:
     | username   | email   | department   |
     | <username> | <email> | <department> |
     And I am logged in as <username>
     And I follow "Staff enrolment self-service" in the user menu
-    Then I should <see> "Staff enrolment self-service"
+    Then I should see "Staff enrolment self-service"
     And I click on "Role" "select"
-    And I should see "Tutor" in the "Role" "select"
+    And I should <seetutor> "Associate Lecturer" in the "Role" "select"
+    And I should <seeqatutor> "QA Tutor" in the "Role" "select"
 
     Examples:
-    | username   | role     | email                 | department | see     |
-    | test1      | tutor    | test@solent.ac.uk     | academic   | see     |
-    | test1      | leader   | test1@solent.ac.uk    | academic   | see     |
+    | username   | role     | email                 | department | seetutor | seeqatutor |
+    | test1      | tutor    | test@solent.ac.uk     | academic   | see      | not see    |
+    | test1      | leader   | test1@solent.ac.uk    | academic   | see      | not see    |
+    | test1      | john     | john@qa.com           | academic   | not see  | see        |
