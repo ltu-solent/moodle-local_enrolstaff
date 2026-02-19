@@ -54,8 +54,26 @@ class local_enrolstaff_generator extends component_generator_base {
         if (!isset($record->roleids)) {
             $record->roleids = [4]; // Teacher role.
         }
+        if (!isset($record->username)) {
+            $record->username = '';
+        }
+        if (!isset($record->exusername)) {
+            $record->exusername = '';
+        }
         if (!isset($record->email)) {
             $record->email = "@example.com";
+        }
+        if (!isset($record->exemail)) {
+            $record->exemail = '';
+        }
+        if (!isset($record->auths)) {
+            $record->auths = '';
+        }
+        if (!isset($record->codes)) {
+            $record->codes = '';
+        }
+        if (!isset($record->excodes)) {
+            $record->excodes = '';
         }
         if (!isset($record->sendas)) {
             $record->sendas = "nonotification";

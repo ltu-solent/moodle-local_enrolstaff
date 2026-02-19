@@ -33,7 +33,7 @@ class behat_local_enrolstaff_generator extends behat_generator_base {
             'rules' => [
                 'singular' => 'rule',
                 'datagenerator' => 'rule',
-                'required' => ['title', 'roleids'],
+                'required' => ['title', 'roles'],
                 'switchids' => [
                     'roles' => 'roleids',
                     'cohorts' => 'cohortids',
@@ -88,7 +88,7 @@ class behat_local_enrolstaff_generator extends behat_generator_base {
      * @param string $rolenames
      * @return array
      */
-    protected function get_roleids_id(string $rolenames): array {
+    protected function get_roles_id(string $rolenames): array {
         // Cf lti_coursecategories.
         global $DB;
         $rolenames = explode(',', $rolenames);
