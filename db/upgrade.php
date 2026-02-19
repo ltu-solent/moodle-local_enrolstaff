@@ -97,7 +97,7 @@ function xmldb_local_enrolstaff_upgrade($oldversion) {
             }
         }
         if (count($availableroles) > 0) {
-            set_config('availableroles', join(',', $availableroles));
+            set_config('availableroles', join(',', $availableroles), 'local_enrolstaff');
         }
         $availablenotifyroles = get_config('local_enrolstaff', 'unitleaderid');
         set_config('availablenotifyroles', $availablenotifyroles, 'local_enrolstaff');
@@ -107,10 +107,13 @@ function xmldb_local_enrolstaff_upgrade($oldversion) {
             if ($setting && !empty($setting)) {
                 $emails = api::clean_csv($setting);
                 $availableregistryemails = array_merge($availableregistryemails, $emails);
+                if ($name == 'studentrecords') {
+                    set_config('defaultregistryemail', $setting, 'local_enrolstaff');
+                }
             }
         }
         if (count($availableregistryemails) > 0) {
-            set_config('availableregistryemails', $availableregistryemails, 'local_enrolstaff');
+            set_config('availableregistryemails', join(',', $availableregistryemails), 'local_enrolstaff');
         }
 
         $defaultexpireenrolments = get_config('local_enrolstaff', 'expireenrolment');
@@ -120,7 +123,7 @@ function xmldb_local_enrolstaff_upgrade($oldversion) {
         // Convert roleid to roleshortname, if available.
         $unitleaders = api::clean_csv($unitleaderids);
         [$insql, $inparams] = $DB->get_in_or_equal($unitleaders, SQL_PARAMS_NAMED);
-        $roleshortnames = $DB->get_field_select('role', 'shortname', "id {$insql}", $inparams);
+        $roleshortnames = $DB->get_fieldset_select('role', 'shortname', "id {$insql}", $inparams);
         $defaultnotifyroles = [];
         foreach ($roleshortnames as $shortname) {
             if (!empty($shortname)) {
