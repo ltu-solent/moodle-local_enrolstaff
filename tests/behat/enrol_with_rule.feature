@@ -17,11 +17,11 @@ Feature: Staff member self-enrols onto an existing course with rules
     | fullname        | shortname   | idnumber    | category     |
     | Course 1        | C1          | C1          | courses_FAC1 |
     | Course 2        | C2          | C2          | Other        |
-    | Module 1        | M1          | M1          | modules_FAC1 |
-    | Module 2        | M2          | M2          | modules_FAC1 |
+    | Module 1        | ABC101      | ABC101      | modules_FAC1 |
+    | Module 2        | ABC102      | ABC102      | modules_FAC1 |
     | Counselling 101 | counselling | counselling | modules_FAC1 |
     | Education 101   | EDU101      | EDU101      | modules_FAC1 |
-    | QModule 1       | QHO1        | QHO1        | modules_FAC1 |
+    | QModule 1       | QHO101      | QHO101      | modules_FAC1 |
     And the following "users" exist:
     | username             | firstname | lastname     | email                              | department |
     | leader1              | Leader    | 1            | leader1@solent.ac.uk               | academic   |
@@ -31,10 +31,6 @@ Feature: Staff member self-enrols onto an existing course with rules
     | Associate Lecturer     | tutor     | teacher        |
     | QA Module leader       | qaleader  | editingteacher |
     | QA Tutor               | qatutor   | teacher        |
-    And the following "course enrolments" exist:
-    | user      | course | role     |
-    | leader1   | C1     | leader   |
-    | leader1   | M1     | leader   |
     And the following config values are set as admin:
     | config                  | value                       | plugin           |
     | excludeshortname        | EDU,PDU                     | local_enrolstaff |
@@ -76,3 +72,43 @@ Feature: Staff member self-enrols onto an existing course with rules
     | test1      | tutor    | test@solent.ac.uk     | academic   | see      | not see    |
     | test1      | leader   | test1@solent.ac.uk    | academic   | see      | not see    |
     | test1      | john     | john@qa.com           | academic   | not see  | see        |
+
+@javascript
+  Scenario Outline: Rule defines which courses are available, or not
+    Given the following "local_enrolstaff > rule" exists:
+    | title       | test rule tutor  |
+    | username    |                  |
+    | roles       | tutor            |
+    | email       | @solent.ac.uk    |
+    | departments | academic,support |
+    | excodes     | QHO              |
+    | codes       |                  |
+    And the following "local_enrolstaff > rule" exists:
+    | title       | test rule qatutor |
+    | username    |                   |
+    | roles       | qatutor           |
+    | email       | @qa.com           |
+    | departments | academic,support  |
+    | excodes     | ABC               |
+    | codes       | QHO               |
+    And the following "users" exist:
+    | username   | email   | department   |
+    | <username> | <email> | <department> |
+    And I am logged in as <username>
+    And I follow "Staff enrolment self-service" in the user menu
+    Then I should see "Staff enrolment self-service"
+    And I select "<role>" from the "Role" singleselect
+    When I press "Select a role"
+    Then I should see "Please speak to the Module or Course Leader if you are unsure of the correct module or instance code."
+    When I set the field "Module code" to "<code>"
+    And I press "Search"
+    Then "Select module" "button" should <exist>
+    
+    Examples:
+    | username | email             | department | role               | code        | exist     |
+    | john     | john@solent.ac.uk | academic   | Associate Lecturer | ABC101      | exist     |
+    | john     | john@solent.ac.uk | academic   | Associate Lecturer | QHO101      | not exist |
+    | john     | john@qa.com       | academic   | QA Tutor           | ABC101      | not exist |
+    | john     | john@qa.com       | academic   | QA Tutor           | QHO101      | exist     |
+    | john     | john@solent.ac.uk | academic   | Associate Lecturer | EDU101      | not exist |
+    | john     | john@solent.ac.uk | academic   | Associate Lecturer | counselling | not exist |
