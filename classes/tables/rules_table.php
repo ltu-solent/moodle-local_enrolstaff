@@ -65,6 +65,7 @@ class rules_table extends sql_table {
      */
     public function __construct($uniqueid) {
         parent::__construct($uniqueid);
+        $this->set_attribute('id', 'local_enrolstaff_rules');
         $this->useridfield = 'modifiedby';
         $columns = [
             'id' => 'id',
