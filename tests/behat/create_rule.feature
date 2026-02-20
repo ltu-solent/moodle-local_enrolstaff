@@ -19,6 +19,7 @@ Background:
   | Exclude Tutor          | extutor   | editingteacher |
   And I set the enrolstaff role setting "availableroles" to "leader,tutor,qaleader,qatutor"
   And I set the enrolstaff role setting "notifyroles" to "leader"
+  And I set the enrolstaff cohort setting "availablecohorts" to "cohort1,cohort2"
   And the following config values are set as admin:
   | defaultexpireenrolments | 547 | local_enrolstaff |
 
@@ -61,4 +62,40 @@ Scenario: At least one Filter must be set
   | -2-       | -6-         |
   | Test rule | Enabled     |
   
+@javascript
 Scenario: Available field values are set
+  # Some field options are controlled by availability settings.
+  Given I am logged in as admin
+  And the following config values are set as admin:
+  | availabledepartments | academic,management,support | local_enrolstaff |
+  | defaultdepartments   |  | local_enrolstaff |
+  And I visit "/local/enrolstaff/manage.php"
+  And I follow "New Staff rule"
+  # Roles
+  When I expand the "Available roles" autocomplete
+  Then "Module leader" "autocomplete_suggestions" should exist
+  And "Associate Lecturer" "autocomplete_suggestions" should exist
+  And "QA Module leader" "autocomplete_suggestions" should exist
+  And "QA Tutor" "autocomplete_suggestions" should exist
+  And "Exclude Tutor" "autocomplete_suggestions" should not exist
+  # Departments
+  When I expand the "Departments" autocomplete
+  Then "academic" "autocomplete_suggestions" should exist
+  And "management" "autocomplete_suggestions" should exist
+  And "manager" "autocomplete_suggestions" should not exist
+  And "support" "autocomplete_suggestions" should exist
+  And the following config values are set as admin:
+  | availabledepartments | academic,manager,support | local_enrolstaff |
+  And I reload the page
+  When I expand the "Departments" autocomplete
+  Then "academic" "autocomplete_suggestions" should exist
+  And "management" "autocomplete_suggestions" should not exist
+  And "manager" "autocomplete_suggestions" should exist
+  And "support" "autocomplete_suggestions" should exist
+  # Close the open autocomplete
+  And I press the escape key
+  # Cohorts
+  When I expand the "Cohorts" autocomplete
+  Then "Cohort 1" "autocomplete_suggestions" should exist
+  And "Cohort 2" "autocomplete_suggestions" should exist
+  And "Exclude cohort" "autocomplete_suggestions" should not exist

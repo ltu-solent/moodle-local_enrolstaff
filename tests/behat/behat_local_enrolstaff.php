@@ -50,4 +50,23 @@ class behat_local_enrolstaff extends behat_base {
 
         set_config($setting, implode(',', $ids), 'local_enrolstaff');
     }
+
+    /**
+     * Step for setting cohortids in configuration
+     *
+     * @param string $setting
+     * @param string $values
+     * @return void
+     * @Given /^I set the enrolstaff cohort setting "([^"]*)" to "([^"]*)"$/
+     */
+    public function set_enrolstaff_cohort_setting(string $setting, string $values): void {
+        global $DB;
+        $values = explode(",", $values);
+        $ids = [];
+        foreach ($values as $value) {
+            $ids[] = $DB->get_field('cohort', 'id', ['idnumber' => $value]);
+        }
+
+        set_config($setting, implode(',', $ids), 'local_enrolstaff');
+    }
 }
