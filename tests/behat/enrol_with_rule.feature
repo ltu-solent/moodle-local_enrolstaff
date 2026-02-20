@@ -73,7 +73,7 @@ Feature: Staff member self-enrols onto an existing course with rules
     | test1      | leader   | test1@solent.ac.uk    | academic   | see      | not see    |
     | test1      | john     | john@qa.com           | academic   | not see  | see        |
 
-@javascript
+  @javascript
   Scenario Outline: Rule defines which courses are available, or not
     Given the following "local_enrolstaff > rule" exists:
     | title       | test rule tutor  |
@@ -113,3 +113,48 @@ Feature: Staff member self-enrols onto an existing course with rules
     | john     | john@qa.com       | academic   | QA Tutor           | QHO101      | exist     | not see   |
     | john     | john@solent.ac.uk | academic   | Associate Lecturer | EDU101      | not exist | see       |
     | john     | john@solent.ac.uk | academic   | Associate Lecturer | counselling | not exist | see       |
+
+  @javascript
+  Scenario Outline: Rule allows user to enrol themselves
+    Given the following "local_enrolstaff > rule" exists:
+    | title       | test rule tutor  |
+    | username    |                  |
+    | roles       | tutor            |
+    | email       | @solent.ac.uk    |
+    | departments | academic,support |
+    | excodes     | QHO              |
+    | codes       |                  |
+    And the following "local_enrolstaff > rule" exists:
+    | title       | test rule qatutor |
+    | username    |                   |
+    | roles       | qatutor           |
+    | email       | @qa.com           |
+    | departments | academic,support  |
+    | excodes     | ABC               |
+    | codes       | QHO               |
+    And the following "users" exist:
+    | username   | email   | department   |
+    | <username> | <email> | <department> |
+    And I am logged in as <username>
+    And I follow "Staff enrolment self-service" in the user menu
+    Then I should see "Staff enrolment self-service"
+    And I select "<role>" from the "Role" singleselect
+    When I press "Select a role"
+    Then I should see "Please speak to the Module or Course Leader if you are unsure of the correct module or instance code."
+    When I set the field "Module code" to "<code>"
+    And I press "Search"
+    Then "Select module" "button" should exist
+    And I should not see "No modules found that you can enrol on."
+    When I click on "<code>" "radio"
+    And I press "Select module"
+    Then I should see "You are about to be enrolled on <fullname> with the role of <role>"
+    And I press "Confirm"
+    Then I should see "You have been enrolled on <code> as <role>"
+    And I am on "<fullname>" course homepage
+    And I should see "<fullname>"
+    And I should see "New section"
+    
+    Examples:
+    | username | email             | department | role               | code        | fullname  | see     |
+    | john     | john@solent.ac.uk | academic   | Associate Lecturer | ABC101      | Module 1  | see     |
+    | john     | john@qa.com       | academic   | QA Tutor           | QHO101      | QModule 1 | see     |
