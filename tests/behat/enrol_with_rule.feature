@@ -103,12 +103,13 @@ Feature: Staff member self-enrols onto an existing course with rules
     When I set the field "Module code" to "<code>"
     And I press "Search"
     Then "Select module" "button" should <exist>
+    And I should <nomodules> "No modules found that you can enrol on."
     
     Examples:
-    | username | email             | department | role               | code        | exist     |
-    | john     | john@solent.ac.uk | academic   | Associate Lecturer | ABC101      | exist     |
-    | john     | john@solent.ac.uk | academic   | Associate Lecturer | QHO101      | not exist |
-    | john     | john@qa.com       | academic   | QA Tutor           | ABC101      | not exist |
-    | john     | john@qa.com       | academic   | QA Tutor           | QHO101      | exist     |
-    | john     | john@solent.ac.uk | academic   | Associate Lecturer | EDU101      | not exist |
-    | john     | john@solent.ac.uk | academic   | Associate Lecturer | counselling | not exist |
+    | username | email             | department | role               | code        | exist     | nomodules |
+    | john     | john@solent.ac.uk | academic   | Associate Lecturer | ABC101      | exist     | not see   |
+    | john     | john@solent.ac.uk | academic   | Associate Lecturer | QHO101      | not exist | see       |
+    | john     | john@qa.com       | academic   | QA Tutor           | ABC101      | not exist | see       |
+    | john     | john@qa.com       | academic   | QA Tutor           | QHO101      | exist     | not see   |
+    | john     | john@solent.ac.uk | academic   | Associate Lecturer | EDU101      | not exist | see       |
+    | john     | john@solent.ac.uk | academic   | Associate Lecturer | counselling | not exist | see       |
