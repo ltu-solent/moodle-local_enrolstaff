@@ -74,6 +74,8 @@ final class rule_test extends \advanced_testcase {
     /**
      * The user filters require at least one field set
      *
+     * @param array $record Rule fields
+     * @param bool $expectedexception
      * @return void
      * @dataProvider atleastone_provider
      */

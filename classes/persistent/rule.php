@@ -335,6 +335,7 @@ class rule extends persistent {
      * @param array|string $items
      * @param string $fieldname
      * @param array $validitems
+     * @param bool $isoptional
      * @return bool|lang_string
      */
     private function validate_field_array($items, $fieldname, array $validitems = [], $isoptional = true) {

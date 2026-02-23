@@ -34,7 +34,7 @@ class previewrule_table extends sql_table {
      * previewrule_table constructor.
      *
      * @param string $uniqueid
-     * @param int $ruleid
+     * @param rule $rule
      */
     public function __construct(string $uniqueid, rule $rule) {
         global $DB;

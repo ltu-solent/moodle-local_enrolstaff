@@ -334,6 +334,9 @@ final class user_test extends advanced_testcase {
     /**
      * Can this user enrol themselves on a given course?
      *
+     * @param array $rule
+     * @param string $user User key
+     * @param array $canenrolon List of courses user can enrol on
      * @return void
      * @dataProvider can_enrolselfon_provider
      */
@@ -448,6 +451,7 @@ final class user_test extends advanced_testcase {
      *
      * @param array $rule
      * @param string $user User this rule applies to.
+     * @param array $matches Count of matches for search term
      * @return void
      * @dataProvider course_search_provider
      */
