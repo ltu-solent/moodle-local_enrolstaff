@@ -55,16 +55,20 @@ class local_enrolstaff_generator extends component_generator_base {
             $record->roleids = [4]; // Teacher role.
         }
         if (!isset($record->username)) {
-            $record->username = '';
+            $default = get_config('local_enrolstaff', 'defaultusernamepattern');
+            $record->username = $default;
         }
         if (!isset($record->exusername)) {
-            $record->exusername = '';
+            $default = get_config('local_enrolstaff', 'defaultexusernamepattern');
+            $record->exusername = $default;
         }
         if (!isset($record->email)) {
-            $record->email = "@example.com";
+            $default = get_config('local_enrolstaff', 'defaultemailpattern');
+            $record->email = $default;
         }
         if (!isset($record->exemail)) {
-            $record->exemail = '';
+            $default = get_config('local_enrolstaff', 'defaultexemailpattern');
+            $record->exemail = $default;
         }
         if (!isset($record->auths)) {
             $record->auths = '';
@@ -79,7 +83,8 @@ class local_enrolstaff_generator extends component_generator_base {
             $record->sendas = "nonotification";
         }
         if (!isset($record->duration)) {
-            $record->duration = 0; // Unlimited.
+            $default = get_config('local_enrolstaff', 'defaultexpireenrolments') ?? '0';
+            $record->duration = $default;
         }
         if (!isset($record->enabled)) {
             $record->enabled = 1;
