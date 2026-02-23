@@ -39,6 +39,7 @@ class previewrule_table extends sql_table {
     public function __construct(string $uniqueid, rule $rule) {
         global $DB;
         parent::__construct($uniqueid);
+        $this->set_attribute('id', 'local_enrolstaff_previewrules');
         $this->useridfield = 'id';
         $columns = [
             'id' => 'id',

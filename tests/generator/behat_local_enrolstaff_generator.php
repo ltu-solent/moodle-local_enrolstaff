@@ -70,7 +70,7 @@ class behat_local_enrolstaff_generator extends behat_generator_base {
      * @param string $cohortnames
      * @return array
      */
-    protected function get_cohortids_id(string $cohortnames): array {
+    protected function get_cohorts_id(string $cohortnames): array {
         // Cf lti_coursecategories.
         global $DB;
         $cohortnames = explode(',', $cohortnames);
