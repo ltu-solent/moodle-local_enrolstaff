@@ -58,7 +58,7 @@ $rule = rule::get_record(['id' => $authorise->get('ruleid')]);
 $c = $DB->get_record('course', ['id' => $authorise->get('courseid')], '*', MUST_EXIST);
 $r = $DB->get_record('role', ['id' => $authorise->get('roleid')], '*', MUST_EXIST);
 $rolename = role_get_name($r, $context);
-$coursefullname = $c->fullname . " " . userdate($c->startdate) . " - " . userdate($c->enddate);
+$coursefullname = $c->fullname . " " . userdate($c->startdate, '%d/%m/%Y') . " - " . userdate($c->enddate, '%d/%m/%Y');
 $requestor = core_user::get_user($authorise->get('requestorid'));
 $PAGE->set_context($context);
 
@@ -75,6 +75,7 @@ $emailfields = [
     'authoriserfirstname' => $USER->firstname,
     'authoriserlastname' => $USER->lastname,
     'shortname' => $c->shortname,
+    'courseid' => $c->id,
 ];
 
 if ($action == 'confirm') {
@@ -93,13 +94,16 @@ if ($action == 'confirm') {
 } else {
     // Show confirmation message.
     $confirmurl = new url('/local/enrolstaff/authorise.php', array_merge($params, ['action' => 'confirm']));
-    $cancelurl = new url('/course/view.php', ['id' => $courseid]);
+    $cancelurl = new url('/local/enrolstaff/authorise.php', array_merge($params, ['action' => 'reject']));
     $message = get_string('enrolmentauthorisationconfirmmessage', 'local_enrolstaff', [
         'course' => format_string($coursefullname),
         'role' => format_string($rolename),
         'requestor' => fullname($requestor),
     ]);
-    echo $OUTPUT->confirm($message, $confirmurl, $cancelurl);
+    echo $OUTPUT->confirm($message, $confirmurl, $cancelurl, [
+        'continuestr' => get_string('confirm'),
+        'cancelstr' => get_string('reject'),
+    ]);
 }
 
 echo $OUTPUT->footer();

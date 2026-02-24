@@ -101,7 +101,7 @@ $string['emailpattern'] = 'Email pattern';
 $string['enabled'] = 'Enabled';
 $string['enrol-selfservice'] = "Staff enrolment self-service";
 $string['enrolas'] = 'Can enrol as one of "{$a->list}" for {$a->period}';
-$string['enrolconfirmation'] = 'You have been enrolled on {$a->shortname} as {$a->rolename}';
+$string['enrolconfirmation'] = 'You have been enrolled on <a href="{$a->url}">{$a->shortname}</a> as {$a->rolename}';
 $string['enrolintro'] = "<p>To remove yourself as module leader from a module page, <strong><a href='mailto:student.registry@solent.ac.uk?subject=Module%20Leader%20enrolment%20deletion%20request&amp;body=Dear%20Student%20Registry,%0D%0A%0D%0APlease%20remove%20me%20as%20module%20leader%20from%20module'>please click here to generate an email template to send to Student Registry</a></strong></p>";
 $string['enrolmentauthorisation'] = 'Enrolment authorisation';
 $string['enrolmentauthorisationconfirmed'] = 'Enrolment authorisation confirmed. The user has been enrolled.';
@@ -109,40 +109,40 @@ $string['enrolmentauthorisationconfirmmessage'] = 'You have been requested to en
 $string['enrolmentauthorisationmessage'] = 'Authorisation message';
 $string['enrolmentauthorisationmessage_default'] = "Dear [recipientfirstname],
 
-[userfullname] has asked to be enrolled on \"[coursefullname]\" with the \"[rolename]\" role.
+<strong>[userfullname]</strong> has asked to be enrolled on \"<a href=\"[courseurl]\">[coursefullname]</a>\" with the \"<strong>[rolename]</strong>\" role.
 
 Please <a href=\"[authorisationlink]\">click here to authorise or deny this enrolment request</a>.
 
 ";
-$string['enrolmentauthorisationmessage_desc'] = 'You can include the following codes in the message [coursefullname], [recipientfirstname], [rolename], [shortname], [userfullname], [authorisationlink], [validuntildays]';
+$string['enrolmentauthorisationmessage_desc'] = 'You can include the following codes in the message [coursefullname], [courseurl], [recipientfirstname], [rolename], [shortname], [userfullname], [authorisationlink], [validuntildays]';
 $string['enrolmentauthorisationmessageconfirmation'] = "Enrolment authorisation confirmation message";
 $string['enrolmentauthorisationmessageconfirmation_default'] = "Dear [recipientfirstname],
-Your request to be enrolled on \"[coursefullname]\" with the \"[rolename]\" role has been approved.
+Your request to be enrolled on \"<a href=\"[courseurl]\">[coursefullname]</a>\" with the \"<strong>[rolename]</strong>\" role has been approved.
 You can now access the module.
 ";
-$string['enrolmentauthorisationmessageconfirmation_desc'] = 'You can include the following codes in the message [coursefullname], [recipientfirstname], [rolename], [shortname], [userfullname]';
+$string['enrolmentauthorisationmessageconfirmation_desc'] = 'You can include the following codes in the message [coursefullname], [courseurl], [recipientfirstname], [rolename], [shortname], [userfullname]';
 $string['enrolmentauthorisationmessagereject'] = "Dear [recipientfirstname],
-Your request to be enrolled on \"[coursefullname]\" with the \"[rolename]\" role has been rejected.
+Your request to be enrolled on \"[coursefullname]\" with the \"[rolename]\" role has been <em>rejected</em>.
 Kind regards
 ";
 $string['enrolmentauthorisationmessageuser'] = 'Enrolment authorisation message to user';
-$string['enrolmentauthorisationrejected'] = 'Enrolment authorisation rejected message';
+$string['enrolmentauthorisationrejected'] = 'Enrolment authorisation rejected';
 $string['enrolmentauthorisationsubject'] = 'Subject of authorisation email';
 $string['enrolmentauthorisationsubject_default'] = 'Enrolment authorisation request for [shortname]';
-$string['enrolmentauthorisationsubject_desc'] = 'You can include the following codes in the subject [coursefullname], [rolename], [shortname], [userfullname]';
+$string['enrolmentauthorisationsubject_desc'] = 'You can include the following codes in the subject [coursefullname], [courseurl], [rolename], [shortname], [userfullname]';
 $string['enrolmentauthorisationvalidity'] = 'Authorisation link validity (days)';
 $string['enrolmentauthorisationvalidity_desc'] = 'How many days is the authorisation link valid for? After this time, the link will expire and a new request will need to be made.';
 $string['enrolmenthome'] = 'Enrolment home';
 $string['enrolmentnotificationmessage'] = 'Notification message';
 $string['enrolmentnotificationmessage_default'] = "Dear [recipientfirstname],
 
-[userfullname] has been enrolled on \"[coursefullname]\" with the \"[rolename]\" role.
+[userfullname] has been enrolled on \"<a href=\"[courseurl]\">[coursefullname]</a>\" with the \"[rolename]\" role.
 
 Depending on the role, they may be able to edit your page, reuse the content on their page, and view participants' details.
 
 Kind regards
 ";
-$string['enrolmentnotificationmessage_desc'] = 'You can include the following codes in the message [coursefullname], [recipientfirstname], [rolename], [shortname], [userfullname]';
+$string['enrolmentnotificationmessage_desc'] = 'You can include the following codes in the message [coursefullname], [courseurl], [recipientfirstname], [rolename], [shortname], [userfullname]';
 $string['enrolmentnotificationmessageenable'] = 'Enable Module Leader notifications';
 $string['enrolmentnotificationmessageenable_desc'] = 'Should emails be sent to the module leader when someone self-enrols?';
 $string['enrolmentnotificationsubject'] = 'Subject of notification email';
@@ -150,9 +150,9 @@ $string['enrolmentnotificationsubject_default'] = 'New enrolment on [shortname]'
 $string['enrolmentnotificationsubject_desc'] = 'You can include the following codes in the subject [coursefullname], [rolename], [shortname], [userfullname]';
 $string['enrolmentregistryrequestmessage'] = 'Registry request message';
 $string['enrolmentregistryrequestmessage_default'] = "Dear Registry,
-[userfullname] has asked to be enrolled on \"[coursefullname]\" with the \"[rolename]\" role.
+<strong>[userfullname]</strong> has asked to be enrolled on \"<a href=\"[courseurl]\">[coursefullname]</a>\" with the \"[rolename]\" role.
 Please process this request in the Student Records System.";
-$string['enrolmentregistryrequestmessage_desc'] = 'You can include the following codes in the message [coursefullname], [rolename], [shortname], [userfullname]';
+$string['enrolmentregistryrequestmessage_desc'] = 'You can include the following codes in the message [coursefullname], [courseurl], [rolename], [shortname], [userfullname]';
 $string['enrolmentregistryrequestsubject'] = 'Subject of registry request email';
 $string['enrolmentregistryrequestsubject_default'] = 'Enrolment request for [shortname]';
 $string['enrolmentregistryrequestsubject_desc'] = 'You can include the following codes in the subject [coursefullname], [rolename], [shortname], [userfullname]';

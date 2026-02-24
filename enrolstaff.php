@@ -28,6 +28,7 @@ use core\context\system;
 use core\exception\moodle_exception;
 use core\output\html_writer;
 use core\url;
+use core\user;
 use local_enrolstaff\forms\course_form;
 use local_enrolstaff\forms\role_form;
 use local_enrolstaff\forms\search_form;
@@ -253,19 +254,16 @@ if ($action == 'confirm_select') {
     }
     $rolename = role_get_name($r, $coursecontext);
     $coursefullname = $c->fullname . " " . userdate($c->startdate, '%d/%m/%Y') . " - " . userdate($c->enddate, '%d/%m/%Y');
-
+    $courseurl = new url('/course/view.php', ['id' => $c->id]);
     $contacts = $rule->get_contacts($c, $r);
 
     $defaultcontact = get_config('local_enrolstaff', 'defaultbackupnotify');
-    $defaultcontact = $DB->get_record('user', ['email' => $defaultcontact, 'deleted' => 0, 'suspended' => 0]);
+    $defaultcontact = user::get_user_by_email($defaultcontact);
+
     if (!$defaultcontact) {
         $defaultcontact = get_admin();
     }
-    $backupcontact = (object)[
-        'email' => $defaultcontact->email,
-        'name' => fullname($defaultcontact),
-        'firstname' => $defaultcontact->firstname,
-    ];
+    $backupcontact = $defaultcontact;
     if ($rule->get('sendas') != 'nonotification' && count($contacts) == 0) {
         // No module leaders or registry found, use backup contact.
         $contacts[] = $backupcontact;
@@ -277,6 +275,7 @@ if ($action == 'confirm_select') {
         'rolename' => $rolename,
         'shortname' => $c->shortname,
         'userfullname' => fullname($USER),
+        'courseurl' => $courseurl->out(),
     ];
     // Authorisation required - Enrolment not actioned until authorised.
     if ($rule->get('sendas') == 'authorisation') {
@@ -284,28 +283,25 @@ if ($action == 'confirm_select') {
         $emailfields['validuntildays'] = $validitydays;
         // Validate that all email addresses exist as users.
         foreach ($contacts as $contact) {
-            $contactuser = $DB->get_record('user', ['email' => $contact->email, 'deleted' => 0, 'suspended' => 0]);
-            if (!$contactuser) {
-                throw new moodle_exception('invalidnotifywithauthorisation', 'local_enrolstaff', '', $contact->email);
-            }
             // Check they have permission to authorise enrolments. Maybe send to backup contact if not?
-            if (!has_capability('local/enrolstaff:authoriseenrolments', course::instance($courseid), $contactuser->id)) {
+            if (!has_capability('local/enrolstaff:authoriseenrolments', course::instance($courseid), $contact->id)) {
+                // It's a bit rude to send an exception to the requester here. It's not their fault.
                 throw new moodle_exception('invalidnotifywithauthorisation', 'local_enrolstaff', '', $contact->email);
             }
 
             $emailfields['recipientfirstname'] = $contact->firstname;
-            $emailfields['recipientfullname'] = $contact->name;
+            $emailfields['recipientfullname'] = fullname($contact);
             $emailfields['authorisationlink'] = api::generate_authorisation_link(
                 $rule->get('id'),
                 $courseid,
                 $USER->id,
                 $roleid,
-                $contactuser->id,
+                $contact->id,
                 $validitydays
             );
             $subject = api::prepare_message('enrolmentauthorisationsubject', $emailfields);
             $message = api::prepare_message('enrolmentauthorisationmessage', $emailfields);
-            api::send_message($contactuser, $USER, $subject, $message);
+            api::send_message($contact, $USER, $subject, $message);
             unset($emailfields['authorisationlink']);
         }
         unset($emailfields['validuntildays']);
@@ -321,7 +317,7 @@ if ($action == 'confirm_select') {
     if ($rule->get('sendas') == 'registryrequest') {
         foreach ($contacts as $contact) {
             $emailfields['recipientfirstname'] = $contact->firstname;
-            $emailfields['recipientfullname'] = $contact->name;
+            $emailfields['recipientfullname'] = fullname($contact);
             $subject = api::prepare_message('enrolmentregistryrequestsubject', $emailfields);
             $message = api::prepare_message('enrolmentregistryrequestmessage', $emailfields);
             api::send_message($contact, $USER, $subject, $message);
@@ -347,16 +343,18 @@ if ($action == 'confirm_select') {
         if ($rule->get('sendas') == 'notification') {
             foreach ($contacts as $contact) {
                 $emailfields['recipientfirstname'] = $contact->firstname;
-                $emailfields['recipientfullname'] = $contact->name;
+                $emailfields['recipientfullname'] = fullname($contact);
                 $subject = api::prepare_message('enrolmentnotificationsubject', $emailfields);
                 $message = api::prepare_message('enrolmentnotificationmessage', $emailfields);
                 api::send_message($contact, $USER, $subject, $message);
             }
         }
+        $courseurl = new url('/course/view.php', ['id' => $c->id]);
         echo $OUTPUT->notification(
             get_string('enrolconfirmation', 'local_enrolstaff', [
                 'shortname' => $c->shortname,
                 'rolename' => $rolename,
+                'url' => $courseurl->out(),
             ]),
             'notifysuccess'
         );

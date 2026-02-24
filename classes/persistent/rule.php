@@ -20,6 +20,7 @@ use core\context\course;
 use core\lang_string;
 use core\output\html_writer;
 use core\persistent;
+use core\user;
 use local_enrolstaff\local\api;
 
 /**
@@ -719,20 +720,9 @@ class rule extends persistent {
                 // Only send direct emails if notification is required.
                 if ($notification) {
                     // Try to find user account for this email.
-                    $user = $DB->get_record('user', ['email' => $value, 'deleted' => 0, 'suspended' => 0]);
+                    $user = user::get_user_by_email($value);
                     if ($user) {
-                        $contacts[] = (object)[
-                            'email' => $user->email,
-                            'name' => fullname($user),
-                            'firstname' => $user->firstname,
-                        ];
-                    } else {
-                        [$firstname, $domain] = explode('@', $value);
-                        $contacts[] = (object)[
-                            'email' => $value,
-                            'name' => $value,
-                            'firstname' => $firstname,
-                        ];
+                        $contacts[] = $user;
                     }
                 }
             }
@@ -745,11 +735,7 @@ class rule extends persistent {
         }
         $managers = api::get_users_with_roles($course->id, $roleids);
         foreach ($managers as $manager) {
-            $contacts[] = (object)[
-                'email' => $manager->email,
-                'name' => fullname($manager),
-                'firstname' => $manager->firstname,
-            ];
+            $contacts[] = $manager;
         }
         return $contacts;
     }
