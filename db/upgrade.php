@@ -37,7 +37,7 @@ function xmldb_local_enrolstaff_upgrade($oldversion) {
     global $DB;
     $dbman = $DB->get_manager();
 
-    if ($oldversion < 2025112100) {
+    if ($oldversion < 2026022400) {
         $table = new xmldb_table('local_enrolstaff');
         $table->add_field('id', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, XMLDB_SEQUENCE, null, null);
         $table->add_field('title', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
@@ -132,7 +132,7 @@ function xmldb_local_enrolstaff_upgrade($oldversion) {
         }
         set_config('defaultnotifyroles', join(',', $defaultnotifyroles), 'local_enrolstaff');
 
-        upgrade_plugin_savepoint(true, 2025112100, 'local', 'enrolstaff');
+        upgrade_plugin_savepoint(true, 2026022400, 'local', 'enrolstaff');
     }
 
     return true;
