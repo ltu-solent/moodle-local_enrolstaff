@@ -15,7 +15,7 @@ Feature: Usermenu contains link to Staff self-enrolments
     | availabledepartments    | academic,management,support | local_enrolstaff |
     | defaultemailpattern     | @solent.ac.uk               | local_enrolstaff |
     And I set the enrolstaff role setting "availableroles" to "leader,tutor,qaleader,qatutor"
-  
+
   @javascript
   Scenario Outline: Menu item contains link to Self-service depending on matching rules
     Given the following "local_enrolstaff > rule" exists:
@@ -34,12 +34,12 @@ Feature: Usermenu contains link to Staff self-enrolments
     Then I should <seelink> "Staff enrolment self-service"
 
     Examples:
-    | username   | email                 | department | seelink |
-    | test1      | test@solent.ac.uk     | academic   | see     |
-    | student1   | student1@solent.ac.uk | student    | not see |
-    | test1      | test1@solent.ac.uk    | support    | see     |
-    | qatutor    | qatutor@qa.com        | academic   | not see |
-    | qaleader   | qaleader@qa.com       | academic   | not see |
-    | jobshop1   | john@solent.ac.uk     | support    | not see |
-    | john       | jobshop1@solent.ac.uk | support    | not see |
-    | john       | john@solent.ac.uk     | management | not see |
+      | username   | email                 | department | seelink |
+      | test1      | test@solent.ac.uk     | academic   | see     |
+      | student1   | student1@solent.ac.uk | student    | not see |
+      | test1      | test1@solent.ac.uk    | support    | see     |
+      | qatutor    | qatutor@qa.com        | academic   | not see |
+      | qaleader   | qaleader@qa.com       | academic   | not see |
+      | jobshop1   | john@solent.ac.uk     | support    | not see |
+      | john       | jobshop1@solent.ac.uk | support    | not see |
+      | john       | john@solent.ac.uk     | management | not see |

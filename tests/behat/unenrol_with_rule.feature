@@ -64,7 +64,7 @@ Feature: Staff member self-unenrols from an existing course with rules
     When I am on "Module 2" course homepage
     Then I should not see "New section"
     And I should see "Enrolment options"
-  
+
   @javascript
   Scenario: User can unenrol themselves from a hidden module
     Given the following "course enrolments" exist:

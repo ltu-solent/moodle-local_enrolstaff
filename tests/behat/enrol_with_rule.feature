@@ -68,10 +68,10 @@ Feature: Staff member self-enrols onto an existing course with rules
     And I should <seeqatutor> "QA Tutor" in the "Role" "select"
 
     Examples:
-    | username   | role     | email                 | department | seetutor | seeqatutor |
-    | test1      | tutor    | test@solent.ac.uk     | academic   | see      | not see    |
-    | test1      | leader   | test1@solent.ac.uk    | academic   | see      | not see    |
-    | test1      | john     | john@qa.com           | academic   | not see  | see        |
+      | username   | role     | email                 | department | seetutor | seeqatutor |
+      | test1      | tutor    | test@solent.ac.uk     | academic   | see      | not see    |
+      | test1      | leader   | test1@solent.ac.uk    | academic   | see      | not see    |
+      | test1      | john     | john@qa.com           | academic   | not see  | see        |
 
   @javascript
   Scenario Outline: Rule defines which courses are available, or not
@@ -104,15 +104,15 @@ Feature: Staff member self-enrols onto an existing course with rules
     And I press "Search"
     Then "Select module" "button" should <exist>
     And I should <nomodules> "No modules found that you can enrol on."
-    
+
     Examples:
-    | username | email             | department | role               | code        | exist     | nomodules |
-    | john     | john@solent.ac.uk | academic   | Associate Lecturer | ABC101      | exist     | not see   |
-    | john     | john@solent.ac.uk | academic   | Associate Lecturer | QHO101      | not exist | see       |
-    | john     | john@qa.com       | academic   | QA Tutor           | ABC101      | not exist | see       |
-    | john     | john@qa.com       | academic   | QA Tutor           | QHO101      | exist     | not see   |
-    | john     | john@solent.ac.uk | academic   | Associate Lecturer | EDU101      | not exist | see       |
-    | john     | john@solent.ac.uk | academic   | Associate Lecturer | counselling | not exist | see       |
+      | username | email             | department | role               | code        | exist     | nomodules |
+      | john     | john@solent.ac.uk | academic   | Associate Lecturer | ABC101      | exist     | not see   |
+      | john     | john@solent.ac.uk | academic   | Associate Lecturer | QHO101      | not exist | see       |
+      | john     | john@qa.com       | academic   | QA Tutor           | ABC101      | not exist | see       |
+      | john     | john@qa.com       | academic   | QA Tutor           | QHO101      | exist     | not see   |
+      | john     | john@solent.ac.uk | academic   | Associate Lecturer | EDU101      | not exist | see       |
+      | john     | john@solent.ac.uk | academic   | Associate Lecturer | counselling | not exist | see       |
 
   @javascript
   Scenario Outline: Rule allows user to enrol themselves
@@ -153,8 +153,8 @@ Feature: Staff member self-enrols onto an existing course with rules
     And I am on "<fullname>" course homepage
     And I should see "<fullname>"
     And I should see "New section"
-    
+
     Examples:
-    | username | email             | department | role               | code        | fullname  | see     |
-    | john     | john@solent.ac.uk | academic   | Associate Lecturer | ABC101      | Module 1  | see     |
-    | john     | john@qa.com       | academic   | QA Tutor           | QHO101      | QModule 1 | see     |
+      | username | email             | department | role               | code        | fullname  | see     |
+      | john     | john@solent.ac.uk | academic   | Associate Lecturer | ABC101      | Module 1  | see     |
+      | john     | john@qa.com       | academic   | QA Tutor           | QHO101      | QModule 1 | see     |
