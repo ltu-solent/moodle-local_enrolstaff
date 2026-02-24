@@ -64,7 +64,8 @@ class previewrule_table extends sql_table {
             // Add cohort column listing all the matching cohort names for each user, include it as a subquery.
             // We're adding it here instead of get_userfilter_sql() as this is just for display.
             [$insql, $inparams] = $DB->get_in_or_equal($rule->get('cohortids'), SQL_PARAMS_NAMED, 'scids');
-            $cohortselect = ", (SELECT GROUP_CONCAT(c.name SEPARATOR ', ')
+            $concat = $DB->sql_group_concat('c.name', ', ');
+            $cohortselect = ", (SELECT $concat
                 FROM {cohort} c
                 JOIN {cohort_members} cm ON cm.cohortid = c.id
                 WHERE cm.userid = u.id
