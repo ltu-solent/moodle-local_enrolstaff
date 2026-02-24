@@ -561,7 +561,10 @@ class rule extends persistent {
             ' u.firstnamephonetic, u.lastnamephonetic, u.middlename, u.alternatename';
         $from = '{user} u';
         $params = [];
-        $conditions = [];
+        $conditions = [
+            'u.suspended = 0',
+            'u.deleted = 0',
+        ];
         // Build SQL conditions based on the rule filters.
         if (!empty($this->get('email'))) {
             $conditions[] = 'u.email ' . $DB->sql_regex() . ' :emailpattern';
