@@ -209,8 +209,7 @@ class user {
             return [];
         }
 
-        $excludecourses = $this->config->excludeid;
-        $excludecourses = explode(',', $excludecourses);
+        $excludecourses = api::clean_csv($this->config->excludeid);
 
         [$inorequalsql, $inparams] = $DB->get_in_or_equal($excludecourses, SQL_PARAMS_NAMED, 'excids', false);
         $coursesearch1like = $DB->sql_like('c.shortname', ':coursesearch1', false, false);
@@ -223,7 +222,14 @@ class user {
             'modulecatlike' => 'modules_%',
             'coursecatlike' => 'courses_%',
         ];
-        $params += $inparams;
+
+        $excludecourses = api::clean_csv($this->config->excludeid);
+        $excids = '';
+        if (count($excludecourses) > 0) {
+            [$excidssql, $excidsparams] = $DB->get_in_or_equal($excludecourses, SQL_PARAMS_NAMED, 'excids', false);
+            $params += $excidsparams;
+            $excids = "AND c.id {$excidssql}";
+        }
 
         [$andsql, $andparams] = $this->get_course_filter();
 
@@ -233,7 +239,7 @@ class user {
                 JOIN {course_categories} cc on c.category = cc.id
                 WHERE ({$coursesearch1like} OR {$coursesearch2like})
                 $andsql
-                AND c.id {$inorequalsql}
+                $excids
                 AND ({$modulecatlike} OR {$coursecatlike})
                 AND c.visible = 1
                 ORDER BY c.startdate DESC, c.shortname ASC";
