@@ -209,9 +209,6 @@ class user {
             return [];
         }
 
-        $excludecourses = api::clean_csv($this->config->excludeid);
-
-        [$inorequalsql, $inparams] = $DB->get_in_or_equal($excludecourses, SQL_PARAMS_NAMED, 'excids', false);
         $coursesearch1like = $DB->sql_like('c.shortname', ':coursesearch1', false, false);
         $coursesearch2like = $DB->sql_like('c.fullname', ':coursesearch2', false, false);
         $modulecatlike = $DB->sql_like('cc.idnumber', ':modulecatlike', false, false);
