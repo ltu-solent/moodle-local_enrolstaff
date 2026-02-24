@@ -226,7 +226,7 @@ $string['hardsettings'] = 'Hard settings';
 $string['hardsettings_desc'] = 'These are settings that apply no matter the rule.';
 $string['hasanemaillike'] = 'Has an "email" that looks like "{$a}"';
 $string['hasausernamelike'] = 'Has a "username" that looks like "{$a}"';
-$string['hasfield'] = 'Has "{$a->item} "{$field}"';
+$string['hasfield'] = 'Has "{$a->item} "{$a->field}"';
 $string['hasoneof'] = 'Has one of "{$a->list}" in "{$a->field}"';
 
 $string['institution'] = 'Institution';
