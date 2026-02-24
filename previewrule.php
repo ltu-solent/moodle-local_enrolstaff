@@ -52,6 +52,6 @@ echo $OUTPUT->header();
 echo $rule->print_filters();
 
 $table = new previewrule_table('local_enrolstaff_previewrule_table', $rule);
-$table->out(20, true);
+$table->out(100, true);
 
 echo $OUTPUT->footer();
