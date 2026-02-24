@@ -556,6 +556,7 @@ class rule extends persistent {
      * @return array [$select, $from, $params, $conditions]
      */
     public function get_userfilter_sql(): array {
+        global $DB;
         $select = 'u.id, u.username, u.email, u.firstname, u.lastname, u.department, u.institution, u.auth,' .
             ' u.firstnamephonetic, u.lastnamephonetic, u.middlename, u.alternatename';
         $from = '{user} u';
@@ -563,19 +564,19 @@ class rule extends persistent {
         $conditions = [];
         // Build SQL conditions based on the rule filters.
         if (!empty($this->get('email'))) {
-            $conditions[] = 'u.email REGEXP :emailpattern';
+            $conditions[] = 'u.email ' . $DB->sql_regex() . ' :emailpattern';
             $params['emailpattern'] = $this->get('email');
         }
         if (!empty($this->get('username'))) {
-            $conditions[] = 'u.username REGEXP :usernamepattern';
+            $conditions[] = 'u.username ' . $DB->sql_regex() . ' :usernamepattern';
             $params['usernamepattern'] = $this->get('username');
         }
         if (!empty($this->get('exemail'))) {
-            $conditions[] = 'u.email NOT REGEXP :exemailpattern';
+            $conditions[] = 'u.email ' . $DB->sql_regex(false) . ' :exemailpattern';
             $params['exemailpattern'] = $this->get('exemail');
         }
         if (!empty($this->get('exusername'))) {
-            $conditions[] = 'u.username NOT REGEXP :exusernamepattern';
+            $conditions[] = 'u.username ' . $DB->sql_regex(false) . ' :exusernamepattern';
             $params['exusernamepattern'] = $this->get('exusername');
         }
         if (!empty($this->get('departments'))) {
