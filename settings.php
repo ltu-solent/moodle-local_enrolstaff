@@ -375,7 +375,7 @@ if ($hassiteconfig) {
 
     $settings->add(
         new admin_setting_configtext(
-            'local_enrolment/enrolmentregistryrequestsubject',
+            'local_enrolstaff/enrolmentregistryrequestsubject',
             new lang_string('enrolmentregistryrequestsubject', 'local_enrolstaff'),
             new lang_string('enrolmentregistryrequestsubject_desc', 'local_enrolstaff'),
             new lang_string('enrolmentregistryrequestsubject_default', 'local_enrolstaff'),
@@ -386,7 +386,7 @@ if ($hassiteconfig) {
 
     $settings->add(
         new admin_setting_configtextarea(
-            'local_enrolment/enrolmentregistryrequestmessage',
+            'local_enrolstaff/enrolmentregistryrequestmessage',
             new lang_string('enrolmentregistryrequestmessage', 'local_enrolstaff'),
             new lang_string('enrolmentregistryrequestmessage_desc', 'local_enrolstaff'),
             new lang_string('enrolmentregistryrequestmessage_default', 'local_enrolstaff'),
