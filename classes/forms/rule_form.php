@@ -173,43 +173,14 @@ class rule_form extends persistent {
         $mform->addHelpButton('sendas', 'field:sendas', 'local_enrolstaff');
         $mform->addRule('sendas', $required, 'required', 'client');
 
-        // Field: Notify.
-        $choices = api::get_notify_menu();
-        $mform->addElement(
-            'autocomplete',
-            'notify',
-            new lang_string('field:notify', 'local_enrolstaff'),
-            $choices,
-            $multiplewithtags
-        );
-        $mform->addHelpButton('notify', 'field:notify', 'local_enrolstaff');
-        $mform->hideIf('notify', 'sendas', 'eq', 'nonotification');
-        // If sendas is set, we need to ensure notify is also set.
-        $mform->addRule(
-            'notify',
-            new lang_string('requiredwithsendas', 'local_enrolstaff'),
-            'callback',
-            function ($value) use ($mform, $choices) {
-                $sendas = $mform->getElementValue('sendas');
-                if ($sendas === 'nonotification') {
-                    return true;
-                }
-                $mform->addRule('notify', new lang_string('requiredwithsendas', 'local_enrolstaff'), 'required', null, 'server');
-                if (!is_array($value)) {
-                    return false;
-                }
-                if (count($value) == 1 && empty($value[0])) {
-                    return false;
-                }
-                foreach ($value as $roleidoremail) {
-                    if (empty($roleidoremail)) {
-                        continue;
-                    }
-                }
-                return true;
-            },
-            'server'
-        );
+        $mform->addElement('static', 'notificationhelp', '', new lang_string('notificationhelp', 'local_enrolstaff'));
+        $mform->hideIf('notificationhelp', 'sendas', 'eq', 'nonotification');
+        $mform->hideIf('notificationhelp', 'sendas', 'eq', 'registryrequest');
+
+        $choices = api::get_registryemail_menu();
+        $mform->addElement('select', 'registrycontact', new lang_string('field:registrycontact', 'local_enrolstaff'), $choices);
+        $mform->addHelpButton('registrycontact', 'field:registrycontact', 'local_enrolstaff');
+        $mform->hideIf('registrycontact', 'sendas', 'neq', 'registryrequest');
 
         $this->add_action_buttons();
     }

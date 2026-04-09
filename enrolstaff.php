@@ -255,7 +255,7 @@ if ($action == 'confirm_select') {
     $rolename = role_get_name($r, $coursecontext);
     $coursefullname = $c->fullname . " " . userdate($c->startdate, '%d/%m/%Y') . " - " . userdate($c->enddate, '%d/%m/%Y');
     $courseurl = new url('/course/view.php', ['id' => $c->id]);
-    $contacts = $rule->get_contacts($c, $r);
+    $contacts = $rule->get_contacts($c);
 
     $defaultcontact = get_config('local_enrolstaff', 'defaultbackupnotify');
     $defaultcontact = user::get_user_by_email($defaultcontact);
@@ -286,7 +286,8 @@ if ($action == 'confirm_select') {
             // Check they have permission to authorise enrolments. Maybe send to backup contact if not?
             if (!has_capability('local/enrolstaff:authoriseenrolments', course::instance($courseid), $contact->id)) {
                 // It's a bit rude to send an exception to the requester here. It's not their fault.
-                throw new moodle_exception('invalidnotifywithauthorisation', 'local_enrolstaff', '', $contact->email);
+                // Will send to backup contact if possible.
+                continue;
             }
 
             $emailfields['recipientfirstname'] = $contact->firstname;
@@ -324,12 +325,11 @@ if ($action == 'confirm_select') {
         }
         // Inform user of request.
         echo $OUTPUT->notification(get_string('enrolrequestalert', 'local_enrolstaff', [
-            'schoolemail' => $studentrecordsemail,
             'shortname' => $c->shortname,
             'rolename' => $rolename,
         ]), 'notifysuccess');
         // Email receipt to user of requested.
-        $subject = get_string('requestemailsubject', 'local_enrolstaff', ['shortname' => $c->shortname]);
+        $subject = get_string('requestemailsubject', 'local_enrolstaff', ['shortname' => $c->shortname, 'rolename' => $rolename]);
         $message = get_string('enrolrequesteduser', 'local_enrolstaff', [
             'fullname' => $c->fullname,
             'rolename' => $rolename,

@@ -90,17 +90,17 @@ if ($hassiteconfig) {
         )
     );
 
-    // Available Notify roles.
-    $choices = api::get_course_level_roles_menu(['editingteacher']);
-    $settings->add(
-        new admin_setting_configmultiselect(
-            'local_enrolstaff/availablenotifyroles',
-            new lang_string('availablenotifyroles', 'local_enrolstaff'),
-            new lang_string('availablenotifyroles_desc', 'local_enrolstaff'),
-            null,
-            $choices
-        )
-    );
+    // // Available Notify roles.
+    // $choices = api::get_course_level_roles_menu(['editingteacher']);
+    // $settings->add(
+    //     new admin_setting_configmultiselect(
+    //         'local_enrolstaff/availablenotifyroles',
+    //         new lang_string('availablenotifyroles', 'local_enrolstaff'),
+    //         new lang_string('availablenotifyroles_desc', 'local_enrolstaff'),
+    //         null,
+    //         $choices
+    //     )
+    // );
 
     // Available Backup notify email addresses.
     $settings->add(
@@ -230,18 +230,6 @@ if ($hassiteconfig) {
         )
     );
 
-    // Default notify role.
-    $settings->add(
-        new admin_setting_configtext(
-            'local_enrolstaff/defaultnotifyroles',
-            new lang_string('defaultnotifyroles', 'local_enrolstaff'),
-            new lang_string('defaultnotifyroles_desc', 'local_enrolstaff'),
-            '',
-            PARAM_TEXT,
-            100
-        )
-    );
-
     // Default backup notify, if no-one is an 'editingteacher' on the page.
     $supportemail = (isset($CFG->supportemail)) ? clean_param($CFG->supportemail, PARAM_EMAIL) : '';
     $settings->add(
@@ -255,7 +243,7 @@ if ($hassiteconfig) {
         )
     );
 
-    // Default Registry email, if the role is an 'editingteacher'. Registry will process.
+    // Default Registry email.
     $settings->add(
         new admin_setting_configtext(
             'local_enrolstaff/defaultregistryemail',

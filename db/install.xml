@@ -18,7 +18,7 @@
           <FIELD NAME="codes" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Restrict enrolments to these module codes" />
           <FIELD NAME="excodes" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Ban these module codes" />
           <FIELD NAME="sendas" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Notification, Authorisation or Not required" />
-          <FIELD NAME="notify" TYPE="char" LENGTH="1000" NOTNULL="false" SEQUENCE="false" COMMENT="Who to nofify" />
+          <FIELD NAME="registrycontact" TYPE="int" LENGTH="10" UNSIGNED="true" NOTNULL="false" SEQUENCE="false" COMMENT="Registry contact" />
           <FIELD NAME="enabled" TYPE="int" LENGTH="1" NOTNULL="true" SEQUENCE="false" UNSIGNED="true" />
           <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" UNSIGNED="true" />
           <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" UNSIGNED="true" />

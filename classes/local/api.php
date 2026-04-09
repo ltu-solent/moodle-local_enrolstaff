@@ -49,7 +49,20 @@ class api {
      */
     public static function send_message(object $to, object $from, string $subject, string $message) {
         // Users must be Moodle users.
-        email_to_user($to, $from, $subject, $message, text_to_html($message));
+        $eventdata = new \core\message\message();
+        $eventdata->component = 'local_enrolstaff';
+        $eventdata->name = 'request';
+        $eventdata->notification = 1;
+        $eventdata->courseid = SITEID;
+        $eventdata->userfrom = $from;
+        $eventdata->userto = $to;
+        $eventdata->subject = $subject;
+        $eventdata->fullmessage = $message;
+        $eventdata->fullmessageformat = FORMAT_MOODLE;
+        $eventdata->fullmessagehtml = text_to_html($message);
+        $eventdata->smallmessage = null;
+        $id = message_send($eventdata);
+        return $id;
     }
 
     /**
@@ -334,13 +347,12 @@ class api {
     public static function get_registryemail_menu(): array {
         $registryemails = get_config('local_enrolstaff', 'availableregistryemails');
         $registryemails = static::clean_csv($registryemails);
-        $registryemails = array_filter($registryemails, function ($email) {
-            // Does this email need to be a user in Moodle?
-            return clean_param($email, PARAM_EMAIL) !== '';
-        });
         $choices = [];
-        foreach ($registryemails as $key => $email) {
-            $choices["e:" . $email] = $email;
+        foreach ($registryemails as $registryemail) {
+            $registry = user::get_user_by_email($registryemail);
+            if ($registry) {
+                $choices[$registry->id] = $registryemail;
+            }
         }
         return $choices;
     }

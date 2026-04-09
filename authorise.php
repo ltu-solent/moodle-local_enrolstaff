@@ -37,6 +37,9 @@ $token = required_param('token', PARAM_ALPHANUMEXT);
 
 // Ensure can login to course.
 require_login($courseid);
+// Ensure user has permission to authorise enrolments.
+$context = course::instance($courseid);
+require_capability('local/enrolstaff:authoriseenrolments', $context);
 
 $authorise = authorise::get_record(['courseid' => $courseid, 'token' => $token]);
 if (!$authorise) {
@@ -53,7 +56,7 @@ $params = [
 ];
 $url = new url('/local/enrolstaff/authorise.php', $params);
 $PAGE->set_url($url);
-$context = course::instance($courseid);
+
 $rule = rule::get_record(['id' => $authorise->get('ruleid')]);
 $c = $DB->get_record('course', ['id' => $authorise->get('courseid')], '*', MUST_EXIST);
 $r = $DB->get_record('role', ['id' => $authorise->get('roleid')], '*', MUST_EXIST);

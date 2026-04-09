@@ -15,21 +15,16 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version file
+ * Defines message providers (types of messages being sent) for Staff Enrolment
  *
- * @package   local_enrolstaff
- * @author    Mark Sharp <mark.sharp@solent.ac.uk>
- * @copyright 2022 Solent University {@link https://www.solent.ac.uk}
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    local_enrolstaff
+ * @category   message
+ * @copyright  2026 Southampton Solent University {@link https://www.solent.ac.uk}
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version  = 2026040800;
-$plugin->release = '4.5';
-$plugin->requires = 2024100700;
-$plugin->component = 'local_enrolstaff';
-$plugin->supported = [405, 500];
-$plugin->dependencies = [
-    'local_adminsettingsconfig' => 2021060802,
+$messageproviders = [
+    'request' => [],
 ];

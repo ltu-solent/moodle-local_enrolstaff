@@ -135,5 +135,25 @@ function xmldb_local_enrolstaff_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2026022400, 'local', 'enrolstaff');
     }
 
+    if ($oldversion < 2026040800) {
+        // Old settings.
+        $oldsettings = ['defaultnotifyroles'];
+        foreach ($oldsettings as $setting) {
+            unset_config($setting, 'local_enrolstaff');
+        }
+
+        $table = new xmldb_table('local_enrolstaff');
+        $field = new xmldb_field('notify');
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+        $field = new xmldb_field('registrycontact', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, 0, 'sendas');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        upgrade_plugin_savepoint(true, 2026040800, 'local', 'enrolstaff');
+    }
+
     return true;
 }

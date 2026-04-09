@@ -121,10 +121,21 @@ class rule extends persistent {
                 'default' => 'notification',
                 'choice' => api::get_sendas_menu(),
             ],
-            'notify' => [
-                'type' => PARAM_TAGLIST,
+            'registrycontact' => [
+                'type' => PARAM_INT,
                 'default' => function () {
-                    return get_config('local_enrolstaff', 'defaultnotify');
+                    $menu = api::get_registryemail_menu();
+                    $default = get_config('local_enrolstaff', 'defaultregistryemail');
+                    if (empty($menu) || empty($default)) {
+                        return 0;
+                    }
+                    $menu = array_filter($menu, function ($value) use ($default) {
+                        return $value == $default;
+                    }, ARRAY_FILTER_USE_BOTH);
+                    if (empty($menu)) {
+                        return 0;
+                    }
+                    return reset($menu);
                 },
             ],
             'enabled' => [
@@ -154,20 +165,6 @@ class rule extends persistent {
         if (is_array($this->raw_get('excodes'))) {
             $value = $this->raw_get('excodes');
             $this->set('excodes', trim(implode(',', $value), "\s,"));
-        }
-        if (is_array($this->raw_get('notify'))) {
-            $value = $this->raw_get('notify');
-            $items = [];
-            foreach ($value as $item) {
-                if (strpos($item, ':') === false) {
-                    // Assume email if no prefix.
-                    $items['e:' . $item] = $item;
-                } else {
-                    $items[$item] = $item;
-                }
-            }
-            $items = trim(implode(',', $items), "\s,");
-            $this->set('notify', $items);
         }
         if (is_array($this->raw_get('roleids'))) {
             $this->set('roleids', implode(',', $this->raw_get('roleids')));
@@ -471,28 +468,6 @@ class rule extends persistent {
         $this->check_atleastone();
     }
 
-    #[\Override]
-    protected function before_create() {
-        $value = $this->raw_get('notify');
-        $value = api::clean_csv($value);
-        $items = [];
-        foreach ($value as $item) {
-            if (strpos($item, ':') === false) {
-                // Assume email if no prefix.
-                $items['e:' . $item] = $item;
-            } else {
-                $items[$item] = $item;
-            }
-        }
-        $items = trim(implode(',', $items), "\s,");
-        $this->set('notify', $items);
-    }
-
-    #[\Override]
-    protected function before_update() {
-        $this->before_create();
-    }
-
     /**
      * When saving, if there are no defined filters, ensure rule is disabled.
      *
@@ -701,45 +676,31 @@ class rule extends persistent {
      * Get contacts for notifications based on rule settings
      *
      * @param stdClass $course
-     * @param stdClass $role We may do something with the role here in future.
      * @return array (email, name)[]
      */
-    public function get_contacts($course, $role): array {
+    public function get_contacts($course): array {
         global $DB;
         $contacts = [];
         // Maybe no notification is required.
         if ($this->get('sendas') == 'nonotification') {
             return $contacts;
         }
-        $allnotify = $this->get('notify');
-        $notification = in_array($this->get('sendas'), ['notification', 'registryrequest']);
         // Get course managers.
-        $roleids = [];
-        foreach ($allnotify as $item) {
-            [$type, $value] = explode(':', $item);
-            // Authorisation only works if the authoriser is already a course manager.
-            if ($type === 'r') {
-                $roleids[] = $value;
-            } else {
-                // Only send direct emails if notification is required.
-                if ($notification) {
-                    // Try to find user account for this email.
-                    $user = user::get_user_by_email($value);
-                    if ($user) {
-                        $contacts[] = $user;
-                    }
+        $context = course::instance($course->id);
+        if (in_array($this->get('sendas'), ['notification', 'authorisation'])) {
+            $contacts = get_enrolled_users(
+                context: $context,
+                withcapability: 'local/enrolstaff:authoriseenrolments',
+                onlyactive: true
+            );
+        } else if ($this->get('sendas') == 'registryrequest') {
+            $registrycontactid = $this->get('registrycontact');
+            if ($registrycontactid) {
+                $registrycontact = $DB->get_record('user', ['id' => $registrycontactid]);
+                if ($registrycontact) {
+                    $contacts[] = $registrycontact;
                 }
             }
-        }
-        if (!empty($roleids)) {
-            $roleids = array_unique($roleids);
-        } else {
-            // No roles to get managers for.
-            return $contacts;
-        }
-        $managers = api::get_users_with_roles($course->id, $roleids);
-        foreach ($managers as $manager) {
-            $contacts[] = $manager;
         }
         return $contacts;
     }
