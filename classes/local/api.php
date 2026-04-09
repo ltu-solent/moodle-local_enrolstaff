@@ -89,6 +89,25 @@ class api {
     }
 
     /**
+     * Does user already have this role on this course?
+     *
+     * @param int $courseid
+     * @param int $userid
+     * @param int $roleid
+     * @return bool
+     */
+    public static function is_enrolled_with_roleid(int $courseid, int $userid, int $roleid): bool {
+        global $DB;
+        $sql = "SELECT 1
+            FROM {course} c
+            JOIN {context} cx ON cx.instanceid = c.id AND cx.contextlevel = 50
+            JOIN {role_assignments} ra ON ra.contextid = cx.id AND ra.userid = :userid AND ra.roleid = :roleid
+            WHERE c.id = :courseid";
+        $params = ['courseid' => $courseid, 'userid' => $userid, 'roleid' => $roleid];
+        return (bool)$DB->get_field_sql($sql, $params);
+    }
+
+    /**
      * Determines if a course is a partner course
      *
      * @param object $course

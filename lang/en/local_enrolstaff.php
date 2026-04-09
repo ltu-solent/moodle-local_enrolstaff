@@ -104,6 +104,7 @@ $string['enrolas'] = 'Can enrol as one of "{$a->list}" for {$a->period}';
 $string['enrolconfirmation'] = 'You have been enrolled on <a href="{$a->url}">{$a->shortname}</a> as {$a->rolename}';
 $string['enrolintro'] = "<p>To remove yourself as module leader from a module page, <strong><a href='mailto:student.registry@solent.ac.uk?subject=Module%20Leader%20enrolment%20deletion%20request&amp;body=Dear%20Student%20Registry,%0D%0A%0D%0APlease%20remove%20me%20as%20module%20leader%20from%20module'>please click here to generate an email template to send to Student Registry</a></strong></p>";
 $string['enrolmentauthorisation'] = 'Enrolment authorisation';
+$string['enrolmentauthorisationalreadyenrolled'] = 'This user is already enrolled with this role. No further action is required.';
 $string['enrolmentauthorisationconfirmed'] = 'Enrolment authorisation confirmed. The user has been enrolled.';
 $string['enrolmentauthorisationconfirmmessage'] = 'You have been requested to enrol {$a->requestor} on <strong>{$a->course}</strong> with the role of <strong>{$a->role}</strong>.<br /><br />Please confirm this request by clicking the "Confirm" button below.';
 $string['enrolmentauthorisationmessage'] = 'Authorisation message';

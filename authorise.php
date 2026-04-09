@@ -24,6 +24,7 @@
 
 use core\context\course;
 use core\context\system;
+use core\output\notification;
 use core\url;
 use local_enrolstaff\local\api;
 use local_enrolstaff\persistent\authorise;
@@ -80,17 +81,24 @@ $emailfields = [
     'shortname' => $c->shortname,
     'courseid' => $c->id,
 ];
-
+$isenrolled = api::is_enrolled_with_roleid($c->id, $requestor->id, $r->id);
+if ($isenrolled) {
+    // If user is already enrolled, then there is nothing more to do. Just delete the authorisation request and show a message.
+    echo $OUTPUT->notification(get_string('enrolmentauthorisationalreadyenrolled', 'local_enrolstaff'), notification::NOTIFY_INFO);
+    $authorise->delete();
+    echo $OUTPUT->footer();
+    exit;
+}
 if ($action == 'confirm') {
     $authorise->authorise_enrolment($rule);
-    echo $OUTPUT->notification(get_string('enrolmentauthorisationconfirmed', 'local_enrolstaff'), 'notifysuccess');
+    echo $OUTPUT->notification(get_string('enrolmentauthorisationconfirmed', 'local_enrolstaff'), notification::NOTIFY_SUCCESS);
     $subject = api::prepare_message('enrolmentauthorisationsubject', $emailfields);
     $message = api::prepare_message('enrolmentauthorisationmessageconfirmation', $emailfields);
     api::send_message($requestor, $USER, $subject, $message);
 } else if ($action == 'reject') {
     // Delete the authorisation request.
     $authorise->delete();
-    echo $OUTPUT->notification(get_string('enrolmentauthorisationrejected', 'local_enrolstaff'), 'notifymessage');
+    echo $OUTPUT->notification(get_string('enrolmentauthorisationrejected', 'local_enrolstaff'), notification::NOTIFY_WARNING);
     $subject = api::prepare_message('enrolmentauthorisationsubject', $emailfields);
     $message = api::prepare_message('enrolmentauthorisationmessagereject', $emailfields);
     api::send_message($requestor, $USER, $subject, $message);
