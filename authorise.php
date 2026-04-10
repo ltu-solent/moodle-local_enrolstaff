@@ -56,6 +56,7 @@ $params = [
     'token' => $token,
 ];
 $url = new url('/local/enrolstaff/authorise.php', $params);
+$courseurl = new url('/course/view.php', ['id' => $courseid]);
 $PAGE->set_url($url);
 
 $rule = rule::get_record(['id' => $authorise->get('ruleid')]);
@@ -68,7 +69,6 @@ $PAGE->set_context($context);
 
 $heading = get_string('enrolmentauthorisation', 'local_enrolstaff');
 $PAGE->set_heading($heading);
-echo $OUTPUT->header();
 
 // Email receipt to user of requested.
 $emailfields = [
@@ -84,25 +84,36 @@ $emailfields = [
 $isenrolled = api::is_enrolled_with_roleid($c->id, $requestor->id, $r->id);
 if ($isenrolled) {
     // If user is already enrolled, then there is nothing more to do. Just delete the authorisation request and show a message.
-    echo $OUTPUT->notification(get_string('enrolmentauthorisationalreadyenrolled', 'local_enrolstaff'), notification::NOTIFY_INFO);
     $authorise->delete();
-    echo $OUTPUT->footer();
-    exit;
+    redirect(
+        $courseurl,
+        get_string('enrolmentauthorisationalreadyenrolled', 'local_enrolstaff'),
+        notification::NOTIFY_INFO
+    );
 }
 if ($action == 'confirm') {
     $authorise->authorise_enrolment($rule);
-    echo $OUTPUT->notification(get_string('enrolmentauthorisationconfirmed', 'local_enrolstaff'), notification::NOTIFY_SUCCESS);
     $subject = api::prepare_message('enrolmentauthorisationsubject', $emailfields);
     $message = api::prepare_message('enrolmentauthorisationmessageconfirmation', $emailfields);
     api::send_message($requestor, $USER, $subject, $message);
+    redirect(
+        $courseurl,
+        get_string('enrolmentauthorisationconfirmed', 'local_enrolstaff'),
+        notification::NOTIFY_SUCCESS
+    );
 } else if ($action == 'reject') {
     // Delete the authorisation request.
     $authorise->delete();
-    echo $OUTPUT->notification(get_string('enrolmentauthorisationrejected', 'local_enrolstaff'), notification::NOTIFY_WARNING);
     $subject = api::prepare_message('enrolmentauthorisationsubject', $emailfields);
     $message = api::prepare_message('enrolmentauthorisationmessagereject', $emailfields);
     api::send_message($requestor, $USER, $subject, $message);
+    redirect(
+        $courseurl,
+        get_string('enrolmentauthorisationrejected', 'local_enrolstaff'),
+        notification::NOTIFY_WARNING
+    );
 } else {
+    echo $OUTPUT->header();
     // Show confirmation message.
     $confirmurl = new url('/local/enrolstaff/authorise.php', array_merge($params, ['action' => 'confirm']));
     $cancelurl = new url('/local/enrolstaff/authorise.php', array_merge($params, ['action' => 'reject']));

@@ -27,6 +27,7 @@ use core\context\course;
 use core\context\system;
 use core\exception\moodle_exception;
 use core\output\html_writer;
+use core\output\notification;
 use core\url;
 use core\user;
 use local_enrolstaff\forms\course_form;
@@ -59,7 +60,7 @@ if ($action == 'enrol_home') {
 if ($action == 'unenrol') {
         redirect(new url('/local/enrolstaff/unenrolstaff.php'));
 }
-echo $OUTPUT->header();
+
 // This will populate the cache, if not done so already.
 $activeuser = new \local_enrolstaff\local\user($USER);
 if (!$activeuser->user_can_enrolself()) {
@@ -70,6 +71,7 @@ $esconfig = get_config('local_enrolstaff');
 
 $ruleids = $activeuser->usercache->get('ruleids');
 if (count($ruleids) == 0) {
+    echo $OUTPUT->header();
     echo html_writer::tag(
         'h2',
         get_string('norolesavailable', 'local_enrolstaff')
@@ -81,12 +83,13 @@ if (count($ruleids) == 0) {
     exit();
 }
 
-echo "<div class='maindiv'>";
+
 
 // Role selection.
 if ($action == 'select_role') {
+    echo $OUTPUT->header();
     $rform = new role_form(null, ['activeuser' => $activeuser]);
-    echo $OUTPUT->notification(get_string('enrolintro', 'local_enrolstaff'), 'notifymessage');
+    echo $OUTPUT->notification(get_string('enrolintro', 'local_enrolstaff'), notification::NOTIFY_INFO);
     if ($rform->is_cancelled()) {
         redirect($enrolstaffurl);
     } else if ($frorform = $rform->get_data()) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
@@ -104,6 +107,7 @@ if ($action == 'select_role') {
 
 // Course search.
 if ($action == 'unit_select') {
+    echo $OUTPUT->header();
     $role = required_param('role', PARAM_INT);
     if (!$activeuser->is_role_valid($role)) {
         throw new moodle_exception('invalidrole', 'local_enrolstaff');
@@ -149,6 +153,7 @@ if ($action == 'unit_select') {
 
 // Course results list.
 if ($action == 'search_select') {
+    echo $OUTPUT->header();
     $coursesearch = required_param('coursesearch', PARAM_ALPHANUMEXT);
     $roleid = required_param('role', PARAM_INT);
     if (!$activeuser->is_role_valid($roleid)) {
@@ -186,6 +191,7 @@ if ($action == 'search_select') {
 
 // Confirmation.
 if ($action == 'role_select') {
+    echo $OUTPUT->header();
     $courseid = required_param('course', PARAM_INT);
     $roleid = required_param('role', PARAM_INT);
     $coursecontext = course::instance($courseid);
@@ -216,7 +222,7 @@ if ($action == 'role_select') {
         ]);
     }
 
-    echo $OUTPUT->notification(get_string('enrolwarning', 'local_enrolstaff'), 'notifymessage');
+    echo $OUTPUT->notification(get_string('enrolwarning', 'local_enrolstaff'), notification::NOTIFY_WARNING);
 
     if ($rule->get('duration') > 0) {
         echo html_writer::tag('p', get_string('enrolmentsexpireafter', 'local_enrolstaff', $rule->get('duration')));
@@ -306,12 +312,15 @@ if ($action == 'confirm_select') {
             unset($emailfields['authorisationlink']);
         }
         unset($emailfields['validuntildays']);
-
-        // Inform user of request.
-        echo $OUTPUT->notification(get_string('enrolrequestalertauthorisation', 'local_enrolstaff', [
-            'shortname' => $c->shortname,
-            'rolename' => $rolename,
-        ]), 'notifysuccess');
+        redirect(
+            $enrolstaffurl,
+            get_string('enrolrequestalertauthorisation', 'local_enrolstaff', [
+                'shortname' => $c->shortname,
+                'rolename' => $rolename,
+            ]),
+            null,
+            notification::NOTIFY_SUCCESS
+        );
     }
 
     // Send request to registry who will action via SRS.
@@ -323,11 +332,6 @@ if ($action == 'confirm_select') {
             $message = api::prepare_message('enrolmentregistryrequestmessage', $emailfields);
             api::send_message($contact, $USER, $subject, $message);
         }
-        // Inform user of request.
-        echo $OUTPUT->notification(get_string('enrolrequestalert', 'local_enrolstaff', [
-            'shortname' => $c->shortname,
-            'rolename' => $rolename,
-        ]), 'notifysuccess');
         // Email receipt to user of requested.
         $subject = get_string('requestemailsubject', 'local_enrolstaff', ['shortname' => $c->shortname, 'rolename' => $rolename]);
         $message = get_string('enrolrequesteduser', 'local_enrolstaff', [
@@ -335,6 +339,16 @@ if ($action == 'confirm_select') {
             'rolename' => $rolename,
         ]);
         api::send_message($USER, $backupcontact, $subject, $message);
+        // Redirect with notification.
+        redirect(
+            $enrolstaffurl,
+            get_string('enrolrequestalert', 'local_enrolstaff', [
+                'shortname' => $c->shortname,
+                'rolename' => $rolename,
+            ]),
+            null,
+            notification::NOTIFY_SUCCESS
+        );
     }
 
     // Automatic enrolment, with optional notification.
@@ -350,21 +364,22 @@ if ($action == 'confirm_select') {
             }
         }
         $courseurl = new url('/course/view.php', ['id' => $c->id]);
-        echo $OUTPUT->notification(
+        redirect(
+            $courseurl,
             get_string('enrolconfirmation', 'local_enrolstaff', [
                 'shortname' => $c->shortname,
                 'rolename' => $rolename,
                 'url' => $courseurl->out(),
             ]),
-            'notifysuccess'
+            null,
+            notification::NOTIFY_SUCCESS
         );
     }
-
+    echo $OUTPUT->header();
     echo $OUTPUT->single_button(
         new url('/local/enrolstaff/enrolstaff.php'),
         get_string('enrolmenthome', 'local_enrolstaff')
     );
 }
 
-echo "</div>";
 echo $OUTPUT->footer();
