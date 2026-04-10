@@ -90,18 +90,6 @@ if ($hassiteconfig) {
         )
     );
 
-    // // Available Notify roles.
-    // $choices = api::get_course_level_roles_menu(['editingteacher']);
-    // $settings->add(
-    //     new admin_setting_configmultiselect(
-    //         'local_enrolstaff/availablenotifyroles',
-    //         new lang_string('availablenotifyroles', 'local_enrolstaff'),
-    //         new lang_string('availablenotifyroles_desc', 'local_enrolstaff'),
-    //         null,
-    //         $choices
-    //     )
-    // );
-
     // Available Backup notify email addresses.
     $settings->add(
         new admin_setting_configtext(
