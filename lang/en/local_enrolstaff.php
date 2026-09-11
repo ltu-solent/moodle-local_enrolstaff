@@ -238,7 +238,7 @@ $string['intro'] = 'Please speak to the Module or Course Leader if you are unsur
         <li>Modules removed from search results at the request of the module leader</li>
         <li>QAHE staff are restricted to searching for module codes with the prefixes: {$a->qahecodes}</li>
     </ul>
-    If your module does not appear in the search results, or if you feel a module should be excluded from this service please contact guided.learning@solent.ac.uk<br /><br />';
+    If your module does not appear in the search results, or if you feel a module should be excluded from this service please raise a ticket on <a href="https://beacon-ism.ivanticloud.com/">Beacon</a><br /><br />';
 $string['invalidbackupemail'] = 'You have entered an invalid backup notify email: {$a}';
 $string['invalidcohortid'] = 'You have selected an invalid cohort.';
 $string['invalidcourse'] = 'You have selected an invalid course.';
