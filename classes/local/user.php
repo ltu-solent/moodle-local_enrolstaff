@@ -243,9 +243,7 @@ class user {
         $courses = $DB->get_records_sql($sql, $params);
         if (count($courses) == 0) {
             // Any rules that apply after this will be irrelevant.
-            return [
-                0 => [],
-            ];
+            return [];
         }
         // Rules-based exclusions/inclusions.
         $rules = $this->get_rules();

@@ -181,7 +181,35 @@ if ($action == 'search_select') {
             $cform->display();
         }
     } else {
-        echo $OUTPUT->notification(get_string('nomatchingmodules', 'local_enrolstaff', ['coursesearch' => $coursesearch]));
+        // If the coursesearch matches an excluded module identify it to the user.
+        $excludeshortname = explode(',', trim($esconfig->excludeshortname));
+        $excludefullname = explode(',', trim($esconfig->excludefullname));
+        $excluded = false;
+        foreach ($excludeshortname as $shortname) {
+            if (stripos($coursesearch, $shortname) !== false) {
+                $excluded = true;
+            }
+        }
+        foreach ($excludefullname as $fullname) {
+            if (stripos($coursesearch, $fullname) !== false) {
+                $excluded = true;
+            }
+        }
+        // Also check any applicable rules that might have caused the exclusion of this module.
+        $rulecourses = $activeuser->usercache->get('rulecourses');
+        if (!empty($rulecourses)) {
+            foreach ($rulecourses as $rule) {
+                if ($rule->rule_excludes_search($coursesearch)) {
+                    $excluded = true;
+                }
+            }
+        }
+        if ($excluded) {
+            echo $OUTPUT->notification(get_string('moduleexcluded', 'local_enrolstaff', ['coursesearch' => $coursesearch]));
+        } else {
+            echo $OUTPUT->notification(get_string('nomatchingmodules', 'local_enrolstaff', ['coursesearch' => $coursesearch]));
+        }
+
         echo $OUTPUT->single_button(
             new url('/local/enrolstaff/enrolstaff.php'),
             get_string('enrolmenthome', 'local_enrolstaff')

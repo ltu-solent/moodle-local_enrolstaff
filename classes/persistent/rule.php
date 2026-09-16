@@ -526,6 +526,22 @@ class rule extends persistent {
     }
 
     /**
+     * Would this rule exclude this search query
+     *
+     * @param string $coursesearch
+     * @return boolean
+     */
+    public function rule_excludes_search($coursesearch): bool {
+        $excodes = $this->get('excodes');
+        foreach ($excodes as $excode) {
+            if (strpos($coursesearch, $excode) !== false) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Get SQL to filter users based on this rule
      *
      * @return array [$select, $from, $params, $conditions]

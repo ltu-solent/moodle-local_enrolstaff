@@ -256,6 +256,7 @@ $string['matchesauser'] = 'Matches a user who:';
 $string['matchespermissions'] = 'Matches the following permissions:';
 $string['matchingcohorts'] = 'Matching cohorts';
 $string['messageprovider:request'] = 'Enrolment request';
+$string['moduleexcluded'] = 'The search <strong>{$a->coursesearch}</strong> is excluded from this service. Please raise a ticket on <a href="https://beacon-ism.ivanticloud.com/">Beacon</a> if you need access.';
 
 $string['na'] = 'n/a';
 $string['neverexpire'] = 'Never expire';
